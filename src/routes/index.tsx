@@ -1,118 +1,116 @@
 import { createFileRoute } from '@tanstack/react-router'
-import {
-  Zap,
-  Server,
-  Route as RouteIcon,
-  Shield,
-  Waves,
-  Sparkles,
-} from 'lucide-react'
+import { useState, useEffect } from 'react'
+import '../styles/brutalism.css'
 
-export const Route = createFileRoute('/')({ component: App })
+export const Route = createFileRoute('/')({
+  component: FermentationCalculator,
+})
 
-function App() {
-  const features = [
-    {
-      icon: <Zap className="w-12 h-12 text-cyan-400" />,
-      title: 'Powerful Server Functions',
-      description:
-        'Write server-side code that seamlessly integrates with your client components. Type-safe, secure, and simple.',
-    },
-    {
-      icon: <Server className="w-12 h-12 text-cyan-400" />,
-      title: 'Flexible Server Side Rendering',
-      description:
-        'Full-document SSR, streaming, and progressive enhancement out of the box. Control exactly what renders where.',
-    },
-    {
-      icon: <RouteIcon className="w-12 h-12 text-cyan-400" />,
-      title: 'API Routes',
-      description:
-        'Build type-safe API endpoints alongside your application. No separate backend needed.',
-    },
-    {
-      icon: <Shield className="w-12 h-12 text-cyan-400" />,
-      title: 'Strongly Typed Everything',
-      description:
-        'End-to-end type safety from server to client. Catch errors before they reach production.',
-    },
-    {
-      icon: <Waves className="w-12 h-12 text-cyan-400" />,
-      title: 'Full Streaming Support',
-      description:
-        'Stream data from server to client progressively. Perfect for AI applications and real-time updates.',
-    },
-    {
-      icon: <Sparkles className="w-12 h-12 text-cyan-400" />,
-      title: 'Next Generation Ready',
-      description:
-        'Built from the ground up for modern web applications. Deploy anywhere JavaScript runs.',
-    },
-  ]
+const expDecay = (x: number, a: number, b: number, c: number) => {
+  return a * Math.exp(-b * x) + c
+}
+
+const params = {
+  bulk_fermentation_time: { a: 169.5076, b: 0.1872, c: 1.8512 },
+  proofing_time: { a: 124.6544, b: 0.1873, c: 1.3640 },
+  total_fermentation_time: { a: 294.3115, b: 0.1873, c: 3.2132 },
+}
+
+function formatTime(time: number) {
+  const hours = Math.floor(time)
+  const minutes = Math.trunc((time * 60) % 60)
+  return `${hours}h ${minutes}m`
+}
+
+function FermentationCalculator() {
+  const [temperature, setTemperature] = useState(23)
+  const [hydration, setHydration] = useState(75)
+  const [results, setResults] = useState({
+    bulkFermentationTime: '',
+    proofingTime: '',
+    totalFermentationTime: '',
+    bulkFermentationTimeDecimal: 0,
+    proofingTimeDecimal: 0,
+    totalFermentationTimeDecimal: 0,
+  })
+
+  useEffect(() => {
+    const adjustmentFactor = 75 / hydration
+
+    const bulkTime = expDecay(temperature, params.bulk_fermentation_time.a, params.bulk_fermentation_time.b, params.bulk_fermentation_time.c) * adjustmentFactor
+    const proofTime = expDecay(temperature, params.proofing_time.a, params.proofing_time.b, params.proofing_time.c) * adjustmentFactor
+    const totalTime = expDecay(temperature, params.total_fermentation_time.a, params.total_fermentation_time.b, params.total_fermentation_time.c) * adjustmentFactor
+
+    setResults({
+      bulkFermentationTime: formatTime(bulkTime),
+      proofingTime: formatTime(proofTime),
+      totalFermentationTime: formatTime(totalTime),
+      bulkFermentationTimeDecimal: parseFloat(bulkTime.toFixed(2)),
+      proofingTimeDecimal: parseFloat(proofTime.toFixed(2)),
+      totalFermentationTimeDecimal: parseFloat(totalTime.toFixed(2)),
+    })
+  }, [temperature, hydration])
+
+  const handleTemperatureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTemperature(Number(e.target.value))
+  }
+
+  const handleHydrationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setHydration(Number(e.target.value))
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900">
-      <section className="relative py-20 px-6 text-center overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 via-blue-500/10 to-purple-500/10"></div>
-        <div className="relative max-w-5xl mx-auto">
-          <div className="flex items-center justify-center gap-6 mb-6">
-            <img
-              src="/tanstack-circle-logo.png"
-              alt="TanStack Logo"
-              className="w-24 h-24 md:w-32 md:h-32"
+    <div className="brutalist-container">
+      <h3 className="brutalist-h3">Fermentation Calculator</h3>
+      <div>
+        <label htmlFor="temperature">
+          Dough Temperature (°C)
+        </label>
+        <div>
+          <input
+            type="number"
+            name="temperature"
+            id="temperature"
+            className="brutalist-input"
+            value={temperature}
+            onChange={handleTemperatureChange}
+            step="any"
+          />
+        </div>
+      </div>
+      <div>
+        <label>Hydration</label>
+        <div className="brutalist-radio-group">
+          <label className="brutalist-radio-label">
+            <input
+              type="radio"
+              value="75"
+              checked={hydration === 75}
+              onChange={handleHydrationChange}
+              className="brutalist-radio-input"
             />
-            <h1 className="text-6xl md:text-7xl font-black text-white [letter-spacing:-0.08em]">
-              <span className="text-gray-300">TANSTACK</span>{' '}
-              <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
-                START
-              </span>
-            </h1>
-          </div>
-          <p className="text-2xl md:text-3xl text-gray-300 mb-4 font-light">
-            The framework for next generation AI applications
-          </p>
-          <p className="text-lg text-gray-400 max-w-3xl mx-auto mb-8">
-            Full-stack framework powered by TanStack Router for React and Solid.
-            Build modern applications with server functions, streaming, and type
-            safety.
-          </p>
-          <div className="flex flex-col items-center gap-4">
-            <a
-              href="https://tanstack.com/start"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-8 py-3 bg-cyan-500 hover:bg-cyan-600 text-white font-semibold rounded-lg transition-colors shadow-lg shadow-cyan-500/50"
-            >
-              Documentation
-            </a>
-            <p className="text-gray-400 text-sm mt-2">
-              Begin your TanStack Start journey by editing{' '}
-              <code className="px-2 py-1 bg-slate-700 rounded text-cyan-400">
-                /src/routes/index.tsx
-              </code>
-            </p>
-          </div>
+            75%
+          </label>
+          <label className="brutalist-radio-label">
+            <input
+              type="radio"
+              value="80"
+              checked={hydration === 80}
+              onChange={handleHydrationChange}
+              className="brutalist-radio-input"
+            />
+            80%
+          </label>
         </div>
-      </section>
-
-      <section className="py-16 px-6 max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {features.map((feature, index) => (
-            <div
-              key={index}
-              className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10"
-            >
-              <div className="mb-4">{feature.icon}</div>
-              <h3 className="text-xl font-semibold text-white mb-3">
-                {feature.title}
-              </h3>
-              <p className="text-gray-400 leading-relaxed">
-                {feature.description}
-              </p>
-            </div>
-          ))}
+      </div>
+      <div className="brutalist-results">
+        <h4 className="brutalist-h4">Results:</h4>
+        <div>
+          <p>Bulk Fermentation Time: {results.bulkFermentationTime} ({results.bulkFermentationTimeDecimal} hours)</p>
+          <p>Proofing Time: {results.proofingTime} ({results.proofingTimeDecimal} hours)</p>
+          <p>Total Fermentation Time: {results.totalFermentationTime} ({results.totalFermentationTimeDecimal} hours)</p>
         </div>
-      </section>
+      </div>
     </div>
   )
 }

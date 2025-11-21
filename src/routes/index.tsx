@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
-import '../styles/brutalism.css'
+import styles from './index.module.css' // Updated import for CSS Modules
 
 export const Route = createFileRoute('/')({
   component: FermentationCalculator,
@@ -60,8 +60,8 @@ function FermentationCalculator() {
   }
 
   return (
-    <div className="brutalist-container">
-      <h3 className="brutalist-h3">Fermentation Calculator</h3>
+    <div className={styles.container}>
+      <h3 className={styles.h3}>Fermentation Calculator</h3>
       <div>
         <label htmlFor="temperature">
           Dough Temperature (°C)
@@ -71,7 +71,7 @@ function FermentationCalculator() {
             type="number"
             name="temperature"
             id="temperature"
-            className="brutalist-input"
+            className={styles.input}
             value={temperature}
             onChange={handleTemperatureChange}
             step="any"
@@ -80,31 +80,31 @@ function FermentationCalculator() {
       </div>
       <div>
         <label>Hydration</label>
-        <div className="brutalist-radio-group">
-          <label className="brutalist-radio-label">
+        <div className={styles['radio-group']}>
+          <label className={styles['radio-label']}>
             <input
               type="radio"
               value="75"
               checked={hydration === 75}
               onChange={handleHydrationChange}
-              className="brutalist-radio-input"
+              className={styles['radio-input']}
             />
             75%
           </label>
-          <label className="brutalist-radio-label">
+          <label className={styles['radio-label']}>
             <input
               type="radio"
               value="80"
               checked={hydration === 80}
               onChange={handleHydrationChange}
-              className="brutalist-radio-input"
+              className={styles['radio-input']}
             />
             80%
           </label>
         </div>
       </div>
-      <div className="brutalist-results">
-        <h4 className="brutalist-h4">Results:</h4>
+      <div className={styles.results}>
+        <h4 className={styles.h4}>Results:</h4>
         <div>
           <p>Bulk Fermentation Time: {results.bulkFermentationTime} ({results.bulkFermentationTimeDecimal} hours)</p>
           <p>Proofing Time: {results.proofingTime} ({results.proofingTimeDecimal} hours)</p>

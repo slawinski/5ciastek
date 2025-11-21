@@ -1,12 +1,12 @@
 /* Brutalism styles */
-.brutalist-container {
+.container {
   font-family: monospace;
   background-color: #ffffff;
   color: #000000;
   padding: 20px;
 }
 
-.brutalist-input {
+.input {
   font-family: monospace;
   background-color: #ffffff;
   color: #000000;
@@ -17,19 +17,19 @@
   box-shadow: 5px 5px 0px #000000;
 }
 
-.brutalist-radio-group {
+.radio-group {
   display: flex;
   gap: 1rem;
   margin-bottom: 1rem;
 }
 
-.brutalist-radio-label {
+.radio-label {
   display: flex;
   align-items: center;
   cursor: pointer;
 }
 
-.brutalist-radio-input {
+.radio-input {
   appearance: none;
   width: 20px;
   height: 20px;
@@ -40,11 +40,11 @@
   position: relative;
 }
 
-.brutalist-radio-input:checked {
+.radio-input:checked {
   background-color: black;
 }
 
-.brutalist-radio-input:checked::after {
+.radio-input:checked::after {
   content: "";
   display: block;
   width: 8px;
@@ -57,21 +57,21 @@
   transform: translate(-50%, -50%);
 }
 
-.brutalist-results {
+.results {
   margin-top: 20px;
   border: 2px solid #000000;
   padding: 20px;
   box-shadow: 5px 5px 0px #000000;
 }
 
-.brutalist-h3 {
+.h3 {
   font-size: 2rem;
   font-weight: bold;
   margin-bottom: 1rem;
   text-transform: uppercase;
 }
 
-.brutalist-h4 {
+.h4 {
   font-size: 1.5rem;
   font-weight: bold;
   margin-bottom: 1rem;

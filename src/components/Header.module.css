@@ -5,9 +5,11 @@
   display: flex;
   align-items: center;
   padding: 1rem;
-  background-color: rgb(31 41 55); /* bg-gray-800 */
+  background-color: black; /* bg-gray-800 */
   color: white;
-  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); /* shadow-lg */
+  box-shadow:
+    0 10px 15px -3px rgb(0 0 0 / 0.1),
+    0 4px 6px -4px rgb(0 0 0 / 0.1); /* shadow-lg */
 }
 
 .title {
@@ -29,7 +31,7 @@
   left: 0;
   height: 100%;
   width: 20rem; /* w-80 */
-  background-color: rgb(17 24 39); /* bg-gray-900 */
+  background-color: black; /* bg-gray-900 */
   color: white;
   z-index: 50;
   box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25); /* shadow-2xl */
@@ -64,6 +66,9 @@
   transition-property: background-color;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
+  background-color: transparent;
+  border: none; /* Remove border */
+  color: white;
 }
 
 .iconButton:hover {
@@ -97,10 +102,10 @@
 }
 
 /* Active link styling using aria-current attribute */
-.navLink[aria-current='page'] {
-  background-color: rgb(8 145 178); /* bg-cyan-600 */
+.navLink[aria-current="page"] {
+  background-color: darkcyan; /* bg-cyan-600 */
 }
 
-.navLink[aria-current='page']:hover {
-  background-color: rgb(14 116 144); /* hover:bg-cyan-700 */
+.navLink[aria-current="page"]:hover {
+  background-color: darkslategray; /* hover:bg-cyan-700 */
 }

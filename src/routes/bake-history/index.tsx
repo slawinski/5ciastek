@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 
-export const Route = createFileRoute('/bake-history')({
+export const Route = createFileRoute('/bake-history/')({
   component: RouteComponent,
 })
 

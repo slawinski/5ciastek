@@ -9,72 +9,68 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as BakeHistoryRouteImport } from './routes/bake-history'
-import { Route as BakeAlongRouteImport } from './routes/bake-along'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ProfileIndexRouteImport } from './routes/profile/index'
+import { Route as BakeHistoryIndexRouteImport } from './routes/bake-history/index'
+import { Route as BakeAlongIndexRouteImport } from './routes/bake-along/index'
 
-const BakeHistoryRoute = BakeHistoryRouteImport.update({
-  id: '/bake-history',
-  path: '/bake-history',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BakeAlongRoute = BakeAlongRouteImport.update({
-  id: '/bake-along',
-  path: '/bake-along',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProfileIndexRoute = ProfileIndexRouteImport.update({
+  id: '/profile/',
+  path: '/profile/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BakeHistoryIndexRoute = BakeHistoryIndexRouteImport.update({
+  id: '/bake-history/',
+  path: '/bake-history/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BakeAlongIndexRoute = BakeAlongIndexRouteImport.update({
+  id: '/bake-along/',
+  path: '/bake-along/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/bake-along': typeof BakeAlongRoute
-  '/bake-history': typeof BakeHistoryRoute
+  '/bake-along': typeof BakeAlongIndexRoute
+  '/bake-history': typeof BakeHistoryIndexRoute
+  '/profile': typeof ProfileIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/bake-along': typeof BakeAlongRoute
-  '/bake-history': typeof BakeHistoryRoute
+  '/bake-along': typeof BakeAlongIndexRoute
+  '/bake-history': typeof BakeHistoryIndexRoute
+  '/profile': typeof ProfileIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/bake-along': typeof BakeAlongRoute
-  '/bake-history': typeof BakeHistoryRoute
+  '/bake-along/': typeof BakeAlongIndexRoute
+  '/bake-history/': typeof BakeHistoryIndexRoute
+  '/profile/': typeof ProfileIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/bake-along' | '/bake-history'
+  fullPaths: '/' | '/bake-along' | '/bake-history' | '/profile'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/bake-along' | '/bake-history'
-  id: '__root__' | '/' | '/bake-along' | '/bake-history'
+  to: '/' | '/bake-along' | '/bake-history' | '/profile'
+  id: '__root__' | '/' | '/bake-along/' | '/bake-history/' | '/profile/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  BakeAlongRoute: typeof BakeAlongRoute
-  BakeHistoryRoute: typeof BakeHistoryRoute
+  BakeAlongIndexRoute: typeof BakeAlongIndexRoute
+  BakeHistoryIndexRoute: typeof BakeHistoryIndexRoute
+  ProfileIndexRoute: typeof ProfileIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/bake-history': {
-      id: '/bake-history'
-      path: '/bake-history'
-      fullPath: '/bake-history'
-      preLoaderRoute: typeof BakeHistoryRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/bake-along': {
-      id: '/bake-along'
-      path: '/bake-along'
-      fullPath: '/bake-along'
-      preLoaderRoute: typeof BakeAlongRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -82,13 +78,35 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/profile/': {
+      id: '/profile/'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/bake-history/': {
+      id: '/bake-history/'
+      path: '/bake-history'
+      fullPath: '/bake-history'
+      preLoaderRoute: typeof BakeHistoryIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/bake-along/': {
+      id: '/bake-along/'
+      path: '/bake-along'
+      fullPath: '/bake-along'
+      preLoaderRoute: typeof BakeAlongIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  BakeAlongRoute: BakeAlongRoute,
-  BakeHistoryRoute: BakeHistoryRoute,
+  BakeAlongIndexRoute: BakeAlongIndexRoute,
+  BakeHistoryIndexRoute: BakeHistoryIndexRoute,
+  ProfileIndexRoute: ProfileIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

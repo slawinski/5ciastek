@@ -1,14 +1,36 @@
 import { Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Home, Menu, X } from "lucide-react";
 import styles from "./Header.module.css";
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
+  const asideRef = useRef<HTMLElement>(null); // Create a ref for the aside element
 
   const sidebarClassName = `${styles.sidebar} ${
     isOpen ? styles.sidebarOpen : ""
   }`;
+
+  // Effect to handle clicks outside the aside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        asideRef.current &&
+        !asideRef.current.contains(event.target as Node) &&
+        isOpen
+      ) {
+        setIsOpen(false);
+      }
+    }
+
+    // Attach the event listener
+    document.addEventListener("mousedown", handleClickOutside);
+
+    // Cleanup the event listener on component unmount
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen]); // Re-run effect if isOpen changes
 
   return (
     <>
@@ -25,7 +47,7 @@ export default function Header() {
         </h1>
       </header>
 
-      <aside className={sidebarClassName}>
+      <aside ref={asideRef} className={sidebarClassName}>
         <div className={styles.sidebarHeader}>
           <h2 className={styles.sidebarTitle}>Navigation</h2>
           <button

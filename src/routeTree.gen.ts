@@ -9,8 +9,20 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as BakeHistoryRouteImport } from './routes/bake-history'
+import { Route as BakeAlongRouteImport } from './routes/bake-along'
 import { Route as IndexRouteImport } from './routes/index'
 
+const BakeHistoryRoute = BakeHistoryRouteImport.update({
+  id: '/bake-history',
+  path: '/bake-history',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BakeAlongRoute = BakeAlongRouteImport.update({
+  id: '/bake-along',
+  path: '/bake-along',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -19,28 +31,50 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/bake-along': typeof BakeAlongRoute
+  '/bake-history': typeof BakeHistoryRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/bake-along': typeof BakeAlongRoute
+  '/bake-history': typeof BakeHistoryRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/bake-along': typeof BakeAlongRoute
+  '/bake-history': typeof BakeHistoryRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/bake-along' | '/bake-history'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/bake-along' | '/bake-history'
+  id: '__root__' | '/' | '/bake-along' | '/bake-history'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BakeAlongRoute: typeof BakeAlongRoute
+  BakeHistoryRoute: typeof BakeHistoryRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/bake-history': {
+      id: '/bake-history'
+      path: '/bake-history'
+      fullPath: '/bake-history'
+      preLoaderRoute: typeof BakeHistoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/bake-along': {
+      id: '/bake-along'
+      path: '/bake-along'
+      fullPath: '/bake-along'
+      preLoaderRoute: typeof BakeAlongRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -53,6 +87,8 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BakeAlongRoute: BakeAlongRoute,
+  BakeHistoryRoute: BakeHistoryRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

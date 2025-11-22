@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useState, useRef, useEffect } from "react";
-import { Home, Menu, X } from "lucide-react";
+import { Home, Menu, X, Route, ClipboardClock } from "lucide-react";
 import styles from "./Header.module.css";
 
 export default function Header() {
@@ -69,6 +69,22 @@ export default function Header() {
           >
             <Home size={20} />
             <span>Home</span>
+          </Link>
+          <Link
+            to="/bake-history"
+            onClick={() => setIsOpen(false)}
+            className={styles.navLink}
+          >
+            <ClipboardClock size={20} />
+            <span>Bake History</span>
+          </Link>
+          <Link
+            to="/bake-along"
+            onClick={() => setIsOpen(false)}
+            className={styles.navLink}
+          >
+            <Route size={20} />
+            <span>Bake Along</span>
           </Link>
         </nav>
       </aside>

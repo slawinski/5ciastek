@@ -2,7 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import styles from "./index.module.css"; // Updated import for CSS Modules
 import { InputField } from "@/components/InputField";
-import { formatTime, calculateFermentationTimes } from "@/utils/fermentationUtils";
+import { formatTime } from "@/utils/time.utils";
+import { calculateFermentationTimesServer } from "@/routes/api/fermentation";
 
 export const Route = createFileRoute("/")({
   component: FermentationCalculator,
@@ -21,16 +22,22 @@ function FermentationCalculator() {
   });
 
   useEffect(() => {
-    const { bulkTime, proofTime, totalTime } = calculateFermentationTimes(temperature, hydration);
+    async function fetchFermentationTimes() {
+      const { bulkTime, proofTime, totalTime } =
+        await calculateFermentationTimesServer({
+          data: { temperature, hydration },
+        });
 
-    setResults({
-      bulkFermentationTime: formatTime(bulkTime),
-      proofingTime: formatTime(proofTime),
-      totalFermentationTime: formatTime(totalTime),
-      bulkFermentationTimeDecimal: parseFloat(bulkTime.toFixed(2)),
-      proofingTimeDecimal: parseFloat(proofTime.toFixed(2)),
-      totalFermentationTimeDecimal: parseFloat(totalTime.toFixed(2)),
-    });
+      setResults({
+        bulkFermentationTime: formatTime(bulkTime),
+        proofingTime: formatTime(proofTime),
+        totalFermentationTime: formatTime(totalTime),
+        bulkFermentationTimeDecimal: parseFloat(bulkTime.toFixed(2)),
+        proofingTimeDecimal: parseFloat(proofTime.toFixed(2)),
+        totalFermentationTimeDecimal: parseFloat(totalTime.toFixed(2)),
+      });
+    }
+    fetchFermentationTimes();
   }, [temperature, hydration]);
 
   const handleTemperatureChange = (e: React.ChangeEvent<HTMLInputElement>) => {

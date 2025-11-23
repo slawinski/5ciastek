@@ -2,26 +2,11 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import styles from "./index.module.css"; // Updated import for CSS Modules
 import { InputField } from "@/components/InputField";
+import { formatTime, calculateFermentationTimes } from "@/utils/fermentationUtils";
 
 export const Route = createFileRoute("/")({
   component: FermentationCalculator,
 });
-
-const expDecay = (x: number, a: number, b: number, c: number) => {
-  return a * Math.exp(-b * x) + c;
-};
-
-const params = {
-  bulk_fermentation_time: { a: 169.5076, b: 0.1872, c: 1.8512 },
-  proofing_time: { a: 124.6544, b: 0.1873, c: 1.364 },
-  total_fermentation_time: { a: 294.3115, b: 0.1873, c: 3.2132 },
-};
-
-function formatTime(time: number) {
-  const hours = Math.floor(time);
-  const minutes = Math.trunc((time * 60) % 60);
-  return `${hours}h ${minutes}m`;
-}
 
 function FermentationCalculator() {
   const [temperature, setTemperature] = useState(23);
@@ -36,29 +21,7 @@ function FermentationCalculator() {
   });
 
   useEffect(() => {
-    const adjustmentFactor = 75 / hydration;
-
-    const bulkTime =
-      expDecay(
-        temperature,
-        params.bulk_fermentation_time.a,
-        params.bulk_fermentation_time.b,
-        params.bulk_fermentation_time.c
-      ) * adjustmentFactor;
-    const proofTime =
-      expDecay(
-        temperature,
-        params.proofing_time.a,
-        params.proofing_time.b,
-        params.proofing_time.c
-      ) * adjustmentFactor;
-    const totalTime =
-      expDecay(
-        temperature,
-        params.total_fermentation_time.a,
-        params.total_fermentation_time.b,
-        params.total_fermentation_time.c
-      ) * adjustmentFactor;
+    const { bulkTime, proofTime, totalTime } = calculateFermentationTimes(temperature, hydration);
 
     setResults({
       bulkFermentationTime: formatTime(bulkTime),

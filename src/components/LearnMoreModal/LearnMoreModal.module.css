@@ -1,0 +1,74 @@
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  margin: 20px;
+}
+
+.modalContent {
+  background: var(
+    --color-background-soft
+  ); /* Using a CSS variable for background color */
+  padding: 2rem;
+  border-radius: 8px;
+  width: 95%; /* Covers 95% of the screen width */
+  max-width: 900px; /* Optional: A max-width for very large screens */
+  max-height: 95vh; /* Covers 95% of the viewport height */
+  overflow-y: auto; /* Enable scrolling for long content */
+  position: relative; /* Keep relative for other possible positioned children if any */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  color: var(--color-text); /* Ensure text color is readable */
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: end;
+  align-items: cend;
+  margin-bottom: 1rem;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  cursor: pointer;
+  color: var(--color-text);
+  padding: 5px;
+  line-height: 1;
+  margin-left: 20px; /* Add some space between title and button */
+}
+
+.modalContent h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  color: var(--color-heading);
+}
+
+.modalContent h3 {
+  font-size: 1.4rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0.8rem;
+  color: var(--color-heading);
+}
+
+.modalContent p {
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+.modalContent ul {
+  list-style: disc inside;
+  margin-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.modalContent li {
+  margin-bottom: 0.5rem;
+}

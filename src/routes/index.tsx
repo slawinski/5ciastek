@@ -4,6 +4,7 @@ import styles from "./index.module.css"; // Updated import for CSS Modules
 import { InputField } from "@/components/InputField";
 import { formatTime } from "@/utils/time.utils";
 import { calculateFermentationTimesServer } from "@/routes/api/fermentation";
+import LearnMoreModal from "@/components/LearnMoreModal";
 
 export const Route = createFileRoute("/")({
   component: FermentationCalculator,
@@ -12,6 +13,7 @@ export const Route = createFileRoute("/")({
 function FermentationCalculator() {
   const [temperature, setTemperature] = useState(23);
   const [hydration, setHydration] = useState(75);
+  const [showModal, setShowModal] = useState(false); // State for modal visibility
   const [results, setResults] = useState({
     bulkFermentationTime: "",
     proofingTime: "",
@@ -47,6 +49,8 @@ function FermentationCalculator() {
   const handleHydrationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setHydration(Number(e.target.value));
   };
+
+  const toggleModal = () => setShowModal(!showModal); // Function to toggle modal
 
   return (
     <div className={styles.container}>
@@ -107,7 +111,11 @@ function FermentationCalculator() {
             </span>
           </p>
         </div>
+        <button onClick={toggleModal} className={styles.learnMoreButton}>
+          ?
+        </button>
       </div>
+      <LearnMoreModal isOpen={showModal} onClose={toggleModal} />
     </div>
   );
 }

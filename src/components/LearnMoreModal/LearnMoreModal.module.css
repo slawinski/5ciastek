@@ -1,4 +1,4 @@
-.modalOverlay {
+.modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -11,7 +11,7 @@
   z-index: 1000;
 }
 
-.modalContent {
+.modal-content {
   background: var(
     --color-background-soft
   ); /* Using a CSS variable for background color */
@@ -27,14 +27,14 @@
   color: var(--color-text); /* Ensure text color is readable */
 }
 
-.modalHeader {
+.modal-header {
   display: flex;
   justify-content: end;
   align-items: cend;
   margin-bottom: 1rem;
 }
 
-.closeButton {
+.close-button {
   background: none;
   border: none;
   font-size: 1.8rem;

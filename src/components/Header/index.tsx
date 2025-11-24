@@ -10,7 +10,7 @@ export default function Header() {
   const profileMenuRef = useRef<HTMLDivElement>(null);
 
   const sidebarClassName = `${styles.sidebar} ${
-    isOpen ? styles.sidebarOpen : ""
+    isOpen ? styles['sidebar-open'] : ""
   }`;
 
   // Effect to handle clicks outside the aside
@@ -58,7 +58,7 @@ export default function Header() {
       <header className={styles.header}>
         <button
           onClick={() => setIsOpen(true)}
-          className={styles.iconButton}
+          className={styles['icon-button']}
           aria-label="Open menu"
         >
           <Menu size={24} />
@@ -66,29 +66,29 @@ export default function Header() {
         <h1 className={styles.title}>
           <Link to="/">🥐 5ciastek</Link>
         </h1>
-        <div className={styles.profileMenuContainer} ref={profileMenuRef}>
+        <div className={styles['profile-menu-container']} ref={profileMenuRef}>
           <button
             onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-            className={styles.iconButton}
+            className={styles['icon-button']}
             aria-label="Toggle profile menu"
           >
             <User size={24} />
           </button>
           {isProfileMenuOpen && (
-            <div className={styles.profileDropdown}>
-              <Link to="/profile" className={styles.dropdownItem} onClick={() => setIsProfileMenuOpen(false)}>Profile</Link>
-              <button className={styles.dropdownItem} onClick={() => setIsProfileMenuOpen(false)}>Logout</button>
+            <div className={styles['profile-dropdown']}>
+              <Link to="/profile" className={styles['dropdown-item']} onClick={() => setIsProfileMenuOpen(false)}>Profile</Link>
+              <button className={styles['dropdown-item']} onClick={() => setIsProfileMenuOpen(false)}>Logout</button>
             </div>
           )}
         </div>
       </header>
 
       <aside ref={asideRef} className={sidebarClassName}>
-        <div className={styles.sidebarHeader}>
-          <h2 className={styles.sidebarTitle}>Navigation</h2>
+        <div className={styles['sidebar-header']}>
+          <h2 className={styles['sidebar-title']}>Navigation</h2>
           <button
             onClick={() => setIsOpen(false)}
-            className={styles.iconButton}
+            className={styles['icon-button']}
             aria-label="Close menu"
           >
             <X size={24} />
@@ -99,7 +99,7 @@ export default function Header() {
           <Link
             to="/"
             onClick={() => setIsOpen(false)}
-            className={styles.navLink}
+            className={styles['nav-link']}
             // activeProps is no longer needed; styling is handled
             // by the [aria-current="page"] selector in the CSS module.
           >
@@ -109,7 +109,7 @@ export default function Header() {
           <Link
             to="/bake-history"
             onClick={() => setIsOpen(false)}
-            className={styles.navLink}
+            className={styles['nav-link']}
           >
             <ClipboardClock size={20} />
             <span>Bake History</span>
@@ -117,7 +117,7 @@ export default function Header() {
           <Link
             to="/bake-along"
             onClick={() => setIsOpen(false)}
-            className={styles.navLink}
+            className={styles['nav-link']}
           >
             <Route size={20} />
             <span>Bake Along</span>

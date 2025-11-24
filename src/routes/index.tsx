@@ -90,20 +90,20 @@ function FermentationCalculator() {
       <div className={styles.results}>
         <h4 className={styles.h4}>Results:</h4>
         <div>
-          <p className={styles.resultsRow}>
+          <p className={styles['results-row']}>
             <span>Bulk Time: </span>
             <span>
               {results.bulkFermentationTime} (
               {results.bulkFermentationTimeDecimal} hours)
             </span>
           </p>
-          <p className={styles.resultsRow}>
+          <p className={styles['results-row']}>
             <span>Proofing Time: </span>
             <span>
               {results.proofingTime} ({results.proofingTimeDecimal} hours)
             </span>
           </p>
-          <p className={styles.resultsRow}>
+          <p className={styles['results-row']}>
             <span>Total Time: </span>
             <span>
               {results.totalFermentationTime} (
@@ -111,7 +111,7 @@ function FermentationCalculator() {
             </span>
           </p>
         </div>
-        <button onClick={toggleModal} className={styles.learnMoreButton}>
+        <button onClick={toggleModal} className={styles['learn-more-button']}>
           ?
         </button>
       </div>

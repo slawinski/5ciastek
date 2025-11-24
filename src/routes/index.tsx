@@ -91,7 +91,7 @@ function FermentationCalculator() {
         <h4 className={styles.h4}>Results:</h4>
         <div>
           <p className={styles.resultsRow}>
-            <span>Bulk Fermentation Time: </span>
+            <span>Bulk Time: </span>
             <span>
               {results.bulkFermentationTime} (
               {results.bulkFermentationTimeDecimal} hours)

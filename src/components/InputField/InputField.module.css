@@ -7,4 +7,5 @@
   width: 100%;
   box-sizing: border-box; /* Add this line to prevent overflow */
   box-shadow: 5px 5px 0px #000000;
+  font-family: inherit; /* Ensure font consistency */
 }

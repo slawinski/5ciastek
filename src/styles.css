@@ -1,3 +1,18 @@
+:root {
+  --color-background-soft: #f0f0f0; /* Default soft background color */
+  --color-black: #000000;
+  --color-white: #ffffff;
+  --color-primary: darkcyan; /* Used for active links */
+  --color-primary-dark: darkslategray; /* Hover state for active links */
+  --color-gray-dark: rgb(55, 65, 81); /* Tailwind's gray-700 equivalent */
+  --color-gray-darker: rgb(31, 41, 55); /* Tailwind's gray-800 equivalent */
+  --color-shadow-light: rgba(0, 0, 0, 0.1);
+  --color-shadow-medium: rgba(0, 0, 0, 0.2);
+  --color-shadow-dark: rgba(0, 0, 0, 0.25);
+  --color-text: var(--color-black); /* Default text color */
+  --color-heading: var(--color-black); /* Default heading color */
+}
+
 body {
   margin: 0;
   font-family: "Roboto Mono", monospace, -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",

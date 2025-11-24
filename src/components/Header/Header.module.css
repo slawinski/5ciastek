@@ -5,11 +5,11 @@
   display: flex;
   align-items: center;
   padding: 1rem;
-  background-color: black; /* bg-gray-800 */
-  color: white;
+  background-color: var(--color-black); /* bg-gray-800 */
+  color: var(--color-white);
   box-shadow:
-    0 10px 15px -3px rgb(0 0 0 / 0.1),
-    0 4px 6px -4px rgb(0 0 0 / 0.1); /* shadow-lg */
+    0 10px 15px -3px var(--color-shadow-light),
+    0 4px 6px -4px var(--color-shadow-light); /* shadow-lg */
 }
 
 .title {
@@ -20,7 +20,7 @@
 }
 
 .title a {
-  color: white;
+  color: var(--color-white);
   text-decoration: none;
 }
 
@@ -31,10 +31,10 @@
   left: 0;
   height: 100%;
   width: 20rem; /* w-80 */
-  background-color: black; /* bg-gray-900 */
-  color: white;
+  background-color: var(--color-black); /* bg-gray-900 */
+  color: var(--color-white);
   z-index: 50;
-  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25); /* shadow-2xl */
+  box-shadow: 0 25px 50px -12px var(--color-shadow-dark); /* shadow-2xl */
   display: flex;
   flex-direction: column;
   transform: translateX(-100%); /* Default closed state */
@@ -50,7 +50,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 1rem;
-  border-bottom: 1px solid rgb(55 65 81); /* border-gray-700 */
+  border-bottom: 1px solid var(--color-gray-dark); /* border-gray-700 */
 }
 
 .sidebarTitle {
@@ -68,11 +68,11 @@
   transition-duration: 150ms;
   background-color: transparent;
   border: none; /* Remove border */
-  color: white;
+  color: var(--color-white);
 }
 
 .iconButton:hover {
-  background-color: rgb(55 65 81); /* hover:bg-gray-700 */
+  background-color: var(--color-gray-dark); /* hover:bg-gray-700 */
 }
 
 /* Navigation inside Sidebar */
@@ -93,21 +93,21 @@
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
   text-decoration: none;
-  color: white;
+  color: var(--color-white);
   font-weight: 500; /* font-medium */
 }
 
 .navLink:hover {
-  background-color: rgb(31 41 55); /* hover:bg-gray-800 */
+  background-color: var(--color-gray-darker); /* hover:bg-gray-800 */
 }
 
 /* Active link styling using aria-current attribute */
 .navLink[aria-current="page"] {
-  background-color: darkcyan; /* bg-cyan-600 */
+  background-color: var(--color-primary); /* bg-cyan-600 */
 }
 
 .navLink[aria-current="page"]:hover {
-  background-color: darkslategray; /* hover:bg-cyan-700 */
+  background-color: var(--color-primary-dark); /* hover:bg-cyan-700 */
 }
 
 .profileMenuContainer {
@@ -119,9 +119,9 @@
   position: absolute;
   top: 100%; /* Position below the button */
   right: 0;
-  background-color: black; /* Same as header background */
+  background-color: var(--color-black); /* Same as header background */
   border-radius: 0.5rem;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 8px var(--color-shadow-medium);
   min-width: 120px;
   overflow: hidden;
   z-index: 50; /* Ensure it's above other content */
@@ -131,7 +131,7 @@
   display: flex;
   align-items: center;
   padding: 0.75rem 1rem;
-  color: white;
+  color: var(--color-white);
   text-decoration: none;
   transition: background-color 0.15s ease-in-out;
   cursor: pointer;
@@ -143,5 +143,5 @@
 }
 
 .dropdownItem:hover {
-  background-color: rgb(55 65 81); /* Match iconButton hover */
+  background-color: var(--color-gray-dark); /* Match iconButton hover */
 }

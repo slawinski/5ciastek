@@ -4,12 +4,11 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: white;
+  background-color: transparent;
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  margin: 20px;
 }
 
 .modalContent {
@@ -17,13 +16,14 @@
     --color-background-soft
   ); /* Using a CSS variable for background color */
   padding: 2rem;
-  border-radius: 8px;
-  width: 95%; /* Covers 95% of the screen width */
-  max-width: 900px; /* Optional: A max-width for very large screens */
-  max-height: 95vh; /* Covers 95% of the viewport height */
+  border-radius: 0; /* Brutalist design - sharp corners */
+  border: 2px solid var(--color-black); /* Brutalist design - strong border */
+  width: 90%; /* Covers 90% of the screen width */
+  max-width: none; /* Removed max-width to allow 90% width to take effect */
+  max-height: 90vh; /* Covers 90% of the viewport height */
   overflow-y: auto; /* Enable scrolling for long content */
   position: relative; /* Keep relative for other possible positioned children if any */
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 15px var(--color-shadow-medium);
   color: var(--color-text); /* Ensure text color is readable */
 }
 

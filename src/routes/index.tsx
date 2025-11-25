@@ -5,6 +5,7 @@ import { InputField } from "@/components/InputField";
 import { formatTime } from "@/utils/time.utils";
 import { calculateFermentationTimesServer } from "@/routes/api/fermentation";
 import LearnMoreModal from "@/components/LearnMoreModal";
+import Button from "@/components/Button";
 
 export const Route = createFileRoute("/")({
   component: FermentationCalculator,
@@ -111,9 +112,9 @@ function FermentationCalculator() {
             </span>
           </p>
         </div>
-        <button onClick={toggleModal} className={styles['learn-more-button']}>
+        <Button onClick={toggleModal} className={styles['learn-more-button']}>
           ?
-        </button>
+        </Button>
       </div>
       <LearnMoreModal isOpen={showModal} onClose={toggleModal} />
     </div>

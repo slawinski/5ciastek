@@ -1,3 +1,4 @@
+import Button from "@/components/Button";
 import { Link } from "@tanstack/react-router";
 import { useState, useRef, useEffect } from "react";
 import {
@@ -65,13 +66,13 @@ export default function Header() {
   return (
     <>
       <header className={styles.header}>
-        <button
+        <Button
           onClick={() => setIsOpen(true)}
           className={styles["icon-button"]}
           aria-label="Open menu"
         >
           <Menu size={24} />
-        </button>
+        </Button>
         <h1 className={styles.title}>
           <Link to="/" className={styles['centered-link-content']}>
             <Croissant /> 5ciastek
@@ -79,13 +80,13 @@ export default function Header() {
         </h1>
         {SHOW_PROFILE_MENU && (
           <div className={styles["profile-menu-container"]} ref={profileMenuRef}>
-            <button
+            <Button
               onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
               className={styles["icon-button"]}
               aria-label="Toggle profile menu"
             >
               <User size={24} />
-            </button>
+            </Button>
             {isProfileMenuOpen && (
               <div className={styles["profile-dropdown"]}>
                 <Link
@@ -95,12 +96,12 @@ export default function Header() {
                 >
                   Profile
                 </Link>
-                <button
+                <Button
                   className={styles["dropdown-item"]}
                   onClick={() => setIsProfileMenuOpen(false)}
                 >
                   Logout
-                </button>
+                </Button>
               </div>
             )}
           </div>
@@ -110,13 +111,13 @@ export default function Header() {
       <aside ref={asideRef} className={sidebarClassName}>
         <div className={styles["sidebar-header"]}>
           <h2 className={styles["sidebar-title"]}>Navigation</h2>
-          <button
+          <Button
             onClick={() => setIsOpen(false)}
             className={`${styles["icon-button"]} ${styles["icon-button-white"]}`}
             aria-label="Close menu"
           >
             <X size={24} />
-          </button>
+          </Button>
         </div>
 
         <nav className={styles.nav}>

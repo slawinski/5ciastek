@@ -1,9 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from '@tanstack/react-router'
+import UnderConstruction from '@/components/UnderConstruction';
 
-export const Route = createFileRoute("/bake-along/")({
-  component: RouteComponent,
-});
+export const Route = createFileRoute('/bake-along/')({
+  component: BakeAlong,
+})
 
-function RouteComponent() {
-  return <div>Hello "/bake-along"!</div>;
+function BakeAlong() {
+  return <UnderConstruction />;
 }

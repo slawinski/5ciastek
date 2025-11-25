@@ -1,9 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
+import UnderConstruction from '@/components/UnderConstruction';
 
 export const Route = createFileRoute('/bake-history/')({
-  component: RouteComponent,
+  component: BakeHistory,
 })
 
-function RouteComponent() {
-  return <div>Hello "/bake-history"!</div>
+function BakeHistory() {
+  return <UnderConstruction />;
 }

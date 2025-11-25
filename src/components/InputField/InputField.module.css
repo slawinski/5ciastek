@@ -1,11 +1,25 @@
+.container {
+  width: 100%; /* Ensure the main container takes full width */
+  margin-bottom: 1rem; /* Add some spacing below the input field */
+}
+
+.label {
+  display: block; /* Make label a block element for better spacing */
+  margin-bottom: 0.5rem; /* Space between label and input */
+  font-weight: bold;
+}
+
+.input-wrapper {
+  width: 100%; /* Ensure the wrapper for the input takes full width */
+}
+
 .input {
   background-color: #ffffff;
   color: #000000;
   border: 2px solid #000000;
   padding: 10px;
-  margin-bottom: 1rem;
   width: 100%;
-  box-sizing: border-box; /* Add this line to prevent overflow */
+  box-sizing: border-box;
   box-shadow: 5px 5px 0px #000000;
-  font-family: inherit; /* Ensure font consistency */
+  font-family: inherit;
 }

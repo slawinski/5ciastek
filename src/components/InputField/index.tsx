@@ -25,7 +25,7 @@ export const InputField: React.FC<InputFieldProps> = ({
       <label htmlFor={id} className={styles.label}>
         {label}
       </label>
-      <div>
+      <div className={styles['input-wrapper']}>
         <input
           type={type}
           name={name}

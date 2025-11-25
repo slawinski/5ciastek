@@ -1,5 +1,6 @@
-import { X } from "lucide-react";
 import React from "react";
+import { X } from "lucide-react";
+import Button from "@/components/Button";
 import styles from "./LearnMoreModal.module.css";
 
 interface LearnMoreModalProps {
@@ -19,9 +20,9 @@ const LearnMoreModal: React.FC<LearnMoreModalProps> = ({ isOpen, onClose }) => {
         <div className={styles['modal-window-bar']}>
 
           <div className={styles['window-controls']}>
-            <button className={styles["close-button"]} onClick={onClose}>
+            <Button className={styles["close-button"]} onClick={onClose}>
               <X />
-            </button>
+            </Button>
           </div>
         </div>
         <div className={styles["modal-content-body"]}>

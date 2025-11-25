@@ -17,8 +17,7 @@
   border: 2px solid var(--color-black);
   width: 90%;
   max-width: none;
-  max-height: 90vh;
-  overflow: hidden; /* Hide scrollbar for the main content area */
+  max-height: 93vh;
   position: relative;
   box-shadow: 10px 10px 0px var(--color-black); /* Stronger brutalist shadow */
   color: var(--color-text);
@@ -33,7 +32,7 @@
   align-items: center;
   background-color: var(--color-primary); /* Changed to primary color */
   color: var(--color-white);
-  padding: 16px 12px; /* Increased padding for prominent bar */
+  padding: 8px; /* Increased padding for prominent bar */
   border-bottom: 2px solid var(--color-black);
   font-weight: bold;
   font-family: monospace; /* Classic terminal font */

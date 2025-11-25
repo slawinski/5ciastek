@@ -4,6 +4,7 @@
   --color-white: #ffffff;
   --color-primary: #FBBF24; /* Used for active links */
   --color-primary-dark: #D97706; /* Hover state for active links */
+  --color-teal: #00ADB5; /* A neo-brutalist teal color */
   --color-gray-dark: rgb(55, 65, 81); /* Tailwind's gray-700 equivalent */
   --color-gray-darker: rgb(31, 41, 55); /* Tailwind's gray-800 equivalent */
   --color-shadow-light: rgba(0, 0, 0, 0.1);

@@ -1,0 +1,78 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: var(--color-white);
+  border-radius: 0;
+  border: 2px solid var(--color-black);
+  width: 90%;
+  max-width: none;
+  max-height: 90vh;
+  overflow: auto; /* Allow scrolling for the main content area */
+  position: relative;
+  box-shadow: 10px 10px 0px var(--color-black); /* Stronger brutalist shadow */
+  color: var(--color-text);
+  display: flex;
+  flex-direction: column;
+  padding: 0; /* Removed padding to allow window bar to be edge-to-edge */
+}
+
+.modal-window-bar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  background-color: var(--color-primary); /* Changed to primary color */
+  color: var(--color-white);
+  padding: 16px 12px; /* Increased padding for prominent bar */
+  border-bottom: 2px solid var(--color-black);
+  font-weight: bold;
+  font-family: monospace; /* Classic terminal font */
+  font-size: 1rem; /* Increased font for title */
+}
+
+.window-controls {
+  display: flex;
+}
+
+/* Updated close button style */
+.close-button {
+  background-color: var(
+    --color-primary
+  ); /* Use primary color for close button */
+  border: none;
+  color: var(
+    --color-black
+  ); /* Black text for better contrast on primary color */
+  width: 24px; /* Increased size */
+  height: 24px; /* Increased size */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2rem; /* Increased font size */
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  margin-left: 5px; /* Adjust margin for spacing from other controls */
+  border: 0;
+}
+
+.close-button:hover {
+  background-color: var(--color-primary-dark); /* Darker primary on hover */
+  color: var(--color-white); /* White text on darker background */
+}
+
+.modal-content-body {
+  padding: 1.5rem 1rem; /* Increased padding to compensate for modal-content padding removal */
+  overflow-y: auto; /* Enable scrolling for content within the body */
+  flex-grow: 1; /* Allow content body to take remaining space */
+}

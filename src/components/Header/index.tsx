@@ -11,6 +11,8 @@ import {
 } from "lucide-react";
 import styles from "./Header.module.css";
 
+const SHOW_PROFILE_MENU = false; // Feature flag to hide the profile icon and menu
+
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
@@ -71,36 +73,38 @@ export default function Header() {
           <Menu size={24} />
         </button>
         <h1 className={styles.title}>
-          <Link to="/">
+          <Link to="/" className={styles['centered-link-content']}>
             <Croissant /> 5ciastek
           </Link>
         </h1>
-        <div className={styles["profile-menu-container"]} ref={profileMenuRef}>
-          <button
-            onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-            className={styles["icon-button"]}
-            aria-label="Toggle profile menu"
-          >
-            <User size={24} />
-          </button>
-          {isProfileMenuOpen && (
-            <div className={styles["profile-dropdown"]}>
-              <Link
-                to="/profile"
-                className={styles["dropdown-item"]}
-                onClick={() => setIsProfileMenuOpen(false)}
-              >
-                Profile
-              </Link>
-              <button
-                className={styles["dropdown-item"]}
-                onClick={() => setIsProfileMenuOpen(false)}
-              >
-                Logout
-              </button>
-            </div>
-          )}
-        </div>
+        {SHOW_PROFILE_MENU && (
+          <div className={styles["profile-menu-container"]} ref={profileMenuRef}>
+            <button
+              onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+              className={styles["icon-button"]}
+              aria-label="Toggle profile menu"
+            >
+              <User size={24} />
+            </button>
+            {isProfileMenuOpen && (
+              <div className={styles["profile-dropdown"]}>
+                <Link
+                  to="/profile"
+                  className={styles["dropdown-item"]}
+                  onClick={() => setIsProfileMenuOpen(false)}
+                >
+                  Profile
+                </Link>
+                <button
+                  className={styles["dropdown-item"]}
+                  onClick={() => setIsProfileMenuOpen(false)}
+                >
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </header>
 
       <aside ref={asideRef} className={sidebarClassName}>

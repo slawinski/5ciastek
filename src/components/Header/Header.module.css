@@ -11,10 +11,16 @@
 }
 
 .title {
-  margin-left: 1rem;
+  /* margin-left: 1rem; */ /* Removed to allow proper centering */
   font-size: 1.25rem; /* text-xl */
   line-height: 1.75rem;
   font-weight: 600; /* font-semibold */
+}
+
+.centered-link-content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* Adjust gap as needed */
 }
 
 .title a {

@@ -2,8 +2,8 @@
   --color-background-soft: #f0f0f0; /* Default soft background color */
   --color-black: #000000;
   --color-white: #ffffff;
-  --color-primary: darkcyan; /* Used for active links */
-  --color-primary-dark: darkslategray; /* Hover state for active links */
+  --color-primary: #FBBF24; /* Used for active links */
+  --color-primary-dark: #D97706; /* Hover state for active links */
   --color-gray-dark: rgb(55, 65, 81); /* Tailwind's gray-700 equivalent */
   --color-gray-darker: rgb(31, 41, 55); /* Tailwind's gray-800 equivalent */
   --color-shadow-light: rgba(0, 0, 0, 0.1);

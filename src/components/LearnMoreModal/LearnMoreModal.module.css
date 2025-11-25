@@ -12,63 +12,129 @@
 }
 
 .modal-content {
-  background: var(
-    --color-background-soft
-  ); /* Using a CSS variable for background color */
-  padding: 2rem;
-  border-radius: 0; /* Brutalist design - sharp corners */
-  border: 2px solid var(--color-black); /* Brutalist design - strong border */
-  width: 90%; /* Covers 90% of the screen width */
-  max-width: none; /* Removed max-width to allow 90% width to take effect */
-  max-height: 90vh; /* Covers 90% of the viewport height */
-  overflow-y: auto; /* Enable scrolling for long content */
-  position: relative; /* Keep relative for other possible positioned children if any */
-  box-shadow: 0 4px 15px var(--color-shadow-medium);
-  color: var(--color-text); /* Ensure text color is readable */
-}
-
-.modal-header {
-  display: flex;
-  justify-content: end;
-  align-items: cend;
-  margin-bottom: 1rem;
-}
-
-.close-button {
-  background: none;
-  border: none;
-  font-size: 1.8rem;
-  cursor: pointer;
+  background-color: var(--color-white);
+  border-radius: 0;
+  border: 2px solid var(--color-black);
+  width: 90%;
+  max-width: none;
+  max-height: 90vh;
+  overflow: hidden; /* Hide scrollbar for the main content area */
+  position: relative;
+  box-shadow: 10px 10px 0px var(--color-black); /* Stronger brutalist shadow */
   color: var(--color-text);
-  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  padding: 0; /* Removed padding to allow window bar to be edge-to-edge */
+}
+
+.modal-window-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--color-primary); /* Changed to primary color */
+  color: var(--color-white);
+  padding: 16px 12px; /* Increased padding for prominent bar */
+  border-bottom: 2px solid var(--color-black);
+  font-weight: bold;
+  font-family: monospace; /* Classic terminal font */
+  font-size: 1rem; /* Increased font for title */
+}
+
+.window-title {
+  flex-grow: 1;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 1rem; /* Explicitly set for consistency */
+}
+
+.window-controls {
+  display: flex;
+  gap: 5px;
+}
+
+/* Control button for minimize/maximize (now removed from JSX, but keeping style in case needed) */
+.control-button {
+  background-color: var(--color-gray-dark);
+  border: 1px solid var(--color-black);
+  color: var(--color-white);
+  width: 24px; /* Increased size */
+  height: 24px; /* Increased size */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2rem; /* Increased font size */
+  cursor: pointer;
+  padding: 0;
   line-height: 1;
-  margin-left: 20px; /* Add some space between title and button */
+  box-shadow: 1px 1px 0px var(--color-black);
 }
 
-.modalContent h2 {
-  font-size: 1.8rem;
-  margin-bottom: 1rem;
-  color: var(--color-heading);
+.control-button:hover {
+  background-color: var(--color-primary-dark);
 }
 
-.modalContent h3 {
-  font-size: 1.4rem;
+/* Updated close button style */
+.close-button {
+  background-color: var(
+    --color-primary
+  ); /* Use primary color for close button */
+  border: 1px solid var(--color-black);
+  color: var(
+    --color-black
+  ); /* Black text for better contrast on primary color */
+  width: 24px; /* Increased size */
+  height: 24px; /* Increased size */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2rem; /* Increased font size */
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  margin-left: 5px; /* Adjust margin for spacing from other controls */
+  box-shadow: 1px 1px 0px var(--color-black);
+}
+
+.close-button:hover {
+  background-color: var(--color-primary-dark); /* Darker primary on hover */
+  color: var(--color-white); /* White text on darker background */
+}
+
+.modal-content-body {
+  padding: 1.5rem 1rem; /* Increased padding to compensate for modal-content padding removal */
+  overflow-y: auto; /* Enable scrolling for content within the body */
+  flex-grow: 1; /* Allow content body to take remaining space */
+}
+
+/* Remove original modal-header as it's replaced by modal-window-bar */
+.modal-header {
+  display: none;
+}
+
+.modal-content h2,
+.modal-content h3 {
   margin-top: 1.5rem;
   margin-bottom: 0.8rem;
   color: var(--color-heading);
 }
 
-.modalContent p {
+.modal-content h2:first-child {
+  margin-top: 0; /* Remove top margin for the first h2 in the body */
+}
+
+.modal-content p {
   margin-bottom: 1rem;
   line-height: 1.6;
 }
 
-.modalContent ul {
+.modal-content ul {
   list-style: disc inside;
   margin-left: 1.5rem;
   margin-bottom: 1rem;
 }
 
-.modalContent li {
+.modal-content li {
   margin-bottom: 0.5rem;
 }

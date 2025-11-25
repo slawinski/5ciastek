@@ -12,7 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProfileIndexRouteImport } from './routes/profile/index'
 import { Route as BakeHistoryIndexRouteImport } from './routes/bake-history/index'
-import { Route as BakeAlongIndexRouteImport } from './routes/bake-along/index'
+import { Route as BakeALongIndexRouteImport } from './routes/bake-a-long/index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -29,42 +29,42 @@ const BakeHistoryIndexRoute = BakeHistoryIndexRouteImport.update({
   path: '/bake-history/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const BakeAlongIndexRoute = BakeAlongIndexRouteImport.update({
-  id: '/bake-along/',
-  path: '/bake-along/',
+const BakeALongIndexRoute = BakeALongIndexRouteImport.update({
+  id: '/bake-a-long/',
+  path: '/bake-a-long/',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/bake-along': typeof BakeAlongIndexRoute
+  '/bake-a-long': typeof BakeALongIndexRoute
   '/bake-history': typeof BakeHistoryIndexRoute
   '/profile': typeof ProfileIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/bake-along': typeof BakeAlongIndexRoute
+  '/bake-a-long': typeof BakeALongIndexRoute
   '/bake-history': typeof BakeHistoryIndexRoute
   '/profile': typeof ProfileIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/bake-along/': typeof BakeAlongIndexRoute
+  '/bake-a-long/': typeof BakeALongIndexRoute
   '/bake-history/': typeof BakeHistoryIndexRoute
   '/profile/': typeof ProfileIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/bake-along' | '/bake-history' | '/profile'
+  fullPaths: '/' | '/bake-a-long' | '/bake-history' | '/profile'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/bake-along' | '/bake-history' | '/profile'
-  id: '__root__' | '/' | '/bake-along/' | '/bake-history/' | '/profile/'
+  to: '/' | '/bake-a-long' | '/bake-history' | '/profile'
+  id: '__root__' | '/' | '/bake-a-long/' | '/bake-history/' | '/profile/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  BakeAlongIndexRoute: typeof BakeAlongIndexRoute
+  BakeALongIndexRoute: typeof BakeALongIndexRoute
   BakeHistoryIndexRoute: typeof BakeHistoryIndexRoute
   ProfileIndexRoute: typeof ProfileIndexRoute
 }
@@ -92,11 +92,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BakeHistoryIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/bake-along/': {
-      id: '/bake-along/'
-      path: '/bake-along'
-      fullPath: '/bake-along'
-      preLoaderRoute: typeof BakeAlongIndexRouteImport
+    '/bake-a-long/': {
+      id: '/bake-a-long/'
+      path: '/bake-a-long'
+      fullPath: '/bake-a-long'
+      preLoaderRoute: typeof BakeALongIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -104,7 +104,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  BakeAlongIndexRoute: BakeAlongIndexRoute,
+  BakeALongIndexRoute: BakeALongIndexRoute,
   BakeHistoryIndexRoute: BakeHistoryIndexRoute,
   ProfileIndexRoute: ProfileIndexRoute,
 }

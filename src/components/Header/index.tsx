@@ -135,12 +135,12 @@ export default function Header() {
             <span>Bake History</span>
           </Link>
           <Link
-            to="/bake-along"
+            to="/bake-a-long"
             onClick={() => setIsOpen(false)}
             className={styles["nav-link"]}
           >
             <Route size={20} />
-            <span>Bake Along</span>
+            <span>Bake-A-Long</span>
           </Link>
         </nav>
       </aside>

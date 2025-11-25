@@ -103,13 +103,13 @@
 
 /* Active link styling using aria-current attribute */
 .nav-link[aria-current="page"] {
-  background-color: var(--color-teal);
+  background-color: var(--color-white);
   color: var(--color-black);
   border: 2px solid var(--color-black);
 }
 
 .nav-link[aria-current="page"]:hover {
-  background-color: var(--color-teal);
+  background-color: var(--color-white);
 }
 
 .profile-menu-container {

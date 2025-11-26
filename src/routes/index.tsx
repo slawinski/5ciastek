@@ -5,7 +5,7 @@ import { InputField } from "@/components/InputField";
 import { formatTime } from "@/utils/time.utils";
 import { calculateFermentationTimesServer } from "@/routes/api/fermentation";
 import LearnMoreModal from "@/components/LearnMoreModal";
-import Button from "@/components/Button";
+import ResultsPanel from "@/components/ResultsPanel"; // Import the new ResultsPanel component
 
 export const Route = createFileRoute("/")({
   component: FermentationCalculator,
@@ -88,34 +88,7 @@ function FermentationCalculator() {
           </label>
         </div>
       </div>
-      <div className={styles.results}>
-        <h4 className={styles.h4}>Results:</h4>
-        <div>
-          <p className={styles['results-row']}>
-            <span>Bulk Time: </span>
-            <span>
-              {results.bulkFermentationTime} (
-              {results.bulkFermentationTimeDecimal} hours)
-            </span>
-          </p>
-          <p className={styles['results-row']}>
-            <span>Proofing Time: </span>
-            <span>
-              {results.proofingTime} ({results.proofingTimeDecimal} hours)
-            </span>
-          </p>
-          <p className={styles['results-row']}>
-            <span>Total Time: </span>
-            <span>
-              {results.totalFermentationTime} (
-              {results.totalFermentationTimeDecimal} hours)
-            </span>
-          </p>
-        </div>
-        <Button onClick={toggleModal} className={styles['learn-more-button']}>
-          ?
-        </Button>
-      </div>
+      <ResultsPanel title="Results:" results={results} onLearnMoreClick={toggleModal} />
       <LearnMoreModal isOpen={showModal} onClose={toggleModal} />
     </div>
   );

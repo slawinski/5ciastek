@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { fermentationSchema } from "@/schemas/fermentation";
 
 export const expDecay = (x: number, a: number, b: number, c: number) => {
   return a * Math.exp(-b * x) + c;
@@ -11,7 +12,7 @@ export const params = {
 };
 
 export const calculateFermentationTimesServer = createServerFn()
-  .inputValidator((data: { temperature: number; hydration: number }) => data)
+  .inputValidator((data) => fermentationSchema.parse(data))
   .handler(async ({ data }) => {
     const { temperature, hydration } = data;
 

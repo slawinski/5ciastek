@@ -74,12 +74,15 @@ export default function Header() {
           <Menu size={24} />
         </Button>
         <h1 className={styles.title}>
-          <Link to="/" className={styles['centered-link-content']}>
+          <Link to="/" className={styles["centered-link-content"]}>
             <Croissant /> 5ciastek
           </Link>
         </h1>
         {SHOW_PROFILE_MENU && (
-          <div className={styles["profile-menu-container"]} ref={profileMenuRef}>
+          <div
+            className={styles["profile-menu-container"]}
+            ref={profileMenuRef}
+          >
             <Button
               onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
               className={styles["icon-button"]}
@@ -132,20 +135,20 @@ export default function Header() {
             <span>Fermentation Calculator</span>
           </Link>
           <Link
-            to="/bake-history"
-            onClick={() => setIsOpen(false)}
-            className={styles["nav-link"]}
-          >
-            <ClipboardClock size={20} />
-            <span>Bake History</span>
-          </Link>
-          <Link
             to="/bake-a-long"
             onClick={() => setIsOpen(false)}
             className={styles["nav-link"]}
           >
             <Route size={20} />
             <span>Bake-A-Long</span>
+          </Link>
+          <Link
+            to="/bake-history"
+            onClick={() => setIsOpen(false)}
+            className={styles["nav-link"]}
+          >
+            <ClipboardClock size={20} />
+            <span>Bake History</span>
           </Link>
         </nav>
       </aside>

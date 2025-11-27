@@ -6,6 +6,7 @@ import { formatTime } from "@/utils/time.utils";
 import { calculateFermentationTimesServer } from "@/routes/api/fermentation";
 import LearnMoreModal from "@/components/LearnMoreModal";
 import ResultsPanel from "@/components/ResultsPanel"; // Import the new ResultsPanel component
+import { fermentationSchema } from "@/schemas/fermentation";
 
 export const Route = createFileRoute("/")({
   component: FermentationCalculator,
@@ -15,6 +16,10 @@ function FermentationCalculator() {
   const [temperature, setTemperature] = useState(23);
   const [hydration, setHydration] = useState(75);
   const [showModal, setShowModal] = useState(false); // State for modal visibility
+  const [errors, setErrors] = useState<{
+    temperature?: string[];
+    hydration?: string[];
+  } | null>(null);
   const [results, setResults] = useState({
     bulkFermentationTime: "",
     proofingTime: "",
@@ -25,10 +30,27 @@ function FermentationCalculator() {
   });
 
   useEffect(() => {
+    const validationResult = fermentationSchema.safeParse({ temperature, hydration: String(hydration) });
+
+    if (!validationResult.success) {
+      setErrors(validationResult.error.flatten().fieldErrors);
+      setResults({
+        bulkFermentationTime: "",
+        proofingTime: "",
+        totalFermentationTime: "",
+        bulkFermentationTimeDecimal: 0,
+        proofingTimeDecimal: 0,
+        totalFermentationTimeDecimal: 0,
+      });
+      return;
+    } else {
+      setErrors(null);
+    }
+
     async function fetchFermentationTimes() {
       const { bulkTime, proofTime, totalTime } =
         await calculateFermentationTimesServer({
-          data: { temperature, hydration },
+          data: { temperature, hydration: validationResult.data!.hydration },
         });
 
       setResults({
@@ -63,6 +85,9 @@ function FermentationCalculator() {
         type="number"
         id="temperature"
       />
+      {errors?.temperature && (
+        <p className={styles.error}>{errors.temperature[0]}</p>
+      )}
       <div>
         <label>Hydration</label>
         <div className={styles["radio-group"]}>
@@ -87,6 +112,9 @@ function FermentationCalculator() {
             80%
           </label>
         </div>
+        {errors?.hydration && (
+          <p className={styles.error}>{errors.hydration[0]}</p>
+        )}
       </div>
       <ResultsPanel title="Results:" results={results} onLearnMoreClick={toggleModal} />
       <LearnMoreModal isOpen={showModal} onClose={toggleModal} />

@@ -25,7 +25,7 @@ function BakeAlongWizard() {
       return <StepStarter send={send} levainRatio={state.context.levainRatio} ambientTemp={state.context.ambientTemp} />;
     }
     if (state.matches("review")) {
-      return <StepReview />;
+      return <StepReview context={state.context} />;
     }
     if (state.matches("generated")) {
       return <GeneratedSchedule />;

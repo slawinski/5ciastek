@@ -1,28 +1,29 @@
-import { createMachine, assign } from 'xstate';
+import { createMachine, assign } from "xstate";
+import { generateSchedule, ScheduleEvent } from "@/utils/schedule.utils";
 
 // Define the type for the machine's context
-interface BakeAlongContext {
+export interface BakeAlongContext {
   readyTime: Date | null;
   doughTemp: number | null;
   hydration: number | null;
   levainRatio: string | null; // e.g., "1:2:2"
   ambientTemp: number | null;
-  // Add generated schedule data here later in Task 5
+  schedule: ScheduleEvent[] | null; // Add schedule to context
 }
 
 // Define the type for the machine's events
 export type BakeAlongEvent =
-  | { type: 'NEXT' }
-  | { type: 'BACK' }
-  | { type: 'GENERATE' }
-  | { type: 'RESET' }
-  | { type: 'UPDATE_SCHEDULE'; readyTime: Date }
-  | { type: 'UPDATE_DOUGH'; doughTemp: number | null; hydration: number }
-  | { type: 'UPDATE_STARTER'; levainRatio: string; ambientTemp: number | null };
+  | { type: "NEXT" }
+  | { type: "BACK" }
+  | { type: "GENERATE" }
+  | { type: "RESET" }
+  | { type: "UPDATE_SCHEDULE"; readyTime: Date }
+  | { type: "UPDATE_DOUGH"; doughTemp: number | null; hydration: number }
+  | { type: "UPDATE_STARTER"; levainRatio: string; ambientTemp: number | null };
 
 export const bakeAlongMachine = createMachine({
-  id: 'bakeAlong',
-  initial: 'scheduling',
+  id: "bakeAlong",
+  initial: "scheduling",
   context: {
     readyTime: null,
     doughTemp: null,
@@ -39,7 +40,7 @@ export const bakeAlongMachine = createMachine({
           }),
         },
         NEXT: {
-          target: 'dough',
+          target: "dough",
           // Add guards for validation here in later tasks
           guard: ({ context }) => context.readyTime !== null, // Example guard
         },
@@ -54,10 +55,11 @@ export const bakeAlongMachine = createMachine({
           }),
         },
         NEXT: {
-          target: 'starter',
-          guard: ({ context }) => context.doughTemp !== null && context.hydration !== null, // Example guard
+          target: "starter",
+          guard: ({ context }) =>
+            context.doughTemp !== null && context.hydration !== null, // Example guard
         },
-        BACK: 'scheduling',
+        BACK: "scheduling",
       },
     },
     starter: {
@@ -69,21 +71,30 @@ export const bakeAlongMachine = createMachine({
           }),
         },
         NEXT: {
-          target: 'review',
-          guard: ({ context }) => context.levainRatio !== null && context.ambientTemp !== null, // Example guard
+          target: "review",
+          guard: ({ context }) =>
+            context.levainRatio !== null && context.ambientTemp !== null, // Example guard
         },
-        BACK: 'dough',
+        BACK: "dough",
       },
     },
     review: {
       on: {
-        GENERATE: 'generated',
-        BACK: 'starter',
+        GENERATE: "generated",
+        BACK: "starter",
       },
     },
     generated: {
+      entry: assign({
+        schedule: ({ context }) => generateSchedule(context),
+      }),
       on: {
-        RESET: 'scheduling',
+        RESET: {
+          target: "scheduling",
+          actions: assign({
+            schedule: null, // Clear schedule on reset
+          })
+        },
       },
     },
   },

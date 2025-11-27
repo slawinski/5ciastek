@@ -1,15 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { fermentationSchema } from "@/schemas/fermentation";
-
-export const expDecay = (x: number, a: number, b: number, c: number) => {
-  return a * Math.exp(-b * x) + c;
-};
-
-export const params = {
-  bulk_fermentation_time: { a: 169.5076, b: 0.1872, c: 1.8512 },
-  proofing_time: { a: 124.6544, b: 0.1873, c: 1.364 },
-  total_fermentation_time: { a: 294.3115, b: 0.1873, c: 3.2132 },
-};
+import { expDecay, params } from "@/utils/schedule.utils";
 
 export const calculateFermentationTimesServer = createServerFn()
   .inputValidator((data) => fermentationSchema.parse(data))

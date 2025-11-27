@@ -28,7 +28,7 @@ function BakeAlongWizard() {
       return <StepReview context={state.context} />;
     }
     if (state.matches("generated")) {
-      return <GeneratedSchedule />;
+      return <GeneratedSchedule schedule={state.context.schedule || []} send={send} />;
     }
     return null;
   };

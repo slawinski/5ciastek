@@ -7,6 +7,7 @@ import { calculateFermentationTimesServer } from "@/routes/api/fermentation";
 import LearnMoreModal from "@/components/LearnMoreModal";
 import ResultsPanel from "@/components/ResultsPanel"; // Import the new ResultsPanel component
 import { fermentationSchema } from "@/schemas/fermentation";
+import { useDebounce } from "@/hooks/useDebounce";
 
 export const Route = createFileRoute("/")({
   component: FermentationCalculator,
@@ -14,6 +15,8 @@ export const Route = createFileRoute("/")({
 
 function FermentationCalculator() {
   const [temperature, setTemperature] = useState<string>('23');
+  const debouncedTemperature = useDebounce(temperature, 500); // 500ms delay
+
   const [hydration, setHydration] = useState(75);
   const [showModal, setShowModal] = useState(false); // State for modal visibility
   const [errors, setErrors] = useState<{
@@ -30,8 +33,8 @@ function FermentationCalculator() {
   });
 
   useEffect(() => {
-    // Parse the temperature string to a number for schema validation and calculations
-    const parsedTemperature = temperature === '' ? undefined : parseFloat(temperature);
+    // Parse the debounced temperature string for validation and calculations
+    const parsedTemperature = debouncedTemperature === '' ? undefined : parseFloat(debouncedTemperature);
 
     const validationResult = fermentationSchema.safeParse({ temperature: parsedTemperature, hydration: String(hydration) });
 
@@ -66,7 +69,7 @@ function FermentationCalculator() {
       });
     }
     fetchFermentationTimes();
-  }, [temperature, hydration]);
+  }, [debouncedTemperature, hydration]);
 
   const handleTemperatureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTemperature(e.target.value);

@@ -13,7 +13,7 @@ export const Route = createFileRoute("/")({
 });
 
 function FermentationCalculator() {
-  const [temperature, setTemperature] = useState(23);
+  const [temperature, setTemperature] = useState<string>('23');
   const [hydration, setHydration] = useState(75);
   const [showModal, setShowModal] = useState(false); // State for modal visibility
   const [errors, setErrors] = useState<{
@@ -30,7 +30,10 @@ function FermentationCalculator() {
   });
 
   useEffect(() => {
-    const validationResult = fermentationSchema.safeParse({ temperature, hydration: String(hydration) });
+    // Parse the temperature string to a number for schema validation and calculations
+    const parsedTemperature = temperature === '' ? undefined : parseFloat(temperature);
+
+    const validationResult = fermentationSchema.safeParse({ temperature: parsedTemperature, hydration: String(hydration) });
 
     if (!validationResult.success) {
       setErrors(validationResult.error.flatten().fieldErrors);
@@ -50,7 +53,7 @@ function FermentationCalculator() {
     async function fetchFermentationTimes() {
       const { bulkTime, proofTime, totalTime } =
         await calculateFermentationTimesServer({
-          data: { temperature, hydration: validationResult.data!.hydration },
+          data: { temperature: parsedTemperature as number, hydration: String(hydration) },
         });
 
       setResults({
@@ -66,7 +69,7 @@ function FermentationCalculator() {
   }, [temperature, hydration]);
 
   const handleTemperatureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTemperature(Number(e.target.value));
+    setTemperature(e.target.value);
   };
 
   const handleHydrationChange = (e: React.ChangeEvent<HTMLInputElement>) => {

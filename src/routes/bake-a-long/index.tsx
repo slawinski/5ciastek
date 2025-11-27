@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import React from "react";
 import { useMachine } from "@xstate/react";
 import { bakeAlongMachine } from "@/machines/bakeAlongMachine";
 import { StepSchedule } from "@/components/wizards/bake-a-long/StepSchedule";
@@ -17,13 +16,13 @@ function BakeAlongWizard() {
 
   const renderStep = () => {
     if (state.matches("scheduling")) {
-      return <StepSchedule />;
+      return <StepSchedule send={send} readyTime={state.context.readyTime} />;
     }
     if (state.matches("dough")) {
-      return <StepDough />;
+      return <StepDough send={send} doughTemp={state.context.doughTemp} hydration={state.context.hydration} />;
     }
     if (state.matches("starter")) {
-      return <StepStarter />;
+      return <StepStarter send={send} levainRatio={state.context.levainRatio} ambientTemp={state.context.ambientTemp} />;
     }
     if (state.matches("review")) {
       return <StepReview />;

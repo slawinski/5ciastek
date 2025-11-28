@@ -9,7 +9,7 @@ interface StepStarterProps {
   send: (event: BakeAlongEvent) => void;
 }
 
-const RATIOS = ["1:1:1", "1:2:2", "1:3:3", "1:5:5"];
+const RATIOS = ["1:1:1", "1:2:2"];
 
 export const StepStarter: React.FC<StepStarterProps> = ({ levainRatio, ambientTemp, send }) => {
   // Use local state to manage the form inputs

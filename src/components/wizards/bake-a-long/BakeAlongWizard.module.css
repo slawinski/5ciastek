@@ -1,0 +1,81 @@
+/* src/components/wizards/bake-a-long/BakeAlongWizard.module.css */
+
+.wizardContainer {
+  background-color: #ffffff;
+  border: 2px solid #000000;
+  padding: 1.5rem; /* Slightly reduced padding */
+  width: 90%; /* Use a percentage width */
+  max-width: 600px;
+  margin: 2rem auto;
+  box-shadow: 8px 8px 0px #000000;
+  box-sizing: border-box; /* Explicitly set box-sizing */
+  display: flex; /* Make it a flex container */
+  flex-direction: column;
+  height: 80vh; /* Make it take a significant portion of the viewport height */
+}
+
+.wizardHeader {
+  font-size: 2.5rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 2rem;
+  letter-spacing: 1px;
+  flex-shrink: 0; /* Prevent header from shrinking */
+}
+
+.stepContainer {
+  border: 2px solid #000;
+  background-color: #f7f7f7;
+  padding: 1.5rem; /* Add padding inside the scrollable area */
+  margin-bottom: 2rem;
+  flex-grow: 1; /* Allow content to grow and take available space */
+  overflow-y: auto; /* Apply scroll to content if it overflows vertically */
+  min-height: 150px; /* Ensure a minimum height for the scrollable area */
+}
+
+.navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 2px solid #000;
+  padding-top: 1.5rem;
+  flex-shrink: 0; /* Prevent navigation from shrinking */
+}
+
+.navButton {
+  background-color: #f7ff58; /* Vibrant accent color */
+  color: #000000;
+  border: 2px solid #000000;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 4px 4px 0px #000000;
+  transition: all 0.1s ease-in-out;
+}
+
+.navButton:hover {
+  background-color: #e4eb4f;
+}
+
+.navButton:active {
+  transform: translate(4px, 4px);
+  box-shadow: none;
+}
+
+.navButton.reset {
+  background-color: #ff5858;
+}
+
+.navButton.reset:hover {
+  background-color: #e04a4a;
+}
+
+.navButton.generate {
+  background-color: #58ff81;
+}
+
+.navButton.generate:hover {
+  background-color: #4fe072;
+}

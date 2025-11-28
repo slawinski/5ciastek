@@ -27,7 +27,9 @@ export const WizardBreadcrumbs: React.FC<WizardBreadcrumbsProps> = ({
             className={`${styles.crumb} ${
               index === currentStepIndex ? styles.activeCrumb : ""
             } ${index < currentStepIndex ? styles.completedCrumb : ""}`}
-          />
+          >
+            {index + 1}
+          </div>
           {index < steps.length - 1 && (
             <div className={styles.crumbSeparator} />
           )}

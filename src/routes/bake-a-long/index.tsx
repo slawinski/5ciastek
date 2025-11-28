@@ -69,7 +69,7 @@ function BakeAlongWizard() {
             state.matches("starter") ||
             state.matches("review") ? (
               <button
-                className={styles.navButton}
+                className={`${styles.navButton} ${styles.back}`}
                 onClick={() => send({ type: "BACK" })}
               >
                 Back

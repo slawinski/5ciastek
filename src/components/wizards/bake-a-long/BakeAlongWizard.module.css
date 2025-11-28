@@ -64,6 +64,14 @@
   box-shadow: none;
 }
 
+.navButton.back {
+  background-color: #58a6ff; /* Vibrant Blue */
+}
+
+.navButton.back:hover {
+  background-color: #4a8ee0;
+}
+
 .navButton.reset {
   background-color: #ff5858;
 }
@@ -83,31 +91,40 @@
 .breadcrumbs {
   display: flex;
   justify-content: center;
-  align-items: center; /* Vertically align crumbs and separators */
-  gap: 0.75rem;
-  margin: 1rem auto 2rem auto; /* Give it space */
+  align-items: center;
+  gap: 0.5rem; /* Reduced gap for a tighter look */
+  margin: 1rem auto 2rem auto;
 }
 
 .crumb {
-  width: 16px;
-  height: 16px;
+  width: 24px; /* Larger to fit number */
+  height: 24px;
   border: 2px solid #000;
   background-color: #fff;
-  border-radius: 50%;
+  border-radius: 0; /* Square */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1rem;
+  color: #000;
   transition: all 0.2s ease-in-out;
 }
 
 .completedCrumb {
-  background-color: #a0a0a0; /* Filled grey for completed */
+  background-color: #58a6ff; /* Vibrant Blue */
+  color: #000;
 }
 
 .activeCrumb {
-  background-color: #000;
-  transform: scale(1.2);
+  background-color: #f7ff58; /* Vibrant Yellow */
+  color: #000; /* Black text on yellow */
+  transform: scale(1.1);
+  box-shadow: 4px 4px 0px #000; /* Keep the bold shadow */
 }
 
 .crumbSeparator {
-  width: 24px;
+  width: 16px; /* Shorter separator */
   height: 2px;
-  background-color: #a0a0a0;
+  background-color: #a0a0a0; /* Muted separator */
 }

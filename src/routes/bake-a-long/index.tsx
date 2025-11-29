@@ -7,7 +7,7 @@ import { StepStarter } from "@/components/wizards/bake-a-long/StepStarter";
 import { StepReview } from "@/components/wizards/bake-a-long/StepReview";
 import { GeneratedSchedule } from "@/components/wizards/bake-a-long/GeneratedSchedule";
 import { WizardBreadcrumbs } from "@/components/wizards/bake-a-long/WizardBreadcrumbs"; // New Import
-import styles from '../../components/wizards/bake-a-long/BakeAlongWizard.module.css';
+import styles from "../../components/wizards/bake-a-long/BakeAlongWizard.module.css";
 
 export const Route = createFileRoute("/bake-a-long/")({
   component: BakeAlongWizard,
@@ -26,6 +26,7 @@ function BakeAlongWizard() {
           send={send}
           doughTemp={state.context.doughTemp}
           hydration={state.context.hydration}
+          autolyseType={state.context.autolyseType}
         />
       );
     }
@@ -54,13 +55,12 @@ function BakeAlongWizard() {
 
   return (
     <>
-      <WizardBreadcrumbs currentState={state.value as string} /> {/* Render Breadcrumbs outside */}
+      <WizardBreadcrumbs currentState={state.value as string} />{" "}
+      {/* Render Breadcrumbs outside */}
       <div className={styles.wizardContainer}>
-        <h1 className={styles.wizardHeader}>Bake-a-long Wizard</h1>
-        
-        <div className={styles.stepContainer}>
-          {renderStep()}
-        </div>
+        <h1 className={styles.wizardHeader}>Bake-a-long</h1>
+
+        <div className={styles.stepContainer}>{renderStep()}</div>
 
         <div className={styles.navigation}>
           {/* Using a placeholder for the left side to keep "Next" on the right */}

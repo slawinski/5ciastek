@@ -5,16 +5,16 @@
   display: flex;
   align-items: center;
   padding: 1rem;
-  background-color: var(--color-teal);
-  color: var(--color-black);
-  border-bottom: 2px solid var(--color-black);
+  background-color: #000000; /* Black */
+  color: #ffffff; /* White */
+  border-bottom: 2px solid #ffffff; /* White */
 }
 
 .title {
   /* margin-left: 1rem; */ /* Removed to allow proper centering */
   font-size: 1.25rem; /* text-xl */
   line-height: 1.75rem;
-  font-weight: 600; /* font-semibold */
+  font-weight: 700; /* Bold */
 }
 
 .centered-link-content {
@@ -24,7 +24,7 @@
 }
 
 .title a {
-  color: var(--color-black);
+  color: #ffffff; /* White */
   text-decoration: none;
 }
 
@@ -71,7 +71,7 @@
   transition-duration: 150ms;
   background-color: transparent;
   border: none; /* Remove border */
-  color: var(--color-black);
+  color: #ffffff; /* White */
 }
 
 .icon-button-white {

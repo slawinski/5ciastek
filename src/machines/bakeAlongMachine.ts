@@ -6,6 +6,7 @@ export interface BakeAlongContext {
   readyTime: Date | null;
   doughTemp: number | null;
   hydration: number | null;
+  autolyseType: 'autolyse' | 'fermentolyse' | null; // Add autolyseType
   levainRatio: string | null; // e.g., "1:2:2"
   ambientTemp: number | null;
   schedule: ScheduleEvent[] | null; // Add schedule to context
@@ -18,7 +19,7 @@ export type BakeAlongEvent =
   | { type: "GENERATE" }
   | { type: "RESET" }
   | { type: "UPDATE_SCHEDULE"; readyTime: Date }
-  | { type: "UPDATE_DOUGH"; doughTemp: number | null; hydration: number }
+  | { type: "UPDATE_DOUGH"; doughTemp: number | null; hydration: number; autolyseType: 'autolyse' | 'fermentolyse' | null } // Update UPDATE_DOUGH
   | { type: "UPDATE_STARTER"; levainRatio: string; ambientTemp: number | null };
 
 export const bakeAlongMachine = createMachine({
@@ -52,12 +53,13 @@ export const bakeAlongMachine = createMachine({
           actions: assign({
             doughTemp: ({ event }) => event.doughTemp,
             hydration: ({ event }) => event.hydration,
+            autolyseType: ({ event }) => event.autolyseType, // Assign autolyseType
           }),
         },
         NEXT: {
           target: "starter",
           guard: ({ context }) =>
-            context.doughTemp !== null && context.hydration !== null, // Example guard
+            context.doughTemp !== null && context.hydration !== null && context.autolyseType !== null, // Update guard
         },
         BACK: "scheduling",
       },

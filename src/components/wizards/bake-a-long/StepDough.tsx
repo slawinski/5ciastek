@@ -6,26 +6,29 @@ import { BakeAlongEvent } from '@/machines/bakeAlongMachine';
 interface StepDoughProps {
   doughTemp: number | null;
   hydration: number | null;
+  autolyseType: 'autolyse' | 'fermentolyse' | null; // Add autolyseType prop
   send: (event: BakeAlongEvent) => void;
 }
 
-export const StepDough: React.FC<StepDoughProps> = ({ doughTemp, hydration, send }) => {
+export const StepDough: React.FC<StepDoughProps> = ({ doughTemp, hydration, autolyseType, send }) => {
   // Use local state to manage the form inputs
   const [localTemp, setLocalTemp] = useState(doughTemp?.toString() ?? '23');
   const [localHydration, setLocalHydration] = useState(hydration ?? 75);
+  const [localAutolyseType, setLocalAutolyseType] = useState(autolyseType ?? 'autolyse'); // Default to autolyse
 
   // This effect synchronizes local state with the parent machine's context
   useEffect(() => {
     const tempAsNumber = localTemp === '' ? null : parseFloat(localTemp);
     // Only send update if there's an actual change
-    if (tempAsNumber !== doughTemp || localHydration !== hydration) {
+    if (tempAsNumber !== doughTemp || localHydration !== hydration || localAutolyseType !== autolyseType) {
       send({
         type: 'UPDATE_DOUGH',
         doughTemp: tempAsNumber,
         hydration: localHydration,
+        autolyseType: localAutolyseType,
       });
     }
-  }, [localTemp, localHydration, doughTemp, hydration, send]);
+  }, [localTemp, localHydration, localAutolyseType, doughTemp, hydration, autolyseType, send]);
 
   return (
     <div>
@@ -59,6 +62,32 @@ export const StepDough: React.FC<StepDoughProps> = ({ doughTemp, hydration, send
               className={styles["radio-input"]}
             />
             80%
+          </label>
+        </div>
+      </div>
+
+      <div>
+        <label>Autolyse Type</label>
+        <div className={styles["radio-group"]}>
+          <label className={styles["radio-label"]}>
+            <input
+              type="radio"
+              value="autolyse"
+              checked={localAutolyseType === 'autolyse'}
+              onChange={() => setLocalAutolyseType('autolyse')}
+              className={styles["radio-input"]}
+            />
+            Autolyse
+          </label>
+          <label className={styles["radio-label"]}>
+            <input
+              type="radio"
+              value="fermentolyse"
+              checked={localAutolyseType === 'fermentolyse'}
+              onChange={() => setLocalAutolyseType('fermentolyse')}
+              className={styles["radio-input"]}
+            />
+            Fermentolyse
           </label>
         </div>
       </div>

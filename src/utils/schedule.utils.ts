@@ -45,15 +45,18 @@ const getLevainPeakTime = (ratio: string, temp: number): number => {
 };
 
 export const generateSchedule = (context: BakeAlongContext) => {
-  if (!context.readyTime || !context.doughTemp || !context.hydration || !context.levainRatio || !context.ambientTemp) {
+  if (!context.readyTime || !context.doughTemp || !context.hydration || !context.levainRatio || !context.ambientTemp || !context.autolyseType) {
     return []; // Not enough data to generate a schedule
   }
 
-  const { readyTime, doughTemp, hydration, levainRatio, ambientTemp } = context;
+  const { readyTime, doughTemp, hydration, levainRatio, ambientTemp, autolyseType } = context;
   const schedule: { time: Date, title: string, description: string }[] = [];
 
   const msToHours = (ms: number) => ms / 1000 / 60 / 60;
   const hoursToMs = (hours: number) => hours * 60 * 60 * 1000;
+
+  // Adjust mixing duration based on autolyse type
+  const actualMixingDuration = autolyseType === 'fermentolyse' ? 0.5 : DURATIONS.mixing; // 0.5 hours for fermentolyse, 0.75 for autolyse
 
   // 1. Start from the end: Ready Time
   schedule.push({ time: readyTime, title: "Ready to Eat!", description: "Enjoy your freshly baked bread." });
@@ -88,8 +91,8 @@ export const generateSchedule = (context: BakeAlongContext) => {
   schedule.push({ time: bulkStartTime, title: "Start Bulk Fermentation", description: `Bulk ferment for approximately ${bulkHours.toFixed(1)} hours, including folds.` });
 
   // 8. Mixing
-  const mixTime = new Date(bulkStartTime.getTime() - hoursToMs(DURATIONS.mixing));
-  schedule.push({ time: mixTime, title: "Mix Dough", description: "Combine all ingredients and develop gluten." });
+  const mixTime = new Date(bulkStartTime.getTime() - hoursToMs(actualMixingDuration));
+  schedule.push({ time: mixTime, title: "Mix Dough", description: `Combine all ingredients and develop gluten. Mixing duration: ${actualMixingDuration * 60} mins (${autolyseType}).` });
   
   // 9. Levain Feed
   const levainReadyTime = mixTime; // Levain must be ready when mixing starts

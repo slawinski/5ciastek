@@ -29,6 +29,7 @@ export const StepReview: React.FC<StepReviewProps> = ({ context }) => {
         <h3>Dough Parameters</h3>
         <p><strong>Dough Temperature:</strong> {context.doughTemp ?? 'N/A'} °C</p>
         <p><strong>Hydration:</strong> {context.hydration ?? 'N/A'} %</p>
+        <p><strong>Autolyse Type:</strong> {context.autolyseType ?? 'N/A'}</p>
       </div>
       <div>
         <h3>Starter Details</h3>

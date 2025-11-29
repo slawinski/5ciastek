@@ -6,10 +6,11 @@ export interface BakeAlongContext {
   readyTime: Date | null;
   doughTemp: number | null;
   hydration: number | null;
-  autolyseType: 'autolyse' | 'fermentolyse' | null; // Add autolyseType
+  autolyseType: 'autolyse' | 'fermentolyse' | null;
+  levainFlourType: string | null; // Add levainFlourType
   levainRatio: string | null; // e.g., "1:2:2"
   ambientTemp: number | null;
-  schedule: ScheduleEvent[] | null; // Add schedule to context
+  schedule: ScheduleEvent[] | null;
 }
 
 // Define the type for the machine's events
@@ -19,8 +20,8 @@ export type BakeAlongEvent =
   | { type: "GENERATE" }
   | { type: "RESET" }
   | { type: "UPDATE_SCHEDULE"; readyTime: Date }
-  | { type: "UPDATE_DOUGH"; doughTemp: number | null; hydration: number; autolyseType: 'autolyse' | 'fermentolyse' | null } // Update UPDATE_DOUGH
-  | { type: "UPDATE_STARTER"; levainRatio: string; ambientTemp: number | null };
+  | { type: "UPDATE_DOUGH"; doughTemp: number | null; hydration: number; autolyseType: 'autolyse' | 'fermentolyse' | null }
+  | { type: "UPDATE_STARTER"; levainRatio: string; ambientTemp: number | null; levainFlourType: string }; // Update UPDATE_STARTER
 
 export const bakeAlongMachine = createMachine({
   id: "bakeAlong",
@@ -70,12 +71,15 @@ export const bakeAlongMachine = createMachine({
           actions: assign({
             levainRatio: ({ event }) => event.levainRatio,
             ambientTemp: ({ event }) => event.ambientTemp,
+            levainFlourType: ({ event }) => event.levainFlourType, // Assign levainFlourType
           }),
         },
         NEXT: {
           target: "review",
           guard: ({ context }) =>
-            context.levainRatio !== null && context.ambientTemp !== null, // Example guard
+            context.levainRatio !== null &&
+            context.ambientTemp !== null &&
+            context.levainFlourType !== null, // Update guard
         },
         BACK: "dough",
       },

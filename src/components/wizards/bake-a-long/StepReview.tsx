@@ -35,6 +35,7 @@ export const StepReview: React.FC<StepReviewProps> = ({ context }) => {
         <h3>Starter Details</h3>
         <p><strong>Levain Ratio:</strong> {context.levainRatio ?? 'N/A'}</p>
         <p><strong>Ambient Temperature:</strong> {context.ambientTemp ?? 'N/A'} °C</p>
+        <p><strong>Levain Flour Type:</strong> {context.levainFlourType ?? 'N/A'}</p>
       </div>
     </div>
   );

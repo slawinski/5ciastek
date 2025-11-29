@@ -6,27 +6,31 @@ import { BakeAlongEvent } from '@/machines/bakeAlongMachine';
 interface StepStarterProps {
   levainRatio: string | null;
   ambientTemp: number | null;
+  levainFlourType: string | null; // Add levainFlourType prop
   send: (event: BakeAlongEvent) => void;
 }
 
 const RATIOS = ["1:1:1", "1:2:2"];
+const FLOUR_TYPES = ["Bread Flour", "Whole Wheat", "Rye"];
 
-export const StepStarter: React.FC<StepStarterProps> = ({ levainRatio, ambientTemp, send }) => {
+export const StepStarter: React.FC<StepStarterProps> = ({ levainRatio, ambientTemp, levainFlourType, send }) => {
   // Use local state to manage the form inputs
   const [localRatio, setLocalRatio] = useState(levainRatio ?? '1:2:2');
   const [localTemp, setLocalTemp] = useState(ambientTemp?.toString() ?? '21');
+  const [localFlourType, setLocalFlourType] = useState(levainFlourType ?? 'Bread Flour');
 
   // This effect synchronizes local state with the parent machine's context
   useEffect(() => {
     const tempAsNumber = localTemp === '' ? null : parseFloat(localTemp);
-    if (localRatio !== levainRatio || tempAsNumber !== ambientTemp) {
+    if (localRatio !== levainRatio || tempAsNumber !== ambientTemp || localFlourType !== levainFlourType) {
       send({
         type: 'UPDATE_STARTER',
         levainRatio: localRatio,
         ambientTemp: tempAsNumber,
+        levainFlourType: localFlourType,
       });
     }
-  }, [localRatio, localTemp, levainRatio, ambientTemp, send]);
+  }, [localRatio, localTemp, localFlourType, levainRatio, ambientTemp, levainFlourType, send]);
 
   return (
     <div>
@@ -51,6 +55,24 @@ export const StepStarter: React.FC<StepStarterProps> = ({ levainRatio, ambientTe
                 className={styles["radio-input"]}
               />
               {ratio}
+            </label>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <label>Levain Flour Type</label>
+        <div className={styles["radio-group"]}>
+          {FLOUR_TYPES.map(flourType => (
+            <label key={flourType} className={styles["radio-label"]}>
+              <input
+                type="radio"
+                value={flourType}
+                checked={localFlourType === flourType}
+                onChange={() => setLocalFlourType(flourType)}
+                className={styles["radio-input"]}
+              />
+              {flourType}
             </label>
           ))}
         </div>

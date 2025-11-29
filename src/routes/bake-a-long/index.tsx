@@ -36,6 +36,7 @@ function BakeAlongWizard() {
           send={send}
           levainRatio={state.context.levainRatio}
           ambientTemp={state.context.ambientTemp}
+          levainFlourType={state.context.levainFlourType}
         />
       );
     }

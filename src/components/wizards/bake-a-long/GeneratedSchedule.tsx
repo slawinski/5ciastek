@@ -1,8 +1,8 @@
 import { BakeAlongEvent } from '@/machines/bakeAlongMachine';
-import { ScheduleEvent } from '@/utils/schedule.utils';
+import { SchedulePhase } from '@/utils/schedule.utils';
 
 interface GeneratedScheduleProps {
-  schedule: ScheduleEvent[];
+  schedule: SchedulePhase[];
   send: (event: BakeAlongEvent) => void;
 }
 
@@ -25,10 +25,12 @@ export const GeneratedSchedule: React.FC<GeneratedScheduleProps> = ({ schedule, 
         <p>No schedule could be generated. Please check your inputs.</p>
       ) : (
         <div style={{ border: '1px solid black', padding: '10px', marginTop: '10px' }}>
-          {schedule.map((event, index) => (
+          {schedule.map((phase, index) => (
             <div key={index} style={{ marginBottom: '10px', borderBottom: '1px dashed #eee', paddingBottom: '5px' }}>
-              <strong>{formatDateTime(event.time)}</strong> - {event.title}
-              <p style={{ margin: '0', fontSize: '0.9em', color: '#555' }}>{event.description}</p>
+              <strong>{phase.label}</strong>
+              <p style={{ margin: '0', fontSize: '0.9em', color: '#555' }}>
+                {formatDateTime(phase.start)} - {formatDateTime(phase.end)}
+              </p>
             </div>
           ))}
         </div>

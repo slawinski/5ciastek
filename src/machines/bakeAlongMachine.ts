@@ -1,5 +1,5 @@
 import { createMachine, assign } from "xstate";
-import { generateSchedule, ScheduleEvent } from "@/utils/schedule.utils";
+import { generateSchedule, SchedulePhase } from "@/utils/schedule.utils";
 
 // Define the type for the machine's context
 export interface BakeAlongContext {
@@ -10,7 +10,7 @@ export interface BakeAlongContext {
   levainFlourType: string | null; // Add levainFlourType
   levainRatio: string | null; // e.g., "1:2:2"
   ambientTemp: number | null;
-  schedule: ScheduleEvent[] | null;
+  schedule: SchedulePhase[] | null;
 }
 
 // Define the type for the machine's events

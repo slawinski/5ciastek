@@ -1,9 +1,9 @@
 import { BakeAlongContext } from "@/machines/bakeAlongMachine";
 
-export interface ScheduleEvent {
-  time: Date;
-  title: string;
-  description: string;
+export interface SchedulePhase {
+  label: string;
+  start: Date;
+  end: Date;
 }
 
 
@@ -27,7 +27,8 @@ const DURATIONS = {
   baking: 0.75, // 45 minutes
   preheat: 0.5, // 30 minutes
   shaping: 0.5, // 30 minutes
-  mixing: 0.75, // 45 minutes for autolyse, mixing, etc.
+  autolyse: 0.75, // 45 minutes
+  mixAndRest: 0.25, // 15 minute nominal duration for mixing steps
 };
 
 // Simple model for levain peak time based on ratio and temperature
@@ -49,77 +50,72 @@ const getLevainPeakTime = (ratio: string, temp: number, flourType: string): numb
   return (baseHours + tempAdjustment) * flourMultiplier;
 };
 
-export const generateSchedule = (context: BakeAlongContext) => {
+export const generateSchedule = (context: BakeAlongContext): SchedulePhase[] => {
   if (!context.readyTime || !context.doughTemp || !context.hydration || !context.levainRatio || !context.ambientTemp || !context.autolyseType || !context.levainFlourType) {
     return []; // Not enough data to generate a schedule
   }
 
   const { readyTime, doughTemp, hydration, levainRatio, ambientTemp, autolyseType, levainFlourType } = context;
-  const schedule: { time: Date, title: string, description: string }[] = [];
+  const phases: SchedulePhase[] = [];
 
-  const msToHours = (ms: number) => ms / 1000 / 60 / 60;
   const hoursToMs = (hours: number) => hours * 60 * 60 * 1000;
 
-  // 1. Start from the end: Ready Time
-  schedule.push({ time: readyTime, title: "Ready to Eat!", description: "Enjoy your freshly baked bread." });
-
-  // 2. Cooling
+  // 1. Cooling
   const bakeEndTime = new Date(readyTime.getTime() - hoursToMs(DURATIONS.cooling));
-  schedule.push({ time: bakeEndTime, title: "Bake Finished", description: `Let the bread cool on a wire rack for at least ${DURATIONS.cooling} hours.` });
+  phases.push({ label: 'Cooling', start: bakeEndTime, end: readyTime });
 
-  // 3. Baking
+  // 2. Baking
   const bakeStartTime = new Date(bakeEndTime.getTime() - hoursToMs(DURATIONS.baking));
-  schedule.push({ time: bakeStartTime, title: "Start Bake", description: `Bake for ${DURATIONS.baking * 60} minutes.` });
+  phases.push({ label: 'Baking', start: bakeStartTime, end: bakeEndTime });
 
-  // 4. Pre-heating
+  // 3. Pre-heating
   const preheatTime = new Date(bakeStartTime.getTime() - hoursToMs(DURATIONS.preheat));
-  schedule.push({ time: preheatTime, title: "Pre-heat Oven", description: `Pre-heat your oven to the required temperature.` });
-  
-  // 5. Proofing (Dynamic)
+  phases.push({ label: 'Pre-heat Oven', start: preheatTime, end: bakeStartTime });
+
+  // 4. Proofing (Dynamic)
   const adjustmentFactor = 75 / hydration;
   const proofingHours = expDecay(doughTemp, params.proofing_time.a, params.proofing_time.b, params.proofing_time.c) * adjustmentFactor;
-  const proofingEndTime = bakeStartTime; // Proofing ends when baking begins
+  const proofingEndTime = bakeStartTime;
   const proofingStartTime = new Date(proofingEndTime.getTime() - hoursToMs(proofingHours));
-  schedule.push({ time: proofingStartTime, title: "Start Final Proof", description: `Proof for approximately ${proofingHours.toFixed(1)} hours.` });
-
-  // 6. Shaping
-  const shapingTime = new Date(proofingStartTime.getTime() - hoursToMs(DURATIONS.shaping));
-  schedule.push({ time: shapingTime, title: "Shape Dough", description: "Pre-shape, rest, and final shape your dough." });
-
-  // 7. Bulk Fermentation (Dynamic)
+  phases.push({ label: 'Final Proof', start: proofingStartTime, end: proofingEndTime });
+  
+  // 5. Shaping
+  const shapingEndTime = proofingStartTime;
+  const shapingStartTime = new Date(shapingEndTime.getTime() - hoursToMs(DURATIONS.shaping));
+  phases.push({ label: 'Shape Dough', start: shapingStartTime, end: shapingEndTime });
+  
+  // 6. Bulk Fermentation (Dynamic)
   const bulkHours = expDecay(doughTemp, params.bulk_fermentation_time.a, params.bulk_fermentation_time.b, params.bulk_fermentation_time.c) * adjustmentFactor;
-  const bulkEndTime = shapingTime; // Bulk ends when shaping begins
+  const bulkEndTime = shapingStartTime;
   const bulkStartTime = new Date(bulkEndTime.getTime() - hoursToMs(bulkHours));
-  schedule.push({ time: bulkStartTime, title: "Start Bulk Fermentation", description: `Bulk ferment for approximately ${bulkHours.toFixed(1)} hours, including folds.` });
+  phases.push({ label: 'Bulk Fermentation', start: bulkStartTime, end: bulkEndTime });
 
-  // 8. Mixing & Autolyse/Fermentolyse Logic
+  // 7. Mixing & Autolyse/Fermentolyse Logic
   if (autolyseType === 'autolyse') {
-    // Autolyse is a separate step BEFORE adding levain
-    const addLevainTime = bulkStartTime; // Start of bulk is when levain is added
-    schedule.push({ time: addLevainTime, title: "Add Levain & Salt", description: "Mix levain and salt into the autolysed dough." });
+    const addLevainEndTime = bulkStartTime;
+    const addLevainStartTime = new Date(addLevainEndTime.getTime() - hoursToMs(DURATIONS.mixAndRest));
+    phases.push({ label: 'Add Levain & Salt', start: addLevainStartTime, end: addLevainEndTime });
+    
+    const autolyseEndTime = addLevainStartTime;
+    const autolyseStartTime = new Date(autolyseEndTime.getTime() - hoursToMs(DURATIONS.autolyse));
+    phases.push({ label: 'Autolyse', start: autolyseStartTime, end: autolyseEndTime });
 
-    const autolyseDuration = DURATIONS.mixing; // Use the "mixing" duration for autolyse
-    const autolyseStartTime = new Date(addLevainTime.getTime() - hoursToMs(autolyseDuration));
-    schedule.push({ time: autolyseStartTime, title: "Start Autolyse", description: `Mix flour and water, then let it rest for ${autolyseDuration * 60} minutes.` });
-
-    // Levain must be ready when it's time to add it
-    const levainReadyTime = addLevainTime;
+    const levainReadyTime = addLevainStartTime;
     const levainPeakHours = getLevainPeakTime(levainRatio, ambientTemp, levainFlourType);
     const levainFeedTime = new Date(levainReadyTime.getTime() - hoursToMs(levainPeakHours));
-    schedule.push({ time: levainFeedTime, title: "Feed Starter (Build Levain)", description: `Feed your starter at a ${levainRatio} ratio. It should be ready in about ${levainPeakHours.toFixed(1)} hours.` });
+    phases.push({ label: 'Feed Starter', start: levainFeedTime, end: new Date(levainFeedTime.getTime() + hoursToMs(DURATIONS.mixAndRest))});
 
   } else { // Fermentolyse
-    // Fermentolyse means starter is included in the initial mix
-    const mixTime = bulkStartTime; // The "mix" is the start of the bulk fermentation
-    schedule.push({ time: mixTime, title: "Mix All Ingredients (Fermentolyse)", description: "Combine flour, water, salt, and levain all at once." });
-    
-    // Levain must be ready for the main mix
-    const levainReadyTime = mixTime;
+    const mixEndTime = bulkStartTime;
+    const mixStartTime = new Date(mixEndTime.getTime() - hoursToMs(DURATIONS.mixAndRest));
+    phases.push({ label: 'Mix All Ingredients', start: mixStartTime, end: mixEndTime });
+
+    const levainReadyTime = mixStartTime;
     const levainPeakHours = getLevainPeakTime(levainRatio, ambientTemp, levainFlourType);
     const levainFeedTime = new Date(levainReadyTime.getTime() - hoursToMs(levainPeakHours));
-    schedule.push({ time: levainFeedTime, title: "Feed Starter (Build Levain)", description: `Feed your starter at a ${levainRatio} ratio. It should be ready in about ${levainPeakHours.toFixed(1)} hours.` });
+    phases.push({ label: 'Feed Starter', start: levainFeedTime, end: new Date(levainFeedTime.getTime() + hoursToMs(DURATIONS.mixAndRest))});
   }
 
-  // Sort the schedule chronologically
-  return schedule.sort((a, b) => a.time.getTime() - b.time.getTime());
+  // Gantt charts are typically ordered top-to-bottom chronologically
+  return phases.sort((a, b) => a.start.getTime() - b.start.getTime());
 };

@@ -1,12 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMachine } from "@xstate/react";
 import { bakeAlongMachine } from "@/machines/bakeAlongMachine";
+import Button from "@/components/Button"; // Import the reusable button
 import { StepSchedule } from "@/components/wizards/bake-a-long/StepSchedule";
 import { StepDough } from "@/components/wizards/bake-a-long/StepDough";
 import { StepStarter } from "@/components/wizards/bake-a-long/StepStarter";
 import { StepReview } from "@/components/wizards/bake-a-long/StepReview";
 import { GeneratedSchedule } from "@/components/wizards/bake-a-long/GeneratedSchedule";
-import { WizardBreadcrumbs } from "@/components/wizards/bake-a-long/WizardBreadcrumbs"; // New Import
+import { WizardBreadcrumbs } from "@/components/wizards/bake-a-long/WizardBreadcrumbs";
 import styles from "../../components/wizards/bake-a-long/BakeAlongWizard.module.css";
 
 export const Route = createFileRoute("/bake-a-long/")({
@@ -56,8 +57,7 @@ function BakeAlongWizard() {
 
   return (
     <>
-      <WizardBreadcrumbs currentState={state.value as string} />{" "}
-      {/* Render Breadcrumbs outside */}
+      <WizardBreadcrumbs currentState={state.value as string} />
       <div className={styles.wizardContainer}>
         <h1 className={styles.wizardHeader}>Bake-a-long</h1>
 
@@ -69,12 +69,12 @@ function BakeAlongWizard() {
             {state.matches("dough") ||
             state.matches("starter") ||
             state.matches("review") ? (
-              <button
+              <Button
                 className={`${styles.navButton} ${styles.back}`}
                 onClick={() => send({ type: "BACK" })}
               >
                 Back
-              </button>
+              </Button>
             ) : (
               <div>&nbsp;</div>
             )}
@@ -84,30 +84,30 @@ function BakeAlongWizard() {
             {state.matches("scheduling") ||
             state.matches("dough") ||
             state.matches("starter") ? (
-              <button
+              <Button
                 className={styles.navButton}
                 onClick={() => send({ type: "NEXT" })}
               >
                 Next
-              </button>
+              </Button>
             ) : null}
 
             {state.matches("review") && (
-              <button
+              <Button
                 className={`${styles.navButton} ${styles.generate}`}
                 onClick={() => send({ type: "GENERATE" })}
               >
                 Generate Schedule
-              </button>
+              </Button>
             )}
 
             {state.matches("generated") && (
-              <button
+              <Button
                 className={`${styles.navButton} ${styles.reset}`}
                 onClick={() => send({ type: "RESET" })}
               >
                 Start Over
-              </button>
+              </Button>
             )}
           </div>
         </div>

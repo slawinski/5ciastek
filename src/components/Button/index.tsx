@@ -5,9 +5,10 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
 }
 
-const Button: React.FC<ButtonProps> = ({ children, ...props }) => {
+const Button: React.FC<ButtonProps> = ({ children, className, ...props }) => {
+  const buttonClassName = `${styles.button} ${className || ''}`.trim();
   return (
-    <button className={styles.button} {...props}>
+    <button className={buttonClassName} {...props}>
       {children}
     </button>
   );

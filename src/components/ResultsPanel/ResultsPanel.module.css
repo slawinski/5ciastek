@@ -73,29 +73,38 @@
 
 /* Secondary Side-by-Side Results */
 .secondaryResults {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
-@media (max-width: 480px) {
-  .secondaryResults {
-    grid-template-columns: 1fr;
-  }
+  display: flex;
+  gap: 12px;
+  width: 100%;
 }
 
 .secondaryResult {
+  flex: 1;
   background-color: var(--color-white);
   border: 2px solid var(--color-black);
   box-shadow: 4px 4px 0px var(--color-black);
   padding: 16px;
   display: flex;
   flex-direction: column;
+  min-width: 0; /* Prevents flex items from overflowing */
 }
 
 .secondaryValue {
   font-family: var(--font-mono);
-  font-size: 1.25rem;
+  font-size: 1.125rem;
   font-weight: 900;
   margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 400px) {
+  .secondaryValue {
+    font-size: 1rem;
+  }
+  
+  .mainValue {
+    font-size: 2rem;
+  }
 }

@@ -1,6 +1,6 @@
 import React from "react";
 import styles from "./ResultsPanel.module.css";
-import Button from "@/components/Button"; // Assuming Button is used inside
+import Button from "@/components/Button";
 
 interface ResultsPanelProps {
   title: string;
@@ -17,34 +17,31 @@ interface ResultsPanelProps {
 
 const ResultsPanel: React.FC<ResultsPanelProps> = ({ title, results, onLearnMoreClick }) => {
   return (
-    <div className={styles.results}>
-      <h4 className={styles.h4}>
-        <span>{title}</span>
-        <Button onClick={onLearnMoreClick} className={styles['learn-more-button']}>
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <h4 className={styles.title}>{title}</h4>
+        <Button onClick={onLearnMoreClick} className={styles.learnMoreBtn} aria-label="Learn more about results">
           ?
         </Button>
-      </h4>
-      <div>
-        <p className={styles['results-row']}>
-          <span>Bulk Time: </span>
-          <span>
-            {results.bulkFermentationTime} (
-            {results.bulkFermentationTimeDecimal} hours)
-          </span>
-        </p>
-        <p className={styles['results-row']}>
-          <span>Proofing Time: </span>
-          <span>
-            {results.proofingTime} ({results.proofingTimeDecimal} hours)
-          </span>
-        </p>
-        <p className={styles['results-row']}>
-          <span>Total Time: </span>
-          <span>
-            {results.totalFermentationTime} (
-            {results.totalFermentationTimeDecimal} hours)
-          </span>
-        </p>
+      </div>
+
+      <div className={styles.mainResult}>
+        <div className={styles.resultLabel}>Total Fermentation</div>
+        <div className={styles.mainValue}>{results.totalFermentationTime}</div>
+        <div className={styles.decimalValue}>{results.totalFermentationTimeDecimal} hours</div>
+      </div>
+
+      <div className={styles.secondaryResults}>
+        <div className={styles.secondaryResult}>
+          <div className={styles.resultLabel}>Bulk Time</div>
+          <div className={styles.secondaryValue}>{results.bulkFermentationTime}</div>
+          <div className={styles.decimalValue}>{results.bulkFermentationTimeDecimal}h</div>
+        </div>
+        <div className={styles.secondaryResult}>
+          <div className={styles.resultLabel}>Proofing Time</div>
+          <div className={styles.secondaryValue}>{results.proofingTime}</div>
+          <div className={styles.decimalValue}>{results.proofingTimeDecimal}h</div>
+        </div>
       </div>
     </div>
   );

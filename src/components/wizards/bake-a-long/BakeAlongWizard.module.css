@@ -1,130 +1,116 @@
-/* src/components/wizards/bake-a-long/BakeAlongWizard.module.css */
-
 .wizardContainer {
-  background-color: #ffffff;
-  border: 2px solid #000000;
-  padding: 1.5rem; /* Slightly reduced padding */
-  width: 90%; /* Use a percentage width */
-  max-width: 600px;
-  margin: 2rem auto;
-  box-shadow: 8px 8px 0px #000000;
-  box-sizing: border-box; /* Explicitly set box-sizing */
-  display: flex; /* Make it a flex container */
+  background-color: var(--color-white);
+  border: var(--border-width) solid var(--color-black);
+  padding: 32px;
+  width: 95%;
+  max-width: 800px;
+  margin: 40px auto;
+  box-shadow: var(--shadow-main);
+  display: flex;
   flex-direction: column;
-  height: 80vh; /* Make it take a fixed portion of the viewport height */
+  min-height: 70vh;
+}
+
+@media (max-width: 640px) {
+  .wizardContainer {
+    margin: 20px auto;
+    padding: 24px;
+    box-shadow: 4px 4px 0px var(--color-black);
+  }
 }
 
 .wizardHeader {
-  font-size: 2.5rem;
-  font-weight: 700;
-  text-align: center;
-  margin-bottom: 2rem;
-  letter-spacing: 1px;
-  flex-shrink: 0; /* Prevent header from shrinking */
+  font-family: var(--font-mono);
+  font-size: 2rem;
+  font-weight: 900;
+  text-align: left;
+  margin-bottom: 24px;
+  text-transform: uppercase;
+  background-color: var(--color-yellow);
+  padding: 12px 24px;
+  margin: -32px -32px 24px -32px;
+  border-bottom: var(--border-width) solid var(--color-black);
+}
+
+@media (max-width: 640px) {
+  .wizardHeader {
+    margin: -24px -24px 20px -24px;
+    font-size: 1.5rem;
+  }
 }
 
 .stepContainer {
-  border: 2px solid #000;
-  background-color: #f7f7f7;
-  padding: 1.5rem; /* Add padding inside the scrollable area */
-  margin-bottom: 2rem;
-  flex-grow: 1; /* Allow content to grow and take available space */
-  overflow-y: auto; /* Apply scroll to content if it overflows vertically */
-  min-height: 150px; /* Ensure a minimum height for the scrollable area */
+  border: 2px solid var(--color-black);
+  background-color: var(--color-grey-soft);
+  padding: 24px;
+  margin-bottom: 24px;
+  flex-grow: 1;
+  overflow-y: auto;
 }
 
 .navigation {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-top: 2px solid #000;
-  padding-top: 1.5rem;
-  flex-shrink: 0; /* Prevent navigation from shrinking */
+  gap: 16px;
+  border-top: 2px solid var(--color-black);
+  padding-top: 24px;
 }
 
 .navButton {
-  background-color: #f7ff58; /* Vibrant accent color */
-  color: #000000;
-  border: 2px solid #000000;
-  padding: 12px 24px;
-  font-size: 1rem;
-  font-weight: 700;
-  text-decoration: none;
-  cursor: pointer;
-  box-shadow: 4px 4px 0px #000000;
-  transition: all 0.1s ease-in-out;
+  /* Base styles are inherited from Button component if used, 
+     but these overrides match the specific wizard needs */
 }
 
-.navButton:hover {
-  background-color: #e4eb4f;
-}
-
-.navButton:active {
-  transform: translate(4px, 4px);
-  box-shadow: none;
-}
-
+/* Specific button colors for wizard actions */
 .navButton.back {
-  background-color: #58a6ff; /* Vibrant Blue */
-}
-
-.navButton.back:hover {
-  background-color: #4a8ee0;
+  background-color: var(--color-grey-soft) !important;
 }
 
 .navButton.reset {
-  background-color: #ff5858;
-}
-
-.navButton.reset:hover {
-  background-color: #e04a4a;
+  background-color: #ff5858 !important; /* Keep a danger red for reset */
+  color: white !important;
 }
 
 .navButton.generate {
-  background-color: #58ff81;
-}
-
-.navButton.generate:hover {
-  background-color: #4fe072;
+  background-color: var(--color-green) !important;
 }
 
 .breadcrumbs {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
-  gap: 0.5rem; /* Reduced gap for a tighter look */
-  margin: 1rem auto 2rem auto;
+  gap: 12px;
+  margin-bottom: 24px;
 }
 
 .crumb {
-  width: 24px; /* Larger to fit number */
-  height: 24px;
-  border: 2px solid #000;
-  background-color: #fff;
-  border-radius: 0; /* Square */
+  width: 32px;
+  height: 32px;
+  border: 2px solid var(--color-black);
+  background-color: var(--color-white);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
+  font-family: var(--font-mono);
+  font-weight: 900;
   font-size: 1rem;
-  color: #000;
-  transition: all 0.2s ease-in-out;
+  color: var(--color-black);
+  transition: all 0.1s;
 }
 
 .completedCrumb {
-  background-color: #58a6ff; /* Vibrant Blue */
-  color: #000;
+  background-color: var(--color-green);
 }
 
 .activeCrumb {
-  background-color: #f7ff58; /* Vibrant Yellow */
-  color: #000; /* Black text on yellow */
+  background-color: var(--color-pink);
   transform: scale(1.1);
-  box-shadow: 4px 4px 0px #000; /* Keep the bold shadow */
+  box-shadow: 4px 4px 0px var(--color-black);
 }
 
 .crumbSeparator {
-  width: 16px; /* Shorter separator */
+  width: 20px;
   height: 2px;
-  background-color: #a0a0a0; /* Muted separator */
+  background-color: var(--color-black);
 }

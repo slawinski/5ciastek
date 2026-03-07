@@ -1,0 +1,40 @@
+%%{init: {'theme': 'base', 'themeVariables': {
+  'primaryColor': '#000000',
+  'primaryTextColor': '#FFFFFF',
+  'primaryBorderColor': '#000000',
+  'lineColor': '#000000',
+  'secondaryColor': '#FFD338',
+  'tertiaryColor': '#FF90E8',
+  'background': '#FFFFFF',
+  'mainBkg': '#FFFFFF',
+  'nodeBorder': '#000000',
+  'clusterBkg': '#F0F0F0',
+  'clusterBorder': '#000000',
+  'titleColor': '#000000',
+  'edgeLabelBackground': '#FFFFFF',
+  'textColor': '#000000'
+}}}%%
+flowchart TD
+    %% Node Definitions
+    header[Header: 3px Bottom Border]
+    sidebar[Sidebar: 3px Right Border]
+    main[Main Content: Stark White]
+    
+    subgraph Components
+        card[Card: 3px Border + 6px Hard Shadow]
+        btn[Button: 2px Border + 4px Shadow]
+        input[Input: 2px Border + Yellow Focus]
+    end
+
+    subgraph Typography
+        head1[H1: 900 Black]
+        head2[H2: 700 Bold Mono]
+        body[Body: Mono Data]
+    end
+
+    %% Style assignments
+    style header fill:#FFD338,stroke:#000,stroke-width:3px
+    style btn fill:#FF90E8,stroke:#000,stroke-width:2px
+    style card fill:#fff,stroke:#000,stroke-width:3px
+    style input fill:#fff,stroke:#000,stroke-width:2px
+    style main fill:#fff,stroke:#000,stroke-width:0px

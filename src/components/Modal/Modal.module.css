@@ -4,75 +4,64 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: transparent;
+  background-color: rgba(0, 0, 0, 0.8);
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   z-index: 1000;
+  padding: 20px;
 }
 
 .modal-content {
   background-color: var(--color-white);
-  border-radius: 0;
-  border: 2px solid var(--color-black);
-  width: 90%;
-  max-width: none;
+  border: var(--border-width) solid var(--color-black);
+  box-shadow: 12px 12px 0px var(--color-black);
+  max-width: 600px;
+  width: 100%;
   max-height: 90vh;
-  overflow: auto; /* Allow scrolling for the main content area */
+  overflow: hidden; /* Header is fixed, body scrolls */
   position: relative;
-  box-shadow: 10px 10px 0px var(--color-black); /* Stronger brutalist shadow */
-  color: var(--color-text);
   display: flex;
   flex-direction: column;
-  padding: 0; /* Removed padding to allow window bar to be edge-to-edge */
 }
 
 .modal-window-bar {
+  padding: 12px 24px;
+  background-color: var(--color-yellow);
+  border-bottom: var(--border-width) solid var(--color-black);
   display: flex;
-  justify-content: flex-end;
   align-items: center;
-  background-color: var(--color-primary); /* Changed to primary color */
-  color: var(--color-white);
-  padding: 16px 12px; /* Increased padding for prominent bar */
-  border-bottom: 2px solid var(--color-black);
-  font-weight: bold;
-  font-family: monospace; /* Classic terminal font */
-  font-size: 1rem; /* Increased font for title */
+  justify-content: flex-end; /* Close button on the right */
 }
 
 .window-controls {
   display: flex;
+  gap: 8px;
 }
 
-/* Updated close button style */
 .close-button {
-  background-color: var(
-    --color-primary
-  ); /* Use primary color for close button */
-  border: none;
-  color: var(
-    --color-black
-  ); /* Black text for better contrast on primary color */
-  width: 24px; /* Increased size */
-  height: 24px; /* Increased size */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 1.2rem; /* Increased font size */
-  cursor: pointer;
-  padding: 0;
-  line-height: 1;
-  margin-left: 5px; /* Adjust margin for spacing from other controls */
-  border: 0;
+  padding: 4px !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  border-width: 2px !important;
 }
 
 .close-button:hover {
-  background-color: var(--color-primary-dark); /* Darker primary on hover */
-  color: var(--color-white); /* White text on darker background */
+  background-color: var(--color-pink) !important;
 }
 
 .modal-content-body {
-  padding: 1.5rem 1rem; /* Increased padding to compensate for modal-content padding removal */
-  overflow-y: auto; /* Enable scrolling for content within the body */
-  flex-grow: 1; /* Allow content body to take remaining space */
+  padding: 32px;
+  overflow-y: auto;
+  font-family: var(--font-sans);
+}
+
+@media (max-width: 640px) {
+  .modal-content {
+    box-shadow: 6px 6px 0px var(--color-black);
+  }
+  
+  .modal-content-body {
+    padding: 24px;
+  }
 }

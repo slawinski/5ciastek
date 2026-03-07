@@ -4,6 +4,11 @@ These instructions are foundational mandates for the Gemini CLI and take absolut
 
 ## 1. Technical Stack & Styling
 - **Styling:** ALWAYS use **CSS Modules** for component-specific styles (`ComponentName.module.css`). **NEVER use Tailwind CSS.**
+- **Design System:** Strictly follow the **Neo-Brutalist** aesthetic (see `docs/design_system/neo_brutalist_spec.md`).
+  - **Borders:** Minimum `2px solid #000000` for all components.
+  - **Shadows:** Use **hard-edged** offsets (e.g., `4px 4px 0px #000000`) instead of blur-based shadows.
+  - **Colors:** Use the "Sourdough Edition" palette (Flour White, Crust Black, Sourdough Yellow, Starter Pink).
+  - **Transitions:** Use immediate or very short transitions (0.1s). Hover states should feel mechanical.
 - **Framework:** React 19 (Client/Server) with TanStack Start.
 - **Routing:** TanStack Router (Type-safe).
 - **State Management:** XState 5 for complex state transitions (e.g., wizards, calculators).

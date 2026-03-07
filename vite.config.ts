@@ -4,7 +4,6 @@ import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact from "@vitejs/plugin-react";
 import viteTsConfigPaths from "vite-tsconfig-paths";
 import { nitro } from "nitro/vite";
-import autoprefixer from "autoprefixer";
 
 const config = defineConfig({
   plugins: [
@@ -17,11 +16,6 @@ const config = defineConfig({
     tanstackStart(),
     viteReact(),
   ],
-  css: {
-    postcss: {
-      plugins: [autoprefixer()],
-    },
-  },
 });
 
 export default config;

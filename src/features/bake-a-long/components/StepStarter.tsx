@@ -1,19 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { InputField } from '@/components/InputField';
-import { BakeAlongEvent } from '@/machines/bakeAlongMachine';
+import { useBakeAlong } from '../context';
 import styles from './Wizard.module.css';
-
-interface StepStarterProps {
-  levainRatio: string | null;
-  ambientTemp: number | null;
-  levainFlourType: string | null;
-  send: (event: BakeAlongEvent) => void;
-}
 
 const RATIOS = ["1:1:1", "1:2:2"];
 const FLOUR_TYPES = ["Bread Flour", "Whole Wheat", "Rye"];
 
-export const StepStarter: React.FC<StepStarterProps> = ({ levainRatio, ambientTemp, levainFlourType, send }) => {
+export const StepStarter = () => {
+  const { state, send } = useBakeAlong();
+  const { levainRatio, ambientTemp, levainFlourType } = state.context;
+
   const [localRatio, setLocalRatio] = useState(levainRatio ?? '1:2:2');
   const [localTemp, setLocalTemp] = useState(ambientTemp?.toString() ?? '21');
   const [localFlourType, setLocalFlourType] = useState(levainFlourType ?? 'Bread Flour');

@@ -1,12 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { InputField } from '@/components/InputField';
-import { BakeAlongEvent } from '@/machines/bakeAlongMachine';
+import { useBakeAlong } from '../context';
 import styles from './Wizard.module.css';
-
-interface StepScheduleProps {
-  readyTime: Date | null;
-  send: (event: BakeAlongEvent) => void;
-}
 
 // Helper to format date to YYYY-MM-DD
 const formatDate = (date: Date) => {
@@ -18,7 +13,10 @@ const formatTime = (date: Date) => {
   return date.toTimeString().split(' ')[0].substring(0, 5);
 };
 
-export const StepSchedule: React.FC<StepScheduleProps> = ({ readyTime, send }) => {
+export const StepSchedule = () => {
+  const { state, send } = useBakeAlong();
+  const { readyTime } = state.context;
+
   // Get today's date and a default time (e.g., 9 AM) for initial state
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);

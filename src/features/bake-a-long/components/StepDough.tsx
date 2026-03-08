@@ -1,16 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { InputField } from '@/components/InputField';
-import { BakeAlongEvent } from '@/machines/bakeAlongMachine';
+import { useBakeAlong } from '../context';
 import styles from './Wizard.module.css';
 
-interface StepDoughProps {
-  doughTemp: number | null;
-  hydration: number | null;
-  autolyseType: 'autolyse' | 'fermentolyse' | null;
-  send: (event: BakeAlongEvent) => void;
-}
+export const StepDough = () => {
+  const { state, send } = useBakeAlong();
+  const { doughTemp, hydration, autolyseType } = state.context;
 
-export const StepDough: React.FC<StepDoughProps> = ({ doughTemp, hydration, autolyseType, send }) => {
   const [localTemp, setLocalTemp] = useState(doughTemp?.toString() ?? '23');
   const [localHydration, setLocalHydration] = useState(hydration ?? 75);
   const [localAutolyseType, setLocalAutolyseType] = useState(autolyseType ?? 'autolyse');

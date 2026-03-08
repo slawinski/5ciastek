@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { fermentationSchema } from "@/schemas/fermentation";
+import { fermentationSchema } from "./fermentation";
 import { expDecay, params } from "@/utils/schedule.utils";
 
 export const calculateFermentationTimesServer = createServerFn()

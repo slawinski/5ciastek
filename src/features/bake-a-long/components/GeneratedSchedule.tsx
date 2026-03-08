@@ -1,10 +1,7 @@
 import { SchedulePhase } from '@/utils/schedule.utils';
 import React from 'react';
+import { useBakeAlong } from '../context';
 import styles from './BakeAlongWizard.module.css';
-
-interface GeneratedScheduleProps {
-  schedule: SchedulePhase[];
-}
 
 const formatTime = (date: Date) => {
   return date.toLocaleTimeString('en-US', {
@@ -22,7 +19,10 @@ const formatDate = (date: Date) => {
   });
 };
 
-export const GeneratedSchedule: React.FC<GeneratedScheduleProps> = ({ schedule }) => {
+export const GeneratedSchedule: React.FC = () => {
+  const { state } = useBakeAlong();
+  const schedule = (state.context.schedule || []) as SchedulePhase[];
+
   return (
     <div className={styles.generatedSchedule}>
       <h2 style={{ 
@@ -43,7 +43,7 @@ export const GeneratedSchedule: React.FC<GeneratedScheduleProps> = ({ schedule }
         <div className={styles.calendarView}>
           {schedule.map((phase, index) => {
             const isFirstOfDate = index === 0 || 
-              formatDate(schedule[index-1].start) !== formatDate(phase.start);
+              formatDate(new Date(schedule[index-1].start)) !== formatDate(new Date(phase.start));
 
             return (
               <React.Fragment key={index}>
@@ -57,17 +57,17 @@ export const GeneratedSchedule: React.FC<GeneratedScheduleProps> = ({ schedule }
                     fontWeight: 700,
                     textTransform: 'uppercase'
                   }}>
-                    {formatDate(phase.start)}
+                    {formatDate(new Date(phase.start))}
                   </div>
                 )}
                 <div className={styles.timeSlot}>
                   <div className={styles.timeLabel}>
-                    {formatTime(phase.start)}
+                    {formatTime(new Date(phase.start))}
                   </div>
                   <div className={`${styles.phaseBlock} ${index % 2 === 0 ? styles.phaseBlockPrimary : styles.phaseBlockSecondary}`}>
                     <span className={styles.phaseLabel}>{phase.label}</span>
                     <span className={styles.phaseTime}>
-                      {formatTime(phase.start)} - {formatTime(phase.end)}
+                      {formatTime(new Date(phase.start))} - {formatTime(new Date(phase.end))}
                     </span>
                   </div>
                 </div>

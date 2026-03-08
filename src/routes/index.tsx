@@ -1,12 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
-import styles from "./index.module.css"; // Updated import for CSS Modules
+import styles from "./index.module.css";
 import { InputField } from "@/components/InputField";
 import { formatTime } from "@/utils/time.utils";
-import { calculateFermentationTimesServer } from "@/routes/api/fermentation";
-import LearnMoreModal from "@/components/LearnMoreModal";
-import ResultsPanel from "@/components/ResultsPanel"; // Import the new ResultsPanel component
-import { fermentationSchema } from "@/schemas/fermentation";
+import { calculateFermentationTimesServer } from "@/features/fermentation/calculateFermentationTimes.server";
+import LearnMoreModal from "@/features/fermentation/components/LearnMoreModal";
+import ResultsPanel from "@/features/fermentation/components/ResultsPanel";
+import { fermentationSchema } from "@/features/fermentation/fermentation";
 import { useDebounce } from "@/hooks/useDebounce";
 
 export const Route = createFileRoute("/")({
@@ -15,10 +15,10 @@ export const Route = createFileRoute("/")({
 
 function FermentationCalculator() {
   const [temperature, setTemperature] = useState<string>('23');
-  const debouncedTemperature = useDebounce(temperature, 500); // 500ms delay
+  const debouncedTemperature = useDebounce(temperature, 500);
 
   const [hydration, setHydration] = useState(75);
-  const [showModal, setShowModal] = useState(false); // State for modal visibility
+  const [showModal, setShowModal] = useState(false);
   const [errors, setErrors] = useState<{
     temperature?: string[];
     hydration?: string[];
@@ -33,7 +33,6 @@ function FermentationCalculator() {
   });
 
   useEffect(() => {
-    // Parse the debounced temperature string for validation and calculations
     const parsedTemperature = debouncedTemperature === '' ? undefined : parseFloat(debouncedTemperature);
 
     const validationResult = fermentationSchema.safeParse({ temperature: parsedTemperature, hydration: String(hydration) });
@@ -79,7 +78,7 @@ function FermentationCalculator() {
     setHydration(Number(e.target.value));
   };
 
-  const toggleModal = () => setShowModal(!showModal); // Function to toggle modal
+  const toggleModal = () => setShowModal(!showModal);
 
   return (
     <div className={styles.container}>
@@ -96,7 +95,7 @@ function FermentationCalculator() {
         <p className={styles.error}>{errors.temperature[0]}</p>
       )}
       <div>
-        <label>Hydration</label>
+        <label className={styles.label}>Hydration</label>
         <div className={styles["radio-group"]}>
           <label className={styles["radio-label"]}>
             <input

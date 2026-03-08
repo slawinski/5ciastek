@@ -22,8 +22,12 @@ These instructions are foundational mandates for the Gemini CLI and take absolut
 - **Side Effects:** Centralize complex logic in XState machines (`src/machines/`) or utility functions (`src/utils/`). Keep React components focused on rendering.
 
 ## 3. Architecture & Implementation
-- **Route-Centric Logic:** Page-specific logic belongs in `src/routes/`.
-- **Server Functions:** Leverage TanStack Start's server functions for database operations or heavy computations.
+- **Feature-Based Architecture:** ALWAYS group logic by domain in `src/features/`.
+  - Co-locate components, machines, schemas, and server functions within their respective feature folders.
+  - Keep `src/components/` for truly generic, reusable UI primitives.
+- **Route-Centric Logic:** Page-specific logic belongs in `src/routes/`, but should delegate business logic to features.
+- **Server Functions:** Leverage TanStack Start's server functions for database operations or heavy computations, co-located within features.
+- **Context Over Prop-Drilling:** Use React Context (Providers) to share complex state (like XState machines) within a feature.
 - **A11y & Forms:**
   - **Unique IDs:** Every `InputField` must have a unique `id` passed as a prop.
   - **Semantic HTML:** Use landmark elements (`<main>`, `<nav>`, `<header>`, etc.) rigorously.

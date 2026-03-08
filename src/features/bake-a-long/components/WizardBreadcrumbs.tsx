@@ -1,9 +1,6 @@
 import React from "react";
+import { useBakeAlong } from "../context";
 import styles from "./BakeAlongWizard.module.css";
-
-interface WizardBreadcrumbsProps {
-  currentState: string;
-}
 
 const steps = [
   { id: "scheduling", name: "Schedule" },
@@ -12,9 +9,10 @@ const steps = [
   { id: "generated", name: "Generated" },
 ];
 
-export const WizardBreadcrumbs: React.FC<WizardBreadcrumbsProps> = ({
-  currentState,
-}) => {
+export const WizardBreadcrumbs: React.FC = () => {
+  const { state } = useBakeAlong();
+  const currentState = state.value as string;
+
   // Find the index of the current step to mark previous steps as completed
   const currentStepIndex = steps.findIndex((step) => step.id === currentState);
 

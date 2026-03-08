@@ -1,25 +1,21 @@
 import React from "react";
 import styles from "./InputField.module.css";
 
-interface InputFieldProps {
+interface InputFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
-  value: string | number;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  id: string; // Made required for accessibility
-  name: string; // Made required
-  type?: string;
-  [key: string]: any;
+  id: string;
+  name: string;
+  ref?: React.Ref<HTMLInputElement>;
 }
 
-export const InputField: React.FC<InputFieldProps> = ({
+export const InputField = ({
   label,
-  value,
-  onChange,
   id,
   name,
-  type = "text",
+  className,
+  ref,
   ...props
-}) => {
+}: InputFieldProps) => {
   return (
     <div className={styles.container}>
       <label htmlFor={id} className={styles.label}>
@@ -27,12 +23,10 @@ export const InputField: React.FC<InputFieldProps> = ({
       </label>
       <div className={styles['input-wrapper']}>
         <input
-          type={type}
           name={name}
           id={id}
-          className={styles.input}
-          value={value}
-          onChange={onChange}
+          className={`${styles.input} ${className || ''}`.trim()}
+          ref={ref}
           {...props}
         />
       </div>

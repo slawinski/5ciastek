@@ -6,7 +6,7 @@
   flex: 1;
 }
 
-@media (min-width: 1024px) {
+@media (--laptop) {
   .dashboardContainer {
     padding: 48px;
     max-width: 1200px;
@@ -20,7 +20,7 @@
   gap: 24px;
 }
 
-@media (min-width: 768px) {
+@media (--tablet) {
   .headerRow {
     flex-direction: row;
     justify-content: space-between;
@@ -80,7 +80,7 @@
   }
 }
 
-@media (min-width: 1024px) {
+@media (--laptop) {
   .historyGrid {
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   }

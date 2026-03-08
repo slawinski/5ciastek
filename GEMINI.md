@@ -4,6 +4,10 @@ These instructions are foundational mandates for the Gemini CLI and take absolut
 
 ## 1. Technical Stack & Styling
 - **Styling:** ALWAYS use **CSS Modules** for component-specific styles (`ComponentName.module.css`). **NEVER use Tailwind CSS.**
+- **Responsive Design:** Use a **mobile-first** approach. 
+  - ALWAYS use variable-based breakpoints via `postcss-custom-media`.
+  - Reference `src/media-queries.css` for defined variables (e.g., `@media (--laptop)`).
+  - NEVER hardcode pixel values in media queries (e.g., avoid `@media (min-width: 1024px)`).
 - **Design System:** Strictly follow the **Neo-Brutalist** aesthetic (see `docs/design_system/neo_brutalist_spec.md`).
   - **Borders:** Minimum `2px solid #000000` for all components.
   - **Shadows:** Use **hard-edged** offsets (e.g., `4px 4px 0px #000000`) instead of blur-based shadows.

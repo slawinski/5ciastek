@@ -52,7 +52,7 @@ body {
   min-height: 100vh;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1024px) { /* --laptop */
   .root-body {
     flex-direction: row; /* Sidebar on the left, content on the right */
   }

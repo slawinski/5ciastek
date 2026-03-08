@@ -10,7 +10,7 @@
   z-index: 100;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1024px) { /* --laptop */
   .header {
     display: none;
   }
@@ -64,13 +64,14 @@
   transform: translateX(0);
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1024px) { /* --laptop */
   .sidebar {
-    position: sticky;
+    position: sticky; /* Keep it in the flex flow but sticky to the top */
     top: 0;
-    transform: translateX(0);
+    transform: translateX(0); /* Always visible */
     z-index: 100;
     height: 100vh;
+    flex-shrink: 0; /* Don't allow it to squeeze */
   }
 }
 
@@ -83,7 +84,7 @@
   justify-content: space-between;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1024px) { /* --laptop */
   .sidebar-header {
     padding: 32px 24px;
   }
@@ -109,7 +110,7 @@
   text-transform: uppercase;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1024px) { /* --laptop */
   .desktop-title {
     display: flex;
     align-items: center;
@@ -153,7 +154,7 @@
   font-weight: 900;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1024px) { /* --laptop */
   .navLink {
     padding: 20px 24px;
     font-size: 1.125rem;

@@ -1,0 +1,9 @@
+/* src/media-queries.css */
+/* 
+  These custom media queries are processed by postcss-custom-media.
+*/
+
+@custom-media --tablet (min-width: 768px);
+@custom-media --laptop (min-width: 1024px);
+@custom-media --desktop (min-width: 1440px);
+@custom-media --wide (min-width: 1920px);

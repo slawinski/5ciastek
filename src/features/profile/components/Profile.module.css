@@ -6,7 +6,7 @@
   flex: 1;
 }
 
-@media (min-width: 1024px) {
+@media (--laptop) {
   .profileContainer {
     padding: 48px;
     max-width: 1200px;
@@ -26,7 +26,7 @@
   text-align: center;
 }
 
-@media (min-width: 768px) {
+@media (--tablet) {
   .profileHeader {
     flex-direction: row;
     text-align: left;
@@ -78,13 +78,13 @@
   gap: 24px;
 }
 
-@media (min-width: 768px) {
+@media (--tablet) {
   .profileGrid {
     grid-template-columns: 1fr 1fr;
   }
 }
 
-@media (min-width: 1024px) {
+@media (--laptop) {
   .profileGrid {
     grid-template-columns: 1fr 1fr 1fr;
   }

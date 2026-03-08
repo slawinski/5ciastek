@@ -34,7 +34,7 @@ export const bakeAlongMachine = createMachine({
     autolyseType: null,
     levainFlourType: null,
     schedule: null,
-  },
+  } as BakeAlongContext,
   states: {
     scheduling: {
       on: {

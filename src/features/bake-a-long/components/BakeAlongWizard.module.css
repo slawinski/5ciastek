@@ -1,59 +1,28 @@
-.wizardContainer {
+.wizardCard {
   background-color: var(--color-white);
   border: var(--border-width) solid var(--color-black);
   padding: 32px;
-  width: 95%;
-  max-width: 800px;
-  margin: 24px auto; /* Reduced margin to help with height */
   box-shadow: var(--shadow-main);
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 140px); /* Fixed height relative to viewport */
-  min-height: 400px; /* Minimum usable height */
-  overflow: hidden; /* Contain everything */
+  height: calc(100vh - 200px); /* Height relative to viewport after PageLayout header */
+  min-height: 500px;
+  overflow: hidden;
+  flex: 1;
 }
 
 @media (min-width: 1024px) { /* --laptop */
-  .wizardContainer {
-    max-width: 900px;
-    margin: 40px auto;
-    height: calc(100vh - 80px);
+  .wizardCard {
+    height: calc(100vh - 200px);
     padding: 48px;
   }
 }
 
-@media (min-width: 1440px) { /* --desktop */
-  .wizardContainer {
-    max-width: 1100px;
-  }
-}
-
 @media (max-width: 640px) {
-  .wizardContainer {
-    margin: 16px auto;
+  .wizardCard {
     padding: 24px;
-    height: calc(100vh - 100px);
+    height: calc(100vh - 180px);
     box-shadow: 4px 4px 0px var(--color-black);
-  }
-}
-
-.wizardHeader {
-  font-family: var(--font-mono);
-  font-size: 2rem;
-  font-weight: 900;
-  text-align: left;
-  margin-bottom: 24px;
-  text-transform: uppercase;
-  background-color: var(--color-yellow);
-  padding: 12px 24px;
-  margin: -32px -32px 24px -32px;
-  border-bottom: var(--border-width) solid var(--color-black);
-}
-
-@media (max-width: 640px) {
-  .wizardHeader {
-    margin: -24px -24px 20px -24px;
-    font-size: 1.5rem;
   }
 }
 
@@ -144,7 +113,6 @@
   border: 1px solid var(--color-black);
 }
 
-
 .navigation {
   display: flex;
   justify-content: space-between;
@@ -152,25 +120,20 @@
   gap: 16px;
   border-top: 2px solid var(--color-black);
   padding-top: 24px;
+  margin-top: 24px;
 }
 
 .navButton {
-  /* Base styles are inherited from Button component if used, 
-     but these overrides match the specific wizard needs */
+  /* Inherits from Button component */
 }
 
-/* Specific button colors for wizard actions */
 .navButton.back {
   background-color: var(--color-grey-soft) !important;
 }
 
 .navButton.reset {
-  background-color: #ff5858 !important; /* Keep a danger red for reset */
+  background-color: #ff5858 !important;
   color: white !important;
-}
-
-.navButton.generate {
-  background-color: var(--color-green) !important;
 }
 
 .breadcrumbs {
@@ -178,15 +141,21 @@
   justify-content: center;
   align-items: center;
   gap: 12px;
-  margin: -24px -32px 24px -32px;
+  margin: -32px -32px 32px -32px;
   padding: 12px 32px;
   background-color: var(--color-grey-soft);
   border-bottom: 2px solid var(--color-black);
 }
 
+@media (min-width: 1024px) {
+  .breadcrumbs {
+    margin: -48px -48px 32px -48px;
+  }
+}
+
 @media (max-width: 640px) {
   .breadcrumbs {
-    margin: -20px -24px 20px -24px;
+    margin: -24px -24px 20px -24px;
     padding: 10px 24px;
     gap: 8px;
   }
@@ -221,78 +190,4 @@
   width: 20px;
   height: 2px;
   background-color: var(--color-black);
-}
-
-/* Calendar Style Schedule */
-.calendarView {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  border: 2px solid var(--color-black);
-  background-color: var(--color-white);
-  position: relative;
-}
-
-.timeSlot {
-  display: flex;
-  border-bottom: 1px solid #eee;
-  min-height: 100px;
-  position: relative;
-  z-index: 1;
-}
-
-.timeLabel {
-  width: 60px;
-  padding: 12px 8px;
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-align: right;
-  border-right: 2px solid var(--color-black);
-  background-color: var(--color-grey-soft);
-  flex-shrink: 0;
-}
-
-.phaseBlock {
-  flex: 1;
-  margin: 12px;
-  padding: 16px;
-  border: 2px solid var(--color-black);
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  background-color: var(--color-white);
-  position: relative;
-}
-
-.phaseBlockPrimary {
-  box-shadow: 6px 6px 0px var(--color-yellow);
-}
-
-.phaseBlockSecondary {
-  box-shadow: 6px 6px 0px var(--color-pink);
-}
-
-.phaseLabel {
-  font-family: var(--font-mono);
-  font-weight: 900;
-  font-size: 1rem;
-  text-transform: uppercase;
-  line-height: 1.2;
-  color: var(--color-black);
-}
-
-.phaseTime {
-  font-family: var(--font-mono);
-  font-size: 0.8125rem;
-  font-weight: 700;
-  color: #666;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.phaseTime::before {
-  content: "→";
-  color: var(--color-black);
 }

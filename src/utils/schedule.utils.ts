@@ -1,4 +1,4 @@
-import { BakeAlongContext } from "@/machines/bakeAlongMachine";
+import { BakeAlongContext } from "@/features/bake-a-long/bakeAlongMachine";
 
 export interface SchedulePhase {
   label: string;

@@ -1,4 +1,3 @@
-import React from "react";
 import Button from "@/components/Button";
 import { StepSchedule } from "./components/StepSchedule";
 import { StepDough } from "./components/StepDough";
@@ -8,6 +7,7 @@ import { WizardBreadcrumbs } from "./components/WizardBreadcrumbs";
 import { WizardSummary } from "./components/WizardSummary";
 import { BakeAlongProvider, useBakeAlong } from "./context";
 import styles from "./components/BakeAlongWizard.module.css";
+import { PageLayout } from "@/components/PageLayout";
 
 const BakeAlongWizardContent = () => {
   const { state, send } = useBakeAlong();
@@ -21,54 +21,55 @@ const BakeAlongWizardContent = () => {
   };
 
   return (
-    <div className={styles.wizardContainer}>
-      <h1 className={styles.wizardHeader}>Bake-a-long</h1>
-      <WizardBreadcrumbs />
+    <PageLayout title="Bake-a-long">
+      <div className={styles.wizardCard}>
+        <WizardBreadcrumbs />
 
-      <div className={styles.wizardContentWrapper}>
-        <div className={styles.stepContainer}>{renderStep()}</div>
-        <WizardSummary />
-      </div>
-
-      <div className={styles.navigation}>
-        <div>
-          {state.matches("dough") ||
-          state.matches("starter") ||
-          state.matches("generated") ? (
-            <Button
-              className={`${styles.navButton} ${styles.back}`}
-              onClick={() => send({ type: "BACK" })}
-            >
-              Back
-            </Button>
-          ) : (
-            <div>&nbsp;</div>
-          )}
+        <div className={styles.wizardContentWrapper}>
+          <div className={styles.stepContainer}>{renderStep()}</div>
+          <WizardSummary />
         </div>
 
-        <div>
-          {state.matches("scheduling") ||
-          state.matches("dough") ||
-          state.matches("starter") ? (
-            <Button
-              className={styles.navButton}
-              onClick={() => send({ type: "NEXT" })}
-            >
-              {state.matches("starter") ? "Generate Schedule" : "Next"}
-            </Button>
-          ) : null}
+        <div className={styles.navigation}>
+          <div>
+            {state.matches("dough") ||
+            state.matches("starter") ||
+            state.matches("generated") ? (
+              <Button
+                className={`${styles.navButton} ${styles.back}`}
+                onClick={() => send({ type: "BACK" })}
+              >
+                Back
+              </Button>
+            ) : (
+              <div>&nbsp;</div>
+            )}
+          </div>
 
-          {state.matches("generated") && (
-            <Button
-              className={`${styles.navButton} ${styles.reset}`}
-              onClick={() => send({ type: "RESET" })}
-            >
-              Start Over
-            </Button>
-          )}
+          <div>
+            {state.matches("scheduling") ||
+            state.matches("dough") ||
+            state.matches("starter") ? (
+              <Button
+                className={styles.navButton}
+                onClick={() => send({ type: "NEXT" })}
+              >
+                {state.matches("starter") ? "Generate Schedule" : "Next"}
+              </Button>
+            ) : null}
+
+            {state.matches("generated") && (
+              <Button
+                className={`${styles.navButton} ${styles.reset}`}
+                onClick={() => send({ type: "RESET" })}
+              >
+                Start Over
+              </Button>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </PageLayout>
   );
 };
 

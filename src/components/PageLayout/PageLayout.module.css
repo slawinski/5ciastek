@@ -1,0 +1,75 @@
+.dashboardContainer {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  flex: 1;
+  min-height: 0;
+}
+
+@media (min-width: 1024px) { /* --laptop */
+  .dashboardContainer {
+    padding: 48px;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+  }
+}
+
+.headerRow {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+@media (min-width: 768px) { /* --tablet */
+  .headerRow {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-bottom: 3px solid var(--color-black);
+    padding-bottom: 16px;
+  }
+}
+
+.pageTitle {
+  margin: 0;
+  font-size: 2.5rem;
+  background-color: var(--color-yellow);
+  padding: 8px 16px;
+  border: 3px solid var(--color-black);
+  box-shadow: 6px 6px 0px var(--color-black);
+  width: fit-content;
+}
+
+@media (max-width: 640px) {
+  .pageTitle {
+    font-size: 1.75rem;
+  }
+}
+
+.statsOverview {
+  display: flex;
+  gap: 16px;
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* Common Card Style (Exposed as a utility class if needed) */
+.card {
+  background-color: var(--color-white);
+  border: 3px solid var(--color-black);
+  padding: 24px;
+  box-shadow: 6px 6px 0px var(--color-black);
+  transition: transform 0.1s;
+}
+
+.card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 8px 8px 0px var(--color-black);
+}

@@ -1,7 +1,6 @@
-import React, { createContext, useContext } from 'react';
+import { createContext, useContext, ReactNode } from 'react';
 import { useMachine } from '@xstate/react';
 import { bakeAlongMachine } from './bakeAlongMachine';
-import { AnyInterpreter, AnyState } from 'xstate';
 
 interface BakeAlongContextType {
   state: any; // Type accurately if needed, but 'any' from useMachine is common for rapid dev
@@ -10,7 +9,7 @@ interface BakeAlongContextType {
 
 const BakeAlongContext = createContext<BakeAlongContextType | null>(null);
 
-export const BakeAlongProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const BakeAlongProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [state, send] = useMachine(bakeAlongMachine);
 
   return (

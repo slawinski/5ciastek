@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { InputField } from '@/components/InputField';
 import { useBakeAlong } from '../context';
 import styles from './Wizard.module.css';

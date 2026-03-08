@@ -1,10 +1,10 @@
-import React from 'react';
 import styles from './Profile.module.css';
 import Button from '@/components/Button';
+import { PageLayout } from '@/components/PageLayout';
 
 export const ProfileDashboard = () => {
   return (
-    <div className={styles.profileContainer}>
+    <PageLayout title="My Profile">
       <div className={styles.profileHeader}>
         <div className={styles.avatarBox}>
           <span className={styles.avatarInitial}>B</span>
@@ -63,6 +63,6 @@ export const ProfileDashboard = () => {
           </div>
         </div>
       </div>
-    </div>
+    </PageLayout>
   );
 };

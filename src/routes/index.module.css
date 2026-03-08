@@ -1,68 +1,60 @@
-.container {
-  max-width: 600px;
-  margin: 40px auto;
-  padding: 32px;
-  background-color: var(--color-white);
-  border: var(--border-width) solid var(--color-black);
-  box-shadow: var(--shadow-main);
-  display: flex;
-  flex-direction: column;
+.calculatorGrid {
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 24px;
-  flex: 1;
 }
 
 @media (min-width: 768px) { /* --tablet */
-  .container {
-    max-width: 700px;
-    margin: 60px auto;
-    padding: 48px;
+  .calculatorGrid {
+    grid-template-columns: 1fr;
+    gap: 32px;
   }
 }
 
 @media (min-width: 1024px) { /* --laptop */
-  .container {
-    max-width: 900px;
-    margin: 80px auto;
-    display: grid;
+  .calculatorGrid {
     grid-template-columns: 1fr 1fr;
     align-items: start;
     gap: 40px;
   }
-  
-  .h3 {
-    grid-column: 1 / -1;
-  }
 }
 
 @media (min-width: 1440px) { /* --desktop */
-  .container {
-    max-width: 1300px;
+  .calculatorGrid {
     grid-template-columns: 1fr 1fr 1fr;
     gap: 48px;
   }
 }
 
-.proTipsPanel {
-  display: none;
+.cardHeader {
+  font-family: var(--font-mono);
+  font-weight: 900;
+  text-transform: uppercase;
+  font-size: 1.25rem;
+  margin-bottom: 24px;
+  border-bottom: 2px solid var(--color-black);
+  padding-bottom: 8px;
 }
 
-@media (min-width: 1024px) { /* --laptop */
-  .proTipsPanel {
-    display: block;
+.inputsWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.radioSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.proTipsCard {
+  background-color: var(--color-pink) !important;
+}
+
+@media (min-width: 1024px) and (max-width: 1439px) {
+  .proTipsCard {
     grid-column: 1 / -1;
-    background-color: var(--color-pink);
-    border: 3px solid var(--color-black);
-    box-shadow: 6px 6px 0px var(--color-black);
-    padding: 24px;
-    margin-top: 24px;
-  }
-}
-
-@media (min-width: 1440px) { /* --desktop */
-  .proTipsPanel {
-    grid-column: span 1;
-    margin-top: 0;
-    height: 100%;
   }
 }
 
@@ -98,39 +90,6 @@
   position: absolute;
   left: 0;
   font-weight: 900;
-}
-
-
-@media (max-width: 640px) {
-  .container {
-    margin: 20px;
-    padding: 24px;
-    box-shadow: 4px 4px 0px var(--color-black);
-  }
-}
-
-.h3 {
-  margin-bottom: 8px;
-  font-size: 2rem;
-  background-color: var(--color-yellow);
-  padding: 8px 16px;
-  border-bottom: 2px solid var(--color-black);
-  margin: -32px -32px 16px -32px;
-}
-
-@media (min-width: 768px) { /* --tablet */
-  .h3 {
-    margin: -48px -48px 24px -48px;
-    padding: 16px 48px;
-    font-size: 2.5rem;
-  }
-}
-
-@media (max-width: 640px) {
-  .h3 {
-    margin: -24px -24px 12px -24px;
-    font-size: 1.5rem;
-  }
 }
 
 .error {
@@ -174,7 +133,7 @@
 }
 
 .radio-input:checked {
-  background-color: var(--color-pink);
+  background-color: var(--color-black);
 }
 
 .radio-input:checked::after {
@@ -184,5 +143,5 @@
   left: 3px;
   width: 10px;
   height: 10px;
-  background-color: var(--color-black);
+  background-color: var(--color-pink);
 }

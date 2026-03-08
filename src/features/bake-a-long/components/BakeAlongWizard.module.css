@@ -1,3 +1,7 @@
+.pageContainer {
+  overflow: hidden; /* Unique requirement for internal scrolling */
+}
+
 .wizardCard {
   background-color: var(--color-white);
   border: var(--border-width) solid var(--color-black);
@@ -5,15 +9,13 @@
   box-shadow: var(--shadow-main);
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 200px); /* Height relative to viewport after PageLayout header */
-  min-height: 500px;
-  overflow: hidden;
   flex: 1;
+  min-height: 0; /* CRITICAL: Allow flex child to shrink below content height */
+  overflow: hidden;
 }
 
 @media (min-width: 1024px) { /* --laptop */
   .wizardCard {
-    height: calc(100vh - 200px);
     padding: 48px;
   }
 }
@@ -21,7 +23,6 @@
 @media (max-width: 640px) {
   .wizardCard {
     padding: 24px;
-    height: calc(100vh - 180px);
     box-shadow: 4px 4px 0px var(--color-black);
   }
 }

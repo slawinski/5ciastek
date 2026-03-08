@@ -21,7 +21,7 @@ const BakeAlongWizardContent = () => {
   };
 
   return (
-    <PageLayout title="Bake-a-long">
+    <PageLayout title="Bake-a-long" containerClassName={styles.pageContainer}>
       <div className={styles.wizardCard}>
         <WizardBreadcrumbs />
 

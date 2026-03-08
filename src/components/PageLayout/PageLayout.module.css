@@ -5,6 +5,7 @@
   gap: 32px;
   flex: 1;
   min-height: 0;
+  overflow-y: auto; /* Standard pages should scroll */
 }
 
 @media (min-width: 1024px) { /* --laptop */

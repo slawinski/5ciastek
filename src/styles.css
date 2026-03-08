@@ -33,9 +33,14 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+html,
 body {
   margin: 0;
   padding: 0;
+  height: 100%;
+}
+
+body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
   font-family: var(--font-sans);
@@ -52,6 +57,8 @@ body {
   /* --laptop */
   .root-body {
     flex-direction: row; /* Sidebar on the left, content on the right */
+    height: 100vh;
+    overflow: hidden;
   }
 }
 
@@ -60,6 +67,14 @@ body {
   display: flex;
   flex-direction: column;
   min-width: 0; /* Prevent flex overflow */
+  min-height: 0; /* Allow shrinking */
+}
+
+@media (min-width: 1024px) {
+  .root-main {
+    height: 100%;
+    overflow: hidden;
+  }
 }
 
 h1,

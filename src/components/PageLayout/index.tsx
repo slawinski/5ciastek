@@ -17,7 +17,7 @@ export const PageLayout: FC<PageLayoutProps> = ({
   containerClassName 
 }) => {
   return (
-    <div className={containerClassName || styles.dashboardContainer}>
+    <div className={`${styles.dashboardContainer} ${containerClassName || ''}`}>
       <div className={styles.headerRow}>
         <h2 className={styles.pageTitle}>{title}</h2>
         {stats && (

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { InputField } from '@/components/InputField'; // Reusing our InputField for style consistency
+import { InputField } from '@/components/InputField';
 import { BakeAlongEvent } from '@/machines/bakeAlongMachine';
+import styles from './Wizard.module.css';
 
 interface StepScheduleProps {
   readyTime: Date | null;
@@ -43,21 +44,25 @@ export const StepSchedule: React.FC<StepScheduleProps> = ({ readyTime, send }) =
 
   return (
     <div>
-      <h2>Step 1: When do you want your bread to be ready?</h2>
-      <InputField
-        label="Bake Day"
-        type="date"
-        id="bake-day"
-        value={dateStr}
-        onChange={(e) => setDateStr(e.target.value)}
-      />
-      <InputField
-        label="Ready Time"
-        type="time"
-        id="bake-time"
-        value={timeStr}
-        onChange={(e) => setTimeStr(e.target.value)}
-      />
+      <h2 className={styles.stepTitle}>When do you want your bread ready?</h2>
+      <div className={styles.group}>
+        <InputField
+          label="Bake Day"
+          type="date"
+          id="bake-day"
+          name="bake-day"
+          value={dateStr}
+          onChange={(e) => setDateStr(e.target.value)}
+        />
+        <InputField
+          label="Ready Time"
+          type="time"
+          id="bake-time"
+          name="bake-time"
+          value={timeStr}
+          onChange={(e) => setTimeStr(e.target.value)}
+        />
+      </div>
     </div>
   );
 };

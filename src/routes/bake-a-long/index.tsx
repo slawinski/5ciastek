@@ -56,12 +56,11 @@ function BakeAlongWizard() {
   };
 
   return (
-    <>
+    <div className={styles.wizardContainer}>
+      <h1 className={styles.wizardHeader}>Bake-a-long</h1>
       <WizardBreadcrumbs currentState={state.value as string} />
-      <div className={styles.wizardContainer}>
-        <h1 className={styles.wizardHeader}>Bake-a-long</h1>
 
-        <div className={styles.stepContainer}>{renderStep()}</div>
+      <div className={styles.stepContainer}>{renderStep()}</div>
 
         <div className={styles.navigation}>
           {/* Using a placeholder for the left side to keep "Next" on the right */}
@@ -112,6 +111,5 @@ function BakeAlongWizard() {
           </div>
         </div>
       </div>
-    </>
   );
 }

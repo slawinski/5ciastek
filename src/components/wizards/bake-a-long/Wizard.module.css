@@ -1,0 +1,125 @@
+.stepTitle {
+  font-family: var(--font-mono);
+  font-size: 1.25rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+  color: var(--color-black);
+  border-bottom: 2px solid var(--color-black);
+  display: block;
+  padding-bottom: 4px;
+}
+
+.group {
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.label {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.875rem;
+}
+
+/* Neo-Brutalist Radio Buttons */
+.radioList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.radioOption {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.radioInput {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--color-black);
+  background-color: var(--color-white);
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.radioInput:checked {
+  background-color: var(--color-pink);
+}
+
+.radioInput:checked::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 10px;
+  height: 10px;
+  background-color: var(--color-black);
+}
+
+.radioInput:focus-visible {
+  outline: 2px solid var(--color-yellow);
+  outline-offset: 2px;
+}
+
+/* Review Summary */
+.reviewGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+@media (min-width: 600px) {
+  .reviewGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.reviewCard {
+  border: 2px solid var(--color-black);
+  padding: 16px;
+  background-color: var(--color-white);
+  box-shadow: 4px 4px 0px var(--color-black);
+}
+
+.reviewCardTitle {
+  font-family: var(--font-mono);
+  font-weight: 900;
+  font-size: 1rem;
+  text-transform: uppercase;
+  border-bottom: 2px solid var(--color-black);
+  margin-bottom: 12px;
+  padding-bottom: 4px;
+  background-color: var(--color-grey-soft);
+  margin-top: -16px;
+  margin-left: -16px;
+  margin-right: -16px;
+  padding-left: 16px;
+}
+
+.reviewItem {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 0.875rem;
+}
+
+.reviewLabel {
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #666;
+}
+
+.reviewValue {
+  font-family: var(--font-mono);
+  font-weight: 700;
+}

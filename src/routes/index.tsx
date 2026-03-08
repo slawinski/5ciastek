@@ -90,6 +90,7 @@ function FermentationCalculator() {
         onChange={handleTemperatureChange}
         type="number"
         id="temperature"
+        name="temperature"
       />
       {errors?.temperature && (
         <p className={styles.error}>{errors.temperature[0]}</p>

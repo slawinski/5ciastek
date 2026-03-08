@@ -79,7 +79,9 @@ Buttons should feel physical and "clickable."
 
 ## 5. Implementation Roadmap (GEMINI.md Integration)
 
-1. **Refactor `src/styles.css`:** Define the neo-brutalist variables.
-2. **Update `Button.module.css`:** Implement the hard shadow and sinking interaction.
-3. **Update `InputField.module.css`:** Add high-contrast borders and yellow focus state.
-4. **Header/Sidebar Update:** Apply thick black borders and remove soft shadows.
+## 6. Common Pitfalls & Debugging
+
+- **Clipping Rotated Elements:** Rotated headers (`transform: rotate(-1deg)`) can be clipped by parent containers with `overflow: hidden`. Ensure parents have enough padding or `overflow: visible` where possible.
+- **Mismatched CSS Classes:** When using CSS Modules, ensure the `styles['class-name']` in JSX matches the `.class-name` in CSS. Mismatches can break the layout or hide elements entirely.
+- **Scrollable Containers:** For fixed-height layouts (like the Wizard), always ensure the inner content container (`stepContainer`) has `flex: 1` and `overflow-y: auto` to contain tall content without breaking the viewport.
+- **Accessibility:** Never sacrifice `id` and `name` attributes for the sake of styling. High-contrast designs must still be navigable by screen readers.

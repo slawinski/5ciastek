@@ -5,8 +5,8 @@ interface InputFieldProps {
   label: string;
   value: string | number;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  id?: string;
-  name?: string;
+  id: string; // Made required for accessibility
+  name: string; // Made required
   type?: string;
   [key: string]: any;
 }
@@ -15,8 +15,8 @@ export const InputField: React.FC<InputFieldProps> = ({
   label,
   value,
   onChange,
-  id = "input",
-  name = "input",
+  id,
+  name,
   type = "text",
   ...props
 }) => {

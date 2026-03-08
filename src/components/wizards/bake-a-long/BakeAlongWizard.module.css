@@ -84,12 +84,23 @@
   justify-content: flex-start;
   align-items: center;
   gap: 12px;
-  margin-bottom: 24px;
+  margin: -24px -32px 24px -32px;
+  padding: 12px 32px;
+  background-color: var(--color-grey-soft);
+  border-bottom: 2px solid var(--color-black);
+}
+
+@media (max-width: 640px) {
+  .breadcrumbs {
+    margin: -20px -24px 20px -24px;
+    padding: 10px 24px;
+    gap: 8px;
+  }
 }
 
 .crumb {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border: 2px solid var(--color-black);
   background-color: var(--color-white);
   display: flex;
@@ -97,7 +108,7 @@
   justify-content: center;
   font-family: var(--font-mono);
   font-weight: 900;
-  font-size: 1rem;
+  font-size: 0.875rem;
   color: var(--color-black);
   transition: all 0.1s;
 }

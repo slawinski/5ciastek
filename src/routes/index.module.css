@@ -2,9 +2,11 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 24px;
+  container-type: size;
 }
 
-@media (min-width: 768px) { /* --tablet */
+@media (min-width: 768px) {
+  /* --tablet */
   .calculatorGrid {
     grid-template-columns: 1fr;
     gap: 32px;
@@ -14,12 +16,15 @@
 @media (min-width: 1024px) { /* --laptop */
   .calculatorGrid {
     grid-template-columns: 1fr 1fr;
-    align-items: start;
+    align-items: stretch;
     gap: 40px;
+    height: 100%; /* Ensure container has height for queries */
   }
 }
 
-@media (min-width: 1440px) { /* --desktop */
+
+@media (min-width: 1440px) {
+  /* --desktop */
   .calculatorGrid {
     grid-template-columns: 1fr 1fr 1fr;
     gap: 48px;
@@ -50,11 +55,22 @@
 
 .proTipsCard {
   background-color: var(--color-pink) !important;
+  display: none; /* Hidden by default for mobile/tablet */
 }
 
-@media (min-width: 1024px) and (max-width: 1439px) {
-  .proTipsCard {
-    grid-column: 1 / -1;
+/* Width based visibility */
+@media (min-width: 1024px) {
+  /* --laptop */
+  @container (height > 400px) {
+    .proTipsCard {
+      display: block;
+    }
+  }
+
+  @media (max-width: 1439px) {
+    .proTipsCard {
+      grid-column: 1 / -1;
+    }
   }
 }
 

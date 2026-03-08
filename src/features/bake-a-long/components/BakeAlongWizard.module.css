@@ -191,3 +191,101 @@
   height: 2px;
   background-color: var(--color-black);
 }
+
+/* Calendar Style Schedule */
+.calendarView {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 2px solid var(--color-black);
+  background-color: var(--color-white);
+  position: relative;
+}
+
+.dateHeader {
+  background-color: var(--color-black);
+  color: var(--color-white);
+  padding: 4px 12px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.timeSlot {
+  display: flex;
+  border-bottom: 1px solid #eee;
+  min-height: 80px;
+  position: relative;
+  z-index: 1;
+}
+
+.timeSlot:last-child {
+  border-bottom: none;
+}
+
+.timeLabel {
+  width: 70px;
+  padding: 12px 8px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-align: right;
+  border-right: 2px solid var(--color-black);
+  background-color: var(--color-grey-soft);
+  flex-shrink: 0;
+}
+
+.phaseBlock {
+  flex: 1;
+  margin: 12px;
+  padding: 16px;
+  border: 2px solid var(--color-black);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background-color: var(--color-white);
+  position: relative;
+}
+
+.phaseBlockPrimary {
+  box-shadow: 4px 4px 0px var(--color-yellow);
+}
+
+.phaseBlockSecondary {
+  box-shadow: 4px 4px 0px var(--color-pink);
+}
+
+.phaseLabel {
+  font-family: var(--font-mono);
+  font-weight: 900;
+  font-size: 1rem;
+  text-transform: uppercase;
+  line-height: 1.2;
+  color: var(--color-black);
+}
+
+.phaseTime {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.phaseTime::before {
+  content: "→";
+  color: var(--color-black);
+}
+
+.generatedHeader {
+  font-family: var(--font-mono);
+  font-size: 1.25rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+  border-bottom: 2px solid var(--color-black);
+  padding-bottom: 4px;
+}

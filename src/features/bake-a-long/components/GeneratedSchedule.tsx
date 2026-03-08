@@ -25,15 +25,7 @@ export const GeneratedSchedule: React.FC = () => {
 
   return (
     <div className={styles.generatedSchedule}>
-      <h2 style={{ 
-        fontFamily: 'var(--font-mono)', 
-        fontSize: '1.25rem', 
-        fontWeight: 900, 
-        textTransform: 'uppercase',
-        marginBottom: '24px',
-        borderBottom: '2px solid black',
-        paddingBottom: '4px'
-      }}>
+      <h2 className={styles.generatedHeader}>
         Baking Timeline
       </h2>
 
@@ -48,15 +40,7 @@ export const GeneratedSchedule: React.FC = () => {
             return (
               <React.Fragment key={index}>
                 {isFirstOfDate && (
-                  <div style={{ 
-                    backgroundColor: 'var(--color-black)', 
-                    color: 'var(--color-white)', 
-                    padding: '4px 12px',
-                    fontFamily: 'var(--font-mono)',
-                    fontSize: '0.75rem',
-                    fontWeight: 700,
-                    textTransform: 'uppercase'
-                  }}>
+                  <div className={styles.dateHeader}>
                     {formatDate(new Date(phase.start))}
                   </div>
                 )}

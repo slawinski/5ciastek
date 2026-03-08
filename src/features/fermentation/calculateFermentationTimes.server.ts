@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { queryOptions } from "@tanstack/react-query";
 import { fermentationSchema } from "./fermentation";
 import { expDecay, params } from "@/utils/schedule.utils";
 
@@ -32,4 +33,11 @@ export const calculateFermentationTimesServer = createServerFn()
       ) * adjustmentFactor;
 
     return { bulkTime, proofTime, totalTime };
+  });
+
+export const fermentationQueryOptions = (data: { temperature: number; hydration: string }) => 
+  queryOptions({
+    queryKey: ["fermentation", data],
+    queryFn: () => calculateFermentationTimesServer({ data }),
+    staleTime: 1000 * 60 * 60, // Cache for 1 hour
   });

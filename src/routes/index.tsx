@@ -1,11 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import styles from "./index.module.css";
 import layoutStyles from "@/components/PageLayout/PageLayout.module.css";
 import { InputField } from "@/components/InputField";
 import { formatTime } from "@/utils/time.utils";
-import { calculateFermentationTimesServer } from "@/features/fermentation/calculateFermentationTimes.server";
+import { fermentationQueryOptions } from "@/features/fermentation/calculateFermentationTimes.server";
 import { bakingTipsQueryOptions } from "@/features/fermentation/getBakingTips.server";
 import LearnMoreModal from "@/features/fermentation/components/LearnMoreModal";
 import ResultsPanel from "@/features/fermentation/components/ResultsPanel";
@@ -15,8 +15,12 @@ import { PageLayout } from "@/components/PageLayout";
 
 export const Route = createFileRoute("/")({
   component: FermentationCalculator,
-  loader: ({ context: { queryClient } }) => {
-    return queryClient.ensureQueryData(bakingTipsQueryOptions);
+  loader: async ({ context: { queryClient } }) => {
+    // Prefetch both tips and default fermentation results
+    await Promise.all([
+      queryClient.ensureQueryData(bakingTipsQueryOptions),
+      queryClient.ensureQueryData(fermentationQueryOptions({ temperature: 23, hydration: "75" })),
+    ]);
   },
 });
 
@@ -30,55 +34,55 @@ function FermentationCalculator() {
     temperature?: string[];
     hydration?: string[];
   } | null>(null);
-  const [results, setResults] = useState({
-    bulkFermentationTime: "",
-    proofingTime: "",
-    totalFermentationTime: "",
-    bulkFermentationTimeDecimal: 0,
-    proofingTimeDecimal: 0,
-    totalFermentationTimeDecimal: 0,
-  });
 
   // Use TanStack Query for baking tips
   const { data: bakingTips = [], isPending: isLoadingTips } = useQuery(bakingTipsQueryOptions);
 
-  useEffect(() => {
+  // Parse and validate inputs for the query
+  const queryData = useMemo(() => {
     const parsedTemperature = debouncedTemperature === '' ? undefined : parseFloat(debouncedTemperature);
-
     const validationResult = fermentationSchema.safeParse({ temperature: parsedTemperature, hydration: String(hydration) });
 
     if (!validationResult.success) {
       setErrors(validationResult.error.flatten().fieldErrors);
-      setResults({
+      return null;
+    }
+
+    setErrors(null);
+    return { temperature: parsedTemperature as number, hydration: String(hydration) };
+  }, [debouncedTemperature, hydration]);
+
+  // Use TanStack Query for fermentation results
+  const { data: fermentationResults, isPending: isCalculating } = useQuery({
+    ...fermentationQueryOptions(queryData || { temperature: 0, hydration: "0" }),
+    enabled: !!queryData,
+  });
+
+  // Format results for display
+  const results = useMemo(() => {
+    if (!fermentationResults) {
+      return {
         bulkFermentationTime: "",
         proofingTime: "",
         totalFermentationTime: "",
         bulkFermentationTimeDecimal: 0,
         proofingTimeDecimal: 0,
         totalFermentationTimeDecimal: 0,
-      });
-      return;
-    } else {
-      setErrors(null);
+      };
     }
+    
+    // ... (rest of formatting logic)
 
-    async function fetchFermentationTimes() {
-      const { bulkTime, proofTime, totalTime } =
-        await calculateFermentationTimesServer({
-          data: { temperature: parsedTemperature as number, hydration: String(hydration) },
-        });
-
-      setResults({
-        bulkFermentationTime: formatTime(bulkTime),
-        proofingTime: proofTime ? formatTime(proofTime) : "",
-        totalFermentationTime: formatTime(totalTime),
-        bulkFermentationTimeDecimal: parseFloat(bulkTime.toFixed(2)),
-        proofingTimeDecimal: proofTime ? parseFloat(proofTime.toFixed(2)) : 0,
-        totalFermentationTimeDecimal: parseFloat(totalTime.toFixed(2)),
-      });
-    }
-    fetchFermentationTimes();
-  }, [debouncedTemperature, hydration]);
+    const { bulkTime, proofTime, totalTime } = fermentationResults;
+    return {
+      bulkFermentationTime: formatTime(bulkTime),
+      proofingTime: proofTime ? formatTime(proofTime) : "",
+      totalFermentationTime: formatTime(totalTime),
+      bulkFermentationTimeDecimal: parseFloat(bulkTime.toFixed(2)),
+      proofingTimeDecimal: proofTime ? parseFloat(proofTime.toFixed(2)) : 0,
+      totalFermentationTimeDecimal: parseFloat(totalTime.toFixed(2)),
+    };
+  }, [fermentationResults]);
 
   const handleTemperatureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTemperature(e.target.value);
@@ -139,7 +143,12 @@ function FermentationCalculator() {
         </div>
 
         <div className={layoutStyles.card}>
-          <ResultsPanel title="Results" results={results} onLearnMoreClick={toggleModal} />
+          <ResultsPanel 
+            title="Results" 
+            results={results} 
+            onLearnMoreClick={toggleModal} 
+            isLoading={isCalculating}
+          />
         </div>
         
         <div className={`${layoutStyles.card} ${styles.proTipsCard}`}>

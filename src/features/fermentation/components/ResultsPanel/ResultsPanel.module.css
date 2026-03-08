@@ -45,6 +45,8 @@
   align-items: center;
   text-align: center;
   transform: rotate(-1deg); /* Slight "doodly" tilt */
+  min-height: 160px; /* Pre-allocate height */
+  justify-content: center;
 }
 
 .resultLabel {
@@ -87,6 +89,8 @@
   display: flex;
   flex-direction: column;
   min-width: 0; /* Prevents flex items from overflowing */
+  min-height: 100px; /* Pre-allocate height */
+  justify-content: center;
 }
 
 .secondaryValue {
@@ -107,4 +111,43 @@
   .mainValue {
     font-size: 2rem;
   }
+}
+
+/* Neo-Brutalist Skeleton */
+.skeletonBox {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  animation: pulse-border 1.5s infinite;
+}
+
+.skeletonText {
+  background-color: var(--color-black);
+  opacity: 0.1;
+  width: 60%;
+  height: 1em;
+  margin-bottom: 8px;
+}
+
+.skeletonValue {
+  background-color: var(--color-black);
+  opacity: 0.1;
+  width: 80%;
+  height: 2.5rem;
+}
+
+.skeletonValueSmall {
+  background-color: var(--color-black);
+  opacity: 0.1;
+  width: 50%;
+  height: 1.5rem;
+}
+
+@keyframes pulse-border {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
 }

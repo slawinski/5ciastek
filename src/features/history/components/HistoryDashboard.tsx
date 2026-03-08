@@ -27,10 +27,15 @@ export const HistoryDashboard = () => {
 
   return (
     <PageLayout title="Bake History" stats={stats}>
-      <div className={styles.historyGrid}>
-        {MOCK_HISTORY.map(bake => (
-          <BakeHistoryCard key={bake.id} {...bake} />
-        ))}
+      <div className={styles.wipOverlay}>
+        <div className={styles.wipBanner}>
+          <span className={styles.wipText}>Work In Progress</span>
+        </div>
+        <div className={`${styles.historyGrid} ${styles.historyGridBlurred}`}>
+          {MOCK_HISTORY.map(bake => (
+            <BakeHistoryCard key={bake.id} {...bake} />
+          ))}
+        </div>
       </div>
     </PageLayout>
   );

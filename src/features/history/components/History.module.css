@@ -106,3 +106,80 @@
   font-weight: 700;
   font-size: 1rem;
 }
+
+.wipOverlay {
+  position: relative;
+  width: 100%;
+  flex: 1; /* Ensure it takes full available height */
+  display: flex;
+  flex-direction: column;
+}
+
+.wipBanner {
+  position: fixed; /* Fixed on mobile to stay in view */
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-5deg);
+  background: repeating-linear-gradient(
+    -45deg,
+    #ffffff,
+    #ffffff 30px,
+    #ff3333 30px,
+    #ff3333 60px
+  );
+  border: 6px solid var(--color-black);
+  padding: 16px;
+  z-index: 100;
+  box-shadow: 20px 20px 0px var(--color-black);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  max-width: 90vw;
+}
+
+@media (min-width: 1024px) { /* --laptop */
+  .wipBanner {
+    position: absolute; /* Relative to dashboard container on desktop */
+    top: 50%;
+    transform: translate(-50%, -50%) rotate(-5deg);
+    z-index: 10;
+  }
+}
+
+.wipText {
+  background-color: var(--color-white);
+  border: 6px solid var(--color-black);
+  padding: 24px 60px;
+  font-family: var(--font-mono);
+  font-size: 4rem;
+  font-weight: 900;
+  color: var(--color-black);
+  text-transform: uppercase;
+  letter-spacing: -2px;
+  display: block;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .wipText {
+    font-size: 2.2rem; /* Much larger on mobile */
+    padding: 20px 30px;
+    border-width: 4px;
+    line-height: 1.1;
+    white-space: normal; /* Allow wrapping for "huge" look */
+  }
+  .wipBanner {
+    padding: 10px;
+    border-width: 4px;
+    box-shadow: 12px 12px 0px var(--color-black);
+    top: 35%; /* Move it up to ensure it's above the fold */
+    transform: translate(-50%, -50%) rotate(-3deg);
+  }
+}
+
+.historyGridBlurred {
+  pointer-events: none;
+  user-select: none;
+}

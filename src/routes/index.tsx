@@ -123,6 +123,22 @@ function FermentationCalculator() {
         )}
       </div>
       <ResultsPanel title="Results:" results={results} onLearnMoreClick={toggleModal} />
+      
+      <div className={styles.proTipsPanel}>
+        <h4 className={styles.proTipsTitle}>Baking Pro Tips</h4>
+        <ul className={styles.proTipsList}>
+          <li>
+            <strong>Watch the dough, not the clock:</strong> Times are estimates. Focus on volume and texture.
+          </li>
+          <li>
+            <strong>Temperature is key:</strong> Even 1°C difference can shift fermentation by an hour.
+          </li>
+          <li>
+            <strong>Hydration impact:</strong> Higher hydration doughs often ferment faster.
+          </li>
+        </ul>
+      </div>
+
       <LearnMoreModal isOpen={showModal} onClose={toggleModal} />
     </div>
   );

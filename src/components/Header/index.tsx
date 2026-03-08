@@ -113,10 +113,15 @@ export default function Header() {
 
       <aside ref={asideRef} className={sidebarClassName}>
         <div className={styles["sidebar-header"]}>
-          <h2 className={styles["sidebar-title"]}>Navigation</h2>
+          <h2 className={styles["sidebar-title"]}>
+            <Link to="/" className={styles["desktop-title"]} onClick={() => setIsOpen(false)}>
+              <Croissant /> 5ciastek
+            </Link>
+            <span className={styles["mobile-title"]}>Navigation</span>
+          </h2>
           <Button
             onClick={() => setIsOpen(false)}
-            className={`${styles["icon-button"]} ${styles["icon-button-white"]}`}
+            className={styles["icon-button"]}
             aria-label="Close menu"
           >
             <X size={24} />
@@ -127,9 +132,7 @@ export default function Header() {
           <Link
             to="/"
             onClick={() => setIsOpen(false)}
-            className={styles["nav-link"]}
-            // activeProps is no longer needed; styling is handled
-            // by the [aria-current="page"] selector in the CSS module.
+            className={styles.navLink}
           >
             <Home size={20} />
             <span>Fermentation Calculator</span>
@@ -137,7 +140,7 @@ export default function Header() {
           <Link
             to="/bake-a-long"
             onClick={() => setIsOpen(false)}
-            className={styles["nav-link"]}
+            className={styles.navLink}
           >
             <Route size={20} />
             <span>Bake-A-Long</span>
@@ -145,7 +148,7 @@ export default function Header() {
           <Link
             to="/bake-history"
             onClick={() => setIsOpen(false)}
-            className={styles["nav-link"]}
+            className={styles.navLink}
           >
             <ClipboardClock size={20} />
             <span>Bake History</span>

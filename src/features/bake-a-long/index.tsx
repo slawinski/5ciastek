@@ -5,6 +5,7 @@ import { StepDough } from "./components/StepDough";
 import { StepStarter } from "./components/StepStarter";
 import { GeneratedSchedule } from "./components/GeneratedSchedule";
 import { WizardBreadcrumbs } from "./components/WizardBreadcrumbs";
+import { WizardSummary } from "./components/WizardSummary";
 import { BakeAlongProvider, useBakeAlong } from "./context";
 import styles from "./components/BakeAlongWizard.module.css";
 
@@ -24,7 +25,10 @@ const BakeAlongWizardContent = () => {
       <h1 className={styles.wizardHeader}>Bake-a-long</h1>
       <WizardBreadcrumbs />
 
-      <div className={styles.stepContainer}>{renderStep()}</div>
+      <div className={styles.wizardContentWrapper}>
+        <div className={styles.stepContainer}>{renderStep()}</div>
+        <WizardSummary />
+      </div>
 
       <div className={styles.navigation}>
         <div>

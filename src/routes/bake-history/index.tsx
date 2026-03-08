@@ -1,10 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
-import UnderConstruction from '@/components/UnderConstruction';
+import { HistoryDashboard } from '@/features/history';
 
 export const Route = createFileRoute('/bake-history/')({
   component: BakeHistory,
 })
 
 function BakeHistory() {
-  return <UnderConstruction />;
+  return <HistoryDashboard />;
 }

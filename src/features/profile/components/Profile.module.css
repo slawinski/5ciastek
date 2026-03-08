@@ -1,0 +1,164 @@
+.profileContainer {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  flex: 1;
+}
+
+@media (min-width: 1024px) {
+  .profileContainer {
+    padding: 48px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+}
+
+.profileHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 32px;
+  background-color: var(--color-yellow);
+  border: 3px solid var(--color-black);
+  box-shadow: 8px 8px 0px var(--color-black);
+  text-align: center;
+}
+
+@media (min-width: 768px) {
+  .profileHeader {
+    flex-direction: row;
+    text-align: left;
+    padding: 40px;
+  }
+}
+
+.avatarBox {
+  width: 80px;
+  height: 80px;
+  background-color: var(--color-white);
+  border: 3px solid var(--color-black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 2.5rem;
+  font-weight: 900;
+  box-shadow: 4px 4px 0px var(--color-black);
+}
+
+.userBasicInfo {
+  flex: 1;
+}
+
+.userName {
+  margin: 0;
+  font-size: 2rem;
+  text-transform: uppercase;
+}
+
+.userJoinDate {
+  margin: 4px 0 0 0;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.875rem;
+  opacity: 0.8;
+}
+
+.editProfileBtn {
+  background-color: var(--color-black) !important;
+  color: var(--color-white) !important;
+}
+
+/* Profile Grid */
+.profileGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+@media (min-width: 768px) {
+  .profileGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (min-width: 1024px) {
+  .profileGrid {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+
+.profileCard {
+  background-color: var(--color-white);
+  border: 3px solid var(--color-black);
+  padding: 24px;
+  box-shadow: 6px 6px 0px var(--color-black);
+}
+
+.cardTitle {
+  font-family: var(--font-mono);
+  font-weight: 900;
+  text-transform: uppercase;
+  font-size: 1.125rem;
+  margin-bottom: 20px;
+  border-bottom: 2px solid var(--color-black);
+  padding-bottom: 8px;
+}
+
+.statsList, .prefList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.statItem, .prefItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9375rem;
+}
+
+.statLabel {
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #666;
+  font-size: 0.75rem;
+}
+
+.statValue {
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+
+.prefToggle {
+  background-color: var(--color-black);
+  color: var(--color-white);
+  padding: 2px 8px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 900;
+}
+
+.achievementGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.badge {
+  aspect-ratio: 1;
+  background-color: var(--color-grey-soft);
+  border: 2px solid var(--color-black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  cursor: help;
+}
+
+.badge:hover {
+  background-color: var(--color-pink);
+  transform: scale(1.1);
+}

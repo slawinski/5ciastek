@@ -1,10 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import styles from "./index.module.css";
 import layoutStyles from "@/components/PageLayout/PageLayout.module.css";
 import { InputField } from "@/components/InputField";
 import { formatTime } from "@/utils/time.utils";
 import { calculateFermentationTimesServer } from "@/features/fermentation/calculateFermentationTimes.server";
+import { bakingTipsQueryOptions } from "@/features/fermentation/getBakingTips.server";
 import LearnMoreModal from "@/features/fermentation/components/LearnMoreModal";
 import ResultsPanel from "@/features/fermentation/components/ResultsPanel";
 import { fermentationSchema } from "@/features/fermentation/fermentation";
@@ -13,6 +15,9 @@ import { PageLayout } from "@/components/PageLayout";
 
 export const Route = createFileRoute("/")({
   component: FermentationCalculator,
+  loader: ({ context: { queryClient } }) => {
+    return queryClient.ensureQueryData(bakingTipsQueryOptions);
+  },
 });
 
 function FermentationCalculator() {
@@ -33,6 +38,9 @@ function FermentationCalculator() {
     proofingTimeDecimal: 0,
     totalFermentationTimeDecimal: 0,
   });
+
+  // Use TanStack Query for baking tips
+  const { data: bakingTips = [], isPending: isLoadingTips } = useQuery(bakingTipsQueryOptions);
 
   useEffect(() => {
     const parsedTemperature = debouncedTemperature === '' ? undefined : parseFloat(debouncedTemperature);
@@ -137,15 +145,21 @@ function FermentationCalculator() {
         <div className={`${layoutStyles.card} ${styles.proTipsCard}`}>
           <h4 className={styles.proTipsTitle}>Baking Pro Tips</h4>
           <ul className={styles.proTipsList}>
-            <li>
-              <strong>Watch the dough, not the clock:</strong> Times are estimates. Focus on volume and texture.
-            </li>
-            <li>
-              <strong>Temperature is key:</strong> Even 1°C difference can shift fermentation by an hour.
-            </li>
-            <li>
-              <strong>Hydration impact:</strong> Higher hydration doughs often ferment faster.
-            </li>
+            {isLoadingTips ? (
+              [1, 2, 3].map((i) => (
+                <li key={i} className={styles.skeletonItem}>
+                  <div className={styles.skeletonLine} style={{ width: '40%', marginBottom: '4px' }}></div>
+                  <div className={styles.skeletonLine}></div>
+                  <div className={`${styles.skeletonLine} ${styles.skeletonLineShort}`}></div>
+                </li>
+              ))
+            ) : (
+              bakingTips.map((tip, index) => (
+                <li key={index}>
+                  <strong>{tip.title}:</strong> {tip.content}
+                </li>
+              ))
+            )}
           </ul>
         </div>
       </div>

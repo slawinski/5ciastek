@@ -1,5 +1,6 @@
 import { BakeAlongEvent } from '@/machines/bakeAlongMachine';
 import { SchedulePhase } from '@/utils/schedule.utils';
+import React from 'react';
 
 interface GeneratedScheduleProps {
   schedule: SchedulePhase[];
@@ -17,25 +18,33 @@ const formatDateTime = (date: Date) => {
   });
 };
 
-export const GeneratedSchedule: React.FC<GeneratedScheduleProps> = ({ schedule, send }) => {
+export const GeneratedSchedule: React.FC<GeneratedScheduleProps> = ({ schedule }) => {
   return (
     <div>
-      <h2>Your Baking Schedule</h2>
+      <h2 style={{ marginBottom: '16px' }}>Your Baking Schedule</h2>
       {schedule.length === 0 ? (
         <p>No schedule could be generated. Please check your inputs.</p>
       ) : (
-        <div style={{ border: '1px solid black', padding: '10px', marginTop: '10px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {schedule.map((phase, index) => (
-            <div key={index} style={{ marginBottom: '10px', borderBottom: '1px dashed #eee', paddingBottom: '5px' }}>
-              <strong>{phase.label}</strong>
-              <p style={{ margin: '0', fontSize: '0.9em', color: '#555' }}>
-                {formatDateTime(phase.start)} - {formatDateTime(phase.end)}
+            <div 
+              key={index} 
+              style={{ 
+                padding: '16px', 
+                border: '2px solid black', 
+                backgroundColor: 'white',
+                boxShadow: '4px 4px 0px black'
+              }}
+            >
+              <strong style={{ textTransform: 'uppercase', fontFamily: 'var(--font-mono)' }}>{phase.label}</strong>
+              <p style={{ margin: '8px 0 0 0', fontSize: '0.9em', fontWeight: 600 }}>
+                {formatDateTime(phase.start)} <br/> 
+                <span style={{ color: '#666' }}>to</span> {formatDateTime(phase.end)}
               </p>
             </div>
           ))}
         </div>
       )}
-      <button onClick={() => send({ type: 'RESET' })} style={{ marginTop: '20px' }}>Start Over</button>
     </div>
   );
 };

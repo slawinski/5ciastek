@@ -4,17 +4,20 @@
   padding: 32px;
   width: 95%;
   max-width: 800px;
-  margin: 40px auto;
+  margin: 24px auto; /* Reduced margin to help with height */
   box-shadow: var(--shadow-main);
   display: flex;
   flex-direction: column;
-  flex: 1; /* Added to fill height */
+  height: calc(100vh - 140px); /* Fixed height relative to viewport */
+  min-height: 400px; /* Minimum usable height */
+  overflow: hidden; /* Contain everything */
 }
 
 @media (max-width: 640px) {
   .wizardContainer {
-    margin: 20px auto;
+    margin: 16px auto;
     padding: 24px;
+    height: calc(100vh - 100px);
     box-shadow: 4px 4px 0px var(--color-black);
   }
 }

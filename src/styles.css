@@ -1,31 +1,27 @@
 :root {
   /* Gumroad Neo-Brutalist Palette */
   --color-black: #000000;
-  --color-white: #FFFFFF;
-  --color-pink: #FF90E8;
-  --color-yellow: #FFD338;
-  --color-green: #05FF00;
-  --color-grey-soft: #F0F0F0;
-  
+  --color-white: #ffffff;
+  --color-pink: #ff90e8;
+  --color-yellow: #ffd338;
+  --color-green: #05ff00;
+  --color-grey-soft: #f0f0f0;
+
   /* Semantic Mappings */
   --bg-primary: var(--color-white);
   --bg-secondary: var(--color-grey-soft);
   --text-primary: var(--color-black);
   --border-width: 3px;
   --shadow-offset: 6px;
-  --shadow-main: var(--shadow-offset) var(--shadow-offset) 0px var(--color-black);
+  --shadow-main: var(--shadow-offset) var(--shadow-offset) 0px
+    var(--color-black);
   --shadow-hover: 8px 8px 0px var(--color-black);
   --shadow-active: 0px 0px 0px var(--color-black);
 
   /* Fonts */
   --font-mono: "Roboto Mono", monospace;
-  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
-
-  /* Breakpoints */
-  --breakpoint-tablet: 768px;
-  --breakpoint-laptop: 1024px;
-  --breakpoint-desktop: 1440px;
-  --breakpoint-wide: 1920px;
+  --font-sans:
+    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
 
   /* Sidebar Width */
   --sidebar-width: 280px;
@@ -52,7 +48,8 @@ body {
   min-height: 100vh;
 }
 
-@media (min-width: 1024px) { /* --laptop */
+@media (min-width: 1024px) {
+  /* --laptop */
   .root-body {
     flex-direction: row; /* Sidebar on the left, content on the right */
   }
@@ -65,7 +62,12 @@ body {
   min-width: 0; /* Prevent flex overflow */
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-mono);
   font-weight: 900;
   text-transform: uppercase;

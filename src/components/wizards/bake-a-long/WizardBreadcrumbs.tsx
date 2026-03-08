@@ -9,7 +9,6 @@ const steps = [
   { id: "scheduling", name: "Schedule" },
   { id: "dough", name: "Dough" },
   { id: "starter", name: "Starter" },
-  { id: "review", name: "Review" },
   { id: "generated", name: "Generated" },
 ];
 

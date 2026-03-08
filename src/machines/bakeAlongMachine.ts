@@ -7,8 +7,8 @@ export interface BakeAlongContext {
   doughTemp: number | null;
   hydration: number | null;
   autolyseType: 'autolyse' | 'fermentolyse' | null;
-  levainFlourType: string | null; // Add levainFlourType
-  levainRatio: string | null; // e.g., "1:2:2"
+  levainFlourType: string | null;
+  levainRatio: string | null;
   ambientTemp: number | null;
   schedule: SchedulePhase[] | null;
 }
@@ -17,11 +17,10 @@ export interface BakeAlongContext {
 export type BakeAlongEvent =
   | { type: "NEXT" }
   | { type: "BACK" }
-  | { type: "GENERATE" }
   | { type: "RESET" }
   | { type: "UPDATE_SCHEDULE"; readyTime: Date }
   | { type: "UPDATE_DOUGH"; doughTemp: number | null; hydration: number; autolyseType: 'autolyse' | 'fermentolyse' | null }
-  | { type: "UPDATE_STARTER"; levainRatio: string; ambientTemp: number | null; levainFlourType: string }; // Update UPDATE_STARTER
+  | { type: "UPDATE_STARTER"; levainRatio: string; ambientTemp: number | null; levainFlourType: string };
 
 export const bakeAlongMachine = createMachine({
   id: "bakeAlong",
@@ -32,6 +31,9 @@ export const bakeAlongMachine = createMachine({
     hydration: null,
     levainRatio: null,
     ambientTemp: null,
+    autolyseType: null,
+    levainFlourType: null,
+    schedule: null,
   },
   states: {
     scheduling: {
@@ -43,8 +45,7 @@ export const bakeAlongMachine = createMachine({
         },
         NEXT: {
           target: "dough",
-          // Add guards for validation here in later tasks
-          guard: ({ context }) => context.readyTime !== null, // Example guard
+          guard: ({ context }) => context.readyTime !== null,
         },
       },
     },
@@ -54,13 +55,13 @@ export const bakeAlongMachine = createMachine({
           actions: assign({
             doughTemp: ({ event }) => event.doughTemp,
             hydration: ({ event }) => event.hydration,
-            autolyseType: ({ event }) => event.autolyseType, // Assign autolyseType
+            autolyseType: ({ event }) => event.autolyseType,
           }),
         },
         NEXT: {
           target: "starter",
           guard: ({ context }) =>
-            context.doughTemp !== null && context.hydration !== null && context.autolyseType !== null, // Update guard
+            context.doughTemp !== null && context.hydration !== null && context.autolyseType !== null,
         },
         BACK: "scheduling",
       },
@@ -71,23 +72,17 @@ export const bakeAlongMachine = createMachine({
           actions: assign({
             levainRatio: ({ event }) => event.levainRatio,
             ambientTemp: ({ event }) => event.ambientTemp,
-            levainFlourType: ({ event }) => event.levainFlourType, // Assign levainFlourType
+            levainFlourType: ({ event }) => event.levainFlourType,
           }),
         },
         NEXT: {
-          target: "review",
+          target: "generated",
           guard: ({ context }) =>
             context.levainRatio !== null &&
             context.ambientTemp !== null &&
-            context.levainFlourType !== null, // Update guard
+            context.levainFlourType !== null,
         },
         BACK: "dough",
-      },
-    },
-    review: {
-      on: {
-        GENERATE: "generated",
-        BACK: "starter",
       },
     },
     generated: {
@@ -98,9 +93,17 @@ export const bakeAlongMachine = createMachine({
         RESET: {
           target: "scheduling",
           actions: assign({
-            schedule: null, // Clear schedule on reset
+            readyTime: null,
+            doughTemp: null,
+            hydration: null,
+            levainRatio: null,
+            ambientTemp: null,
+            autolyseType: null,
+            levainFlourType: null,
+            schedule: null,
           })
         },
+        BACK: "starter",
       },
     },
   },

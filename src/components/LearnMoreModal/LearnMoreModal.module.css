@@ -1,11 +1,12 @@
 .modal-content-wrapper {
-  overflow-y: auto;
   flex-grow: 1;
+  padding: 8px; /* Breathing room for rotated elements */
 }
 
 .modal-content-wrapper h2 {
   margin-top: 1.5rem;
-  margin-bottom: 0.8rem;
+  margin-bottom: 1rem;
+  margin-left: 4px; /* Ensure rotation doesn't clip on the left */
   font-family: var(--font-mono);
   font-size: 1.75rem;
   font-weight: 900;

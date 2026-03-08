@@ -10,6 +10,7 @@
   box-shadow: var(--shadow-main);
   margin: 40px auto;
   max-width: 600px;
+  flex: 1; /* Stretch to fill available height */
 }
 
 @media (max-width: 640px) {

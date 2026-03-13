@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProfileIndexRouteImport } from './routes/profile/index'
+import { Route as HydrationIndexRouteImport } from './routes/hydration/index'
 import { Route as BakeHistoryIndexRouteImport } from './routes/bake-history/index'
 import { Route as BakeALongIndexRouteImport } from './routes/bake-a-long/index'
 
@@ -22,6 +23,11 @@ const IndexRoute = IndexRouteImport.update({
 const ProfileIndexRoute = ProfileIndexRouteImport.update({
   id: '/profile/',
   path: '/profile/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HydrationIndexRoute = HydrationIndexRouteImport.update({
+  id: '/hydration/',
+  path: '/hydration/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BakeHistoryIndexRoute = BakeHistoryIndexRouteImport.update({
@@ -39,12 +45,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/bake-a-long': typeof BakeALongIndexRoute
   '/bake-history': typeof BakeHistoryIndexRoute
+  '/hydration': typeof HydrationIndexRoute
   '/profile': typeof ProfileIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/bake-a-long': typeof BakeALongIndexRoute
   '/bake-history': typeof BakeHistoryIndexRoute
+  '/hydration': typeof HydrationIndexRoute
   '/profile': typeof ProfileIndexRoute
 }
 export interface FileRoutesById {
@@ -52,20 +60,28 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/bake-a-long/': typeof BakeALongIndexRoute
   '/bake-history/': typeof BakeHistoryIndexRoute
+  '/hydration/': typeof HydrationIndexRoute
   '/profile/': typeof ProfileIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/bake-a-long' | '/bake-history' | '/profile'
+  fullPaths: '/' | '/bake-a-long' | '/bake-history' | '/hydration' | '/profile'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/bake-a-long' | '/bake-history' | '/profile'
-  id: '__root__' | '/' | '/bake-a-long/' | '/bake-history/' | '/profile/'
+  to: '/' | '/bake-a-long' | '/bake-history' | '/hydration' | '/profile'
+  id:
+    | '__root__'
+    | '/'
+    | '/bake-a-long/'
+    | '/bake-history/'
+    | '/hydration/'
+    | '/profile/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BakeALongIndexRoute: typeof BakeALongIndexRoute
   BakeHistoryIndexRoute: typeof BakeHistoryIndexRoute
+  HydrationIndexRoute: typeof HydrationIndexRoute
   ProfileIndexRoute: typeof ProfileIndexRoute
 }
 
@@ -83,6 +99,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof ProfileIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hydration/': {
+      id: '/hydration/'
+      path: '/hydration'
+      fullPath: '/hydration'
+      preLoaderRoute: typeof HydrationIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/bake-history/': {
@@ -106,6 +129,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BakeALongIndexRoute: BakeALongIndexRoute,
   BakeHistoryIndexRoute: BakeHistoryIndexRoute,
+  HydrationIndexRoute: HydrationIndexRoute,
   ProfileIndexRoute: ProfileIndexRoute,
 }
 export const routeTree = rootRouteImport

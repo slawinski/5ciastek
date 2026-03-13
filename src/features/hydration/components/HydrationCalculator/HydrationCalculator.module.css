@@ -1,0 +1,45 @@
+.calculatorGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.cardHeader {
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  font-weight: 900;
+  margin-bottom: 2rem;
+  text-transform: uppercase;
+  border-bottom: var(--border-width) solid var(--color-black);
+  padding-bottom: 0.5rem;
+}
+
+.inputsWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.error {
+  color: #ff0000;
+  font-weight: 700;
+  font-size: 0.875rem;
+  margin-top: -1rem;
+}
+
+.infoBox {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: var(--color-yellow);
+  border: var(--border-width) solid var(--color-black);
+  box-shadow: 4px 4px 0px var(--color-black);
+  font-size: 0.875rem;
+  font-family: var(--font-mono);
+}
+
+@media (--laptop) {
+  .calculatorGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}

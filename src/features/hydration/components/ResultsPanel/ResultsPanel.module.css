@@ -1,0 +1,102 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.mainResult {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border: var(--border-width) solid var(--color-black);
+  background-color: var(--color-pink);
+  padding: 2rem;
+  box-shadow: var(--shadow-main);
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.resultLabel {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+  color: var(--color-black);
+}
+
+.mainValue {
+  font-family: var(--font-mono);
+  font-size: 3rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.secondaryResults {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.secondaryResult {
+  border: var(--border-width) solid var(--color-black);
+  background-color: var(--color-white);
+  padding: 1rem;
+  box-shadow: var(--shadow-main);
+}
+
+.secondaryValue {
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+/* Skeletons */
+.skeletonBox {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.skeletonValue {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  animation: pulse 1.5s infinite;
+}
+
+.skeletonValueSmall {
+  width: 60%;
+  height: 1.5rem;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 0.3; }
+  100% { opacity: 0.6; }
+}
+
+@media (--laptop) {
+  .mainValue {
+    font-size: 4rem;
+  }
+}

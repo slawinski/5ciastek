@@ -9,6 +9,7 @@ import {
   ClipboardClock,
   User,
   Croissant,
+  Droplets,
 } from "lucide-react";
 import styles from "./Header.module.css";
 
@@ -136,6 +137,14 @@ export default function Header() {
           >
             <Home size={20} />
             <span>Fermentation Calculator</span>
+          </Link>
+          <Link
+            to="/hydration"
+            onClick={() => setIsOpen(false)}
+            className={styles.navLink}
+          >
+            <Droplets size={20} />
+            <span>Hydration Calculator</span>
           </Link>
           <Link
             to="/bake-a-long"

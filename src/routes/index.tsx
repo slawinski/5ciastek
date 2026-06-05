@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState, useMemo, Suspense } from "react";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import styles from "./index.module.css";
 import layoutStyles from "@/components/PageLayout/PageLayout.module.css";
 import { InputField } from "@/components/InputField";
@@ -24,6 +24,78 @@ export const Route = createFileRoute("/")({
   },
 });
 
+function BakingTipsList() {
+  const { data: bakingTips = [] } = useSuspenseQuery(bakingTipsQueryOptions);
+  
+  return (
+    <ul className={styles.proTipsList}>
+      {bakingTips.map((tip, index) => (
+        <li key={index}>
+          <strong>{tip.title}:</strong> {tip.content}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function BakingTipsSkeleton() {
+  return (
+    <ul className={styles.proTipsList}>
+      {[1, 2, 3].map((i) => (
+        <li key={i} className={styles.skeletonItem}>
+          <div className={styles.skeletonLine} style={{ width: '40%', marginBottom: '4px' }}></div>
+          <div className={styles.skeletonLine}></div>
+          <div className={`${styles.skeletonLine} ${styles.skeletonLineShort}`}></div>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function FermentationResults({ 
+  queryData, 
+  toggleModal 
+}: { 
+  queryData: { temperature: number; hydration: string } | null,
+  toggleModal: () => void
+}) {
+  const { data: fermentationResults } = useSuspenseQuery({
+    ...fermentationQueryOptions(queryData || { temperature: 23, hydration: "75" }),
+  });
+
+  const results = useMemo(() => {
+    if (!fermentationResults) {
+      return {
+        bulkFermentationTime: "",
+        proofingTime: "",
+        totalFermentationTime: "",
+        bulkFermentationTimeDecimal: 0,
+        proofingTimeDecimal: 0,
+        totalFermentationTimeDecimal: 0,
+      };
+    }
+
+    const { bulkTime, proofTime, totalTime } = fermentationResults;
+    return {
+      bulkFermentationTime: formatTime(bulkTime),
+      proofingTime: proofTime ? formatTime(proofTime) : "",
+      totalFermentationTime: formatTime(totalTime),
+      bulkFermentationTimeDecimal: parseFloat(bulkTime.toFixed(2)),
+      proofingTimeDecimal: proofTime ? parseFloat(proofTime.toFixed(2)) : 0,
+      totalFermentationTimeDecimal: parseFloat(totalTime.toFixed(2)),
+    };
+  }, [fermentationResults]);
+
+  return (
+    <ResultsPanel 
+      title="Results" 
+      results={results} 
+      onLearnMoreClick={toggleModal} 
+      isLoading={false}
+    />
+  );
+}
+
 function FermentationCalculator() {
   const [temperature, setTemperature] = useState<string>('23');
   const debouncedTemperature = useDebounce(temperature, 500);
@@ -34,9 +106,6 @@ function FermentationCalculator() {
     temperature?: string[];
     hydration?: string[];
   } | null>(null);
-
-  // Use TanStack Query for baking tips
-  const { data: bakingTips = [], isPending: isLoadingTips } = useQuery(bakingTipsQueryOptions);
 
   // Parse and validate inputs for the query
   const queryData = useMemo(() => {
@@ -51,38 +120,6 @@ function FermentationCalculator() {
     setErrors(null);
     return { temperature: parsedTemperature as number, hydration: String(hydration) };
   }, [debouncedTemperature, hydration]);
-
-  // Use TanStack Query for fermentation results
-  const { data: fermentationResults, isPending: isCalculating } = useQuery({
-    ...fermentationQueryOptions(queryData || { temperature: 0, hydration: "0" }),
-    enabled: !!queryData,
-  });
-
-  // Format results for display
-  const results = useMemo(() => {
-    if (!fermentationResults) {
-      return {
-        bulkFermentationTime: "",
-        proofingTime: "",
-        totalFermentationTime: "",
-        bulkFermentationTimeDecimal: 0,
-        proofingTimeDecimal: 0,
-        totalFermentationTimeDecimal: 0,
-      };
-    }
-    
-    // ... (rest of formatting logic)
-
-    const { bulkTime, proofTime, totalTime } = fermentationResults;
-    return {
-      bulkFermentationTime: formatTime(bulkTime),
-      proofingTime: proofTime ? formatTime(proofTime) : "",
-      totalFermentationTime: formatTime(totalTime),
-      bulkFermentationTimeDecimal: parseFloat(bulkTime.toFixed(2)),
-      proofingTimeDecimal: proofTime ? parseFloat(proofTime.toFixed(2)) : 0,
-      totalFermentationTimeDecimal: parseFloat(totalTime.toFixed(2)),
-    };
-  }, [fermentationResults]);
 
   const handleTemperatureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTemperature(e.target.value);
@@ -143,33 +180,30 @@ function FermentationCalculator() {
         </div>
 
         <div className={layoutStyles.card}>
-          <ResultsPanel 
-            title="Results" 
-            results={results} 
-            onLearnMoreClick={toggleModal} 
-            isLoading={isCalculating}
-          />
+          <Suspense fallback={
+            <ResultsPanel 
+              title="Results" 
+              results={{
+                bulkFermentationTime: "",
+                proofingTime: "",
+                totalFermentationTime: "",
+                bulkFermentationTimeDecimal: 0,
+                proofingTimeDecimal: 0,
+                totalFermentationTimeDecimal: 0,
+              }} 
+              onLearnMoreClick={toggleModal} 
+              isLoading={true}
+            />
+          }>
+            <FermentationResults queryData={queryData} toggleModal={toggleModal} />
+          </Suspense>
         </div>
         
         <div className={`${layoutStyles.card} ${styles.proTipsCard}`}>
           <h4 className={styles.proTipsTitle}>Baking Pro Tips</h4>
-          <ul className={styles.proTipsList}>
-            {isLoadingTips ? (
-              [1, 2, 3].map((i) => (
-                <li key={i} className={styles.skeletonItem}>
-                  <div className={styles.skeletonLine} style={{ width: '40%', marginBottom: '4px' }}></div>
-                  <div className={styles.skeletonLine}></div>
-                  <div className={`${styles.skeletonLine} ${styles.skeletonLineShort}`}></div>
-                </li>
-              ))
-            ) : (
-              bakingTips.map((tip, index) => (
-                <li key={index}>
-                  <strong>{tip.title}:</strong> {tip.content}
-                </li>
-              ))
-            )}
-          </ul>
+          <Suspense fallback={<BakingTipsSkeleton />}>
+            <BakingTipsList />
+          </Suspense>
         </div>
       </div>
 

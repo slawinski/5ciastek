@@ -64,9 +64,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
               },
             ]}
           />
-          <QueryClientProvider client={queryClient}>
-             <Scripts />
-          </QueryClientProvider>
+          <Scripts />
         </QueryClientProvider>
       </body>
     </html>

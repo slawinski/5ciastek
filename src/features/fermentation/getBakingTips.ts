@@ -86,9 +86,22 @@ const BAKING_PRO_TIPS = [
 
 export const getBakingTipsServer = createServerFn()
   .handler(async () => {
-    // Shuffle and pick 3 random tips
-    const shuffled = [...BAKING_PRO_TIPS].sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, 3);
+    // Pick 3 tips deterministically based on the current day of the year
+    // This ensures stability across SSR and hydration while still providing variety
+    const now = new Date();
+    const dayOfYear = Math.floor((now.getTime() - new Date(now.getFullYear(), 0, 0).getTime()) / 86400000);
+    
+    // Simple deterministic shuffle using dayOfYear as a seed
+    const selected = [];
+    const available = [...BAKING_PRO_TIPS];
+    
+    for (let i = 0; i < 3; i++) {
+      // Use dayOfYear + index to pick different tips
+      const index = (dayOfYear + i) % available.length;
+      selected.push(available[index]);
+    }
+    
+    return selected;
   });
 
 export const bakingTipsQueryOptions = queryOptions({

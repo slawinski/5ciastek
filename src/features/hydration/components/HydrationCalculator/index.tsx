@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import React, { useState, useMemo, Suspense } from "react";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { InputField } from "@/components/InputField";
 import { useDebounce } from "@/hooks/useDebounce";
 import { hydrationSchema } from "../../hydration";
@@ -7,6 +7,20 @@ import { hydrationQueryOptions } from "../../calculateHydration";
 import ResultsPanel from "../ResultsPanel";
 import styles from "./HydrationCalculator.module.css";
 import layoutStyles from "@/components/PageLayout/PageLayout.module.css";
+
+const HydrationResults: React.FC<{ queryData: { flourWeight: number; desiredHydration: number } | null }> = ({ queryData }) => {
+  const { data: hydrationResults } = useSuspenseQuery({
+    ...hydrationQueryOptions(queryData || { flourWeight: 500, desiredHydration: 70 }),
+  });
+
+  return (
+    <ResultsPanel 
+      title="Recipe Results" 
+      results={hydrationResults || null} 
+      isLoading={false}
+    />
+  );
+};
 
 const HydrationCalculator: React.FC = () => {
   const [flourWeight, setFlourWeight] = useState<string>("500");
@@ -37,11 +51,6 @@ const HydrationCalculator: React.FC = () => {
     setErrors(null);
     return { flourWeight: fw, desiredHydration: dh };
   }, [debouncedFlourWeight, debouncedDesiredHydration]);
-
-  const { data: hydrationResults, isPending: isCalculating } = useQuery({
-    ...hydrationQueryOptions(queryData || { flourWeight: 0, desiredHydration: 0 }),
-    enabled: !!queryData,
-  });
 
   const handleFlourChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFlourWeight(e.target.value);
@@ -87,11 +96,15 @@ const HydrationCalculator: React.FC = () => {
       </div>
 
       <div className={layoutStyles.card}>
-        <ResultsPanel 
-          title="Recipe Results" 
-          results={hydrationResults || null} 
-          isLoading={isCalculating}
-        />
+        <Suspense fallback={
+          <ResultsPanel 
+            title="Recipe Results" 
+            results={null} 
+            isLoading={true}
+          />
+        }>
+          <HydrationResults queryData={queryData} />
+        </Suspense>
       </div>
     </div>
   );

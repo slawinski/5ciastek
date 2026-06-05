@@ -43,10 +43,10 @@ const BakeALongIndexRoute = BakeALongIndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/bake-a-long': typeof BakeALongIndexRoute
-  '/bake-history': typeof BakeHistoryIndexRoute
-  '/hydration': typeof HydrationIndexRoute
-  '/profile': typeof ProfileIndexRoute
+  '/bake-a-long/': typeof BakeALongIndexRoute
+  '/bake-history/': typeof BakeHistoryIndexRoute
+  '/hydration/': typeof HydrationIndexRoute
+  '/profile/': typeof ProfileIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -65,7 +65,12 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/bake-a-long' | '/bake-history' | '/hydration' | '/profile'
+  fullPaths:
+    | '/'
+    | '/bake-a-long/'
+    | '/bake-history/'
+    | '/hydration/'
+    | '/profile/'
   fileRoutesByTo: FileRoutesByTo
   to: '/' | '/bake-a-long' | '/bake-history' | '/hydration' | '/profile'
   id:
@@ -97,28 +102,28 @@ declare module '@tanstack/react-router' {
     '/profile/': {
       id: '/profile/'
       path: '/profile'
-      fullPath: '/profile'
+      fullPath: '/profile/'
       preLoaderRoute: typeof ProfileIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/hydration/': {
       id: '/hydration/'
       path: '/hydration'
-      fullPath: '/hydration'
+      fullPath: '/hydration/'
       preLoaderRoute: typeof HydrationIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/bake-history/': {
       id: '/bake-history/'
       path: '/bake-history'
-      fullPath: '/bake-history'
+      fullPath: '/bake-history/'
       preLoaderRoute: typeof BakeHistoryIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/bake-a-long/': {
       id: '/bake-a-long/'
       path: '/bake-a-long'
-      fullPath: '/bake-a-long'
+      fullPath: '/bake-a-long/'
       preLoaderRoute: typeof BakeALongIndexRouteImport
       parentRoute: typeof rootRouteImport
     }

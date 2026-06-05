@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { InputField } from "@/components/InputField";
 import { useDebounce } from "@/hooks/useDebounce";
 import { hydrationSchema } from "../../hydration";
-import { hydrationQueryOptions } from "../../calculateHydration.server";
+import { hydrationQueryOptions } from "../../calculateHydration";
 import ResultsPanel from "../ResultsPanel";
 import styles from "./HydrationCalculator.module.css";
 import layoutStyles from "@/components/PageLayout/PageLayout.module.css";

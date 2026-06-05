@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageLayout } from "@/components/PageLayout";
 import HydrationCalculator from "@/features/hydration/components/HydrationCalculator";
-import { hydrationQueryOptions } from "@/features/hydration/calculateHydration.server";
+import { hydrationQueryOptions } from "@/features/hydration/calculateHydration";
 
 export const Route = createFileRoute("/hydration/")({
   component: HydrationPage,

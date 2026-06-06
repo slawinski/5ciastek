@@ -1,12 +1,12 @@
 [phases.setup]
-nixPkgs = ["nodejs_22"]
+nixPkgs = ["nodejs_20"]
 
 [phases.install]
 cmds = ["npm ci"]
 
 [phases.build]
-cmds = ["npm run build", "ls -la .output/server"]
-env = { NITRO_PRESET = "node-server" }
+cmds = ["npm run build", "ls -d .output || ls -d dist || true", "ls -R .output || ls -R dist || true"]
+env = { NODE_ENV = "production", NITRO_PRESET = "node-server" }
 
 [start]
 cmd = "npm run start"

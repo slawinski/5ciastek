@@ -6,12 +6,15 @@ cmds = ["npm ci"]
 
 [phases.build]
 cmds = ["npm run build"]
+env = { NITRO_PRESET = "node-server" }
 
 [start]
-cmd = "npm run start"
+cmd = "node .output/server/index.mjs"
 
 [variables]
 NODE_ENV = "production"
 NPM_CONFIG_PRODUCTION = "false"
 PORT = "3000"
 HOST = "0.0.0.0"
+NITRO_HOST = "0.0.0.0"
+NITRO_PORT = "3000"

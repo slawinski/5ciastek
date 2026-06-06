@@ -8,7 +8,7 @@ COPY . .
 RUN npm run build
 
 FROM base AS runner
-COPY --from=build /app/.output ./.output
+COPY --from=build /app/dist ./dist
 COPY --from=build /app/public ./public
 
 ENV NODE_ENV=production
@@ -17,4 +17,4 @@ ENV HOST=0.0.0.0
 
 EXPOSE 3000
 
-CMD ["node", ".output/server/index.mjs"]
+CMD ["node", "dist/server/server.js"]

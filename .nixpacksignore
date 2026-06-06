@@ -1,0 +1,5 @@
+node_modules
+.tanstack
+.git
+.env
+*.md

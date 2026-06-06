@@ -5,7 +5,7 @@ nixPkgs = ["nodejs_20"]
 cmds = ["npm ci"]
 
 [phases.build]
-cmds = ["npm run build", "find . -name \"index.mjs\" || true"]
+cmds = ["npm run build", "ls -d .output || ls -d dist || true", "ls -R .output || ls -R dist || true"]
 env = { NODE_ENV = "production", NITRO_PRESET = "node-server" }
 
 [start]

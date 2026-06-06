@@ -1,32 +1,29 @@
-FROM node:20-slim AS base
+FROM node:20 AS build
 WORKDIR /app
 
-# Stage 1: Install production dependencies
-FROM base AS deps
-COPY package*.json ./
-RUN npm ci --omit=dev
-
-# Stage 2: Build the application
-FROM base AS build
+# Install all dependencies
 COPY package*.json ./
 RUN npm ci
+
+# Copy source and build
 COPY . .
 RUN npm run build
 
-# Stage 3: Runner
-FROM base AS runner
+# Runner stage
+FROM node:20 AS runner
+WORKDIR /app
+
 ENV NODE_ENV=production
 ENV PORT=3000
 ENV HOST=0.0.0.0
 
-# Copy only what is needed for production
-COPY --from=deps /app/node_modules ./node_modules
+# Copy built assets and ALL node_modules to ensure nothing is missing
 COPY --from=build /app/dist ./dist
-# Public folder assets are already in dist/client after build, 
-# but we copy it just in case the server expects it at root.
 COPY --from=build /app/public ./public
+COPY --from=build /app/node_modules ./node_modules
 COPY package.json ./
 
 EXPOSE 3000
 
-CMD ["node", "dist/server/server.js"]
+# Using npm run start for more robust initialization
+CMD ["npm", "run", "start"]

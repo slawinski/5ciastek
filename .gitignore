@@ -1,6 +1,6 @@
 node_modules
 .DS_Store
-# dist
+dist
 dist-ssr
 *.local
 count.txt
@@ -8,6 +8,6 @@ count.txt
 .nitro
 .tanstack
 .wrangler
-# .output
-# .vinxi
+.output
+.vinxi
 todos.json

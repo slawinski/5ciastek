@@ -5,16 +5,16 @@ title: "[KoPieC OS] "
 ---
 
 <!-- Przed implementacją: docs/specification-style.md oraz docs/engineering-assurance.md. -->
-<!-- Jedno Issue = jedno testowalne zachowanie. Epiki i roadmapa nie wymagają tej szczegółowości. -->
+<!-- Jedno zadanie potomne = jedna spójna, ograniczona i niezależnie demonstrowalna zdolność, nie jeden czasownik. Wymagania pozostają atomowe. Epiki i roadmapa nie wymagają tej szczegółowości. -->
 
 ## Powiązany epik
-<!-- Wpisz numer Issue, np. #4. -->
+<!-- Rodzic (parent): wpisz numer Issue, np. #4, i zakres zadania w funkcji nadrzędnej. Rodzic określa zakres, nie gotowość wszystkich dzieci. -->
 
 ## Cel
 <!-- Jedno zdanie: jaki rezultat biznesowy daje zmiana? -->
 
 ## Pojęcia i dane wejściowe
-<!-- Zdefiniuj ważne terminy, jednostki, źródło danych i warunki początkowe. -->
+<!-- Zdefiniuj ważne terminy, jednostki, źródło danych i warunki początkowe. Specyfikacja i UI po polsku; identyfikatory po angielsku. Korzystaj ze wspólnego słownika zgodnie z docs/specification-style.md. -->
 
 ## Wymagania
 <!--
@@ -52,7 +52,12 @@ Podaj warunek i oczekiwany rezultat; unikaj ogólnych sformułowań.
 <!-- Zapisz, czego zadanie nie obejmuje. -->
 
 ## Zależności i ograniczenia
-<!-- Istniejące funkcje, uprawnienia, sposób testowania, ewentualna migracja danych. -->
+<!-- Istniejące funkcje, uprawnienia, sposób testowania, ewentualna migracja danych. Dla każdego powiązania podaj Issue/dokument oraz zakres/warunek; jeśli nie dotyczy, napisz dlaczego. Ten sam cel może mieć kilka jawnie rozdzielonych ról. Pełne zasady: docs/specification-style.md, sekcja „Znaczenie powiązań”. -->
+- **Rodzic (parent):** zakres funkcji nadrzędnej — wskazany w sekcji „Powiązany epik”, nie warunek gotowości całego epiku.
+- **Kontrakt wejściowy (contract input):** uzgodnione dane/interfejs; zgodność z kontraktem nie oznacza konieczności gotowej implementacji dostawcy.
+- **Warunek implementacyjny (implementation prerequisite):** jakie zaimplementowane zachowanie jest potrzebne i kiedy blokuje rozpoczęcie lub demonstrację tego wycinka?
+- **Adapter opcjonalny (optional adapter):** jaka integracja rozszerza wycinek, ale nie blokuje samodzielnej demonstracji bez niej?
+- **Warunek wydania (release gate):** jakie dane lub etap wymagają spełnienia kontroli przed użyciem? Demonstracja syntetyczna nie stanowi zgody na wydanie na rzeczywistych danych.
 
 ## Warunki wydania
 - [ ] Uprawnienia i błędne wejścia są zweryfikowane lub uzasadniono brak potrzeby.

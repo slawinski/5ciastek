@@ -26,6 +26,13 @@ Podaj warunek i oczekiwany rezultat; unikaj ogólnych sformułowań.
 - **REQ-01:**
 - **REQ-02:**
 
+## UI i design system (jeśli zadanie dotyczy interfejsu)
+<!-- Obowiązujący web brutalism 5ciastek: docs/design-system.md i Issue #25. -->
+- **Ponowne użycie:** jaki istniejący komponent lub token wykorzystuje zadanie?
+- **Nowy komponent:** dlaczego jest potrzebny i gdzie będzie współdzielony?
+- **Zgodność stylu:** jak zweryfikowano kolory, obramowania, typografię, cienie i stany?
+- **Dostępność i ekrany:** telefon, desktop, w razie potrzeby tablet; klawiatura, focus, kontrast i czytelność.
+
 ## Bezpieczeństwo, niezawodność i zgodność
 <!-- Krótkie odpowiedzi są wystarczające. Jeśli punkt nie dotyczy funkcji, napisz "nie dotyczy" i dlaczego. -->
 - **Dane i prywatność:** klasa danych, cel zbierania, okres przechowywania i osoba odpowiedzialna.

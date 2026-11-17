@@ -1,0 +1,61 @@
+# KoPieC OS — Workforce Planning
+
+**Status:** plan domeny. Nie oznacza, że funkcja istnieje ani że ewidencja czasu pracy jest prawnie zgodna.
+
+## Cel
+
+System ma odpowiadać na pytanie: **kiedy i na ile godzin musi przyjść piekarz, aby przygotować zaplanowaną produkcję na czas?** Musi działać przy jednej osobie, 1–2 pracownikach i większym zespole.
+
+## Trzy odrębne fakty
+
+| Typ | Znaczenie | Źródło |
+|---|---|---|
+| `ShiftPlan` | Plan: kto ma pracować oraz początek i koniec zmiany | Kierownik / właściciel, później rekomendacja planera |
+| `WorkSession` | Wykonanie: rzeczywiste godziny pracy/obecności osoby; przerwy i korekty | Ręczne zdarzenia, później ewentualne RCP |
+| `LaborSegment` | Nakład pracy nad konkretną operacją / partią; liczba osób × czas | Moduł produkcji #18 |
+
+**Nie sumować `LaborSegment` jako formalnej ewidencji czasu pracy.** Jedna osoba może obsługiwać kilka równoległych partii i zadań. Zapisy `LaborSegment` mogą nie zawierać identyfikatorów osób, nie uwzględniają całej pracy, przerw, urlopów ani innych obowiązków. Czas właściciela i pracowników także ma inne znaczenie prawne.
+
+## Proces planowania
+
+1. Ustal planowaną ilość sztuk lub odbierz propozycję z prognozy popytu (#6), zamówień (#11) albo ręcznego planu (#17).
+2. Zbuduj zapotrzebowanie na etapy produkcji i aktywny czas ludzi, z oznaczeniem źródła czasów: szacunek / pomiar (#14, #18).
+3. Ustal datę i godzinę gotowości pieczywa. Uwzględnij etapy pasywne, chłodzenie, rezerwy, stanowiska i piec.
+4. Wyznacz wstępne godziny rozpoczęcia i zakończenia pracy. Dla jednej osoby umożliw prosty plan wsteczny bez optymalizatora.
+5. Sprawdź dostępność osób, umiejętności, przerwy, czas odpoczynku oraz zasoby. Zgłoś braki, nie ukrywaj ich.
+6. Wybierz i zatwierdź wariant planu. Dopiero zatwierdzony plan przekazuj do rozliczeń, MRP i harmonogramu produkcji.
+7. Rejestruj wykonanie oddzielnie. Analizuj odchylenia, ale nie nadpisuj historycznego grafiku.
+
+## Integracje i źródło prawdy
+
+| System | Przekazuje do Workforce Planning | Otrzymuje z Workforce Planning |
+|---|---|---|
+| Katalog receptur #14–#17 | Produkty, masy i wstępne etapy | Docelowe ilości do skalowania |
+| Produkcja #3, #18–#19 | Czas aktywny, wynik operacji, odchylenia | Dostępnych pracowników/zmiany |
+| Sprzedaż i prognoza #4, #6 | Oczekiwane ilości i godziny sprzedaży | Ostrzeżenia o niewystarczającej zdolności |
+| CAPP #7 | Zapotrzebowanie na czas, umiejętności i maszyny | Zasoby ludzkie i ograniczenia czasu |
+| Zakupy #9 | Dostępność surowców | Zatwierdzony plan do zapotrzebowania MRP |
+| Zamówienia B2B #11 | Potwierdzone ilości i terminy | Flaga wykonalności; nie automatyczna anulacja zamówienia |
+| Koszty #5 | Stawki kosztowe i reguły kalkulacji | Planowane/faktyczne godziny; rozróżnienie pracy właściciela |
+
+**Priorytet danych:** potwierdzone zamówienia nie mogą zostać zmniejszone przez samą rekomendację. Niepotwierdzone zamówienia i prognoza mogą być przedmiotem propozycji ograniczenia, zaakceptowanej przez człowieka.
+
+## Dostarczanie etapami
+
+**M1: ręczny grafik (#27).** Kalendarz, plan pracy właściciela i 1–2 pracowników, planowana liczba godzin, zmiany nocne, prosty plan wsteczny od godziny gotowości produktu. Bez HRM i pełnego solwera.
+
+**M1: rejestr pracy (#28).** Osobne dane `WorkSession` i porównanie z grafikiem. Najpierw rejestr operacyjny i eksport; formalna ewidencja pracownicza wymaga weryfikacji.
+
+**M2/M3: integracja i rekomendacje (#29).** Zapotrzebowanie na pracę z produkcji i zamówień; ostrzeżenia, propozycje obsady i ograniczenia nowych zamówień. W miarę potrzeb optymalizator #7.
+
+## Bezpieczeństwo i prawo
+
+- Widoczność danych osobowych, grafiki oraz indywidualny czas pracy wymagają właściwych ról i polityki retencji (Issues #21, #23).
+- Warunki publikacji grafiku, minimalne okresy odpoczynku, ewidencja i obowiązki pracodawcy zależą od stosunku prawnego i systemu czasu pracy. Nie przenoś automatycznie norm dla pracowników na właściciela.
+- Dokumenty z KoPieC OS **nie mogą być oznaczane jako zgodne z wymaganiami prawa pracy bez weryfikacji**.
+- Rzeczywiste zdarzenia muszą mieć źródło, autora i możliwość kontrolowanej korekty zgodnie z #22 i #24.
+- Dane z kamer nie mogą automatycznie służyć do identyfikacji lub oceny pracy osób; przed takim rozwiązaniem potrzebna jest osobna analiza prawa (#23).
+
+Źródła: [PIP — czas pracy](https://www.pip.gov.pl/dla-pracodawcow/porady-prawne/czas-pracy), [PIP — ewidencja vs lista obecności](https://www.pip.gov.pl/dla-pracodawcow/pytania-i-odpowiedzi/jaka-jest-roznica-miedzy-ewidencja-czasu-pracy-a-lista-obecnosci), [rozporządzenie w sprawie dokumentacji pracowniczej](https://eli.gov.pl/api/acts/DU/2026/474/text/O/D20260474.pdf).
+
+**Powiązane Issues:** #26 (epik), #27 (grafik), #28 (czas), #29 (integracja).

@@ -4,7 +4,17 @@
 
 ## Cel
 
-System ma odpowiadać na pytanie: **kiedy i na ile godzin musi przyjść piekarz, aby przygotować zaplanowaną produkcję na czas?** Musi działać przy jednej osobie, 1–2 pracownikach i większym zespole.
+System ma odpowiadać na pytanie: **kto, kiedy i na ile godzin musi przyjść do pracy, aby zaplanowana produkcja była gotowa na czas?**
+
+**Jedna architektura, 1–N osób.** System musi działać dla jednej osoby, dwóch osób i większego zespołu. Praca właściciela w pojedynkę jest tylko konfiguracją grafiku z jedną osobą — nie wymaga osobnego modułu, trybu ani zestawu reguł obliczeniowych. Rozróżnienie formy współpracy ma znaczenie dla wymagań prawnych i ewidencji, ale nie dla podstawowego mechanizmu planowania.
+
+## Wymagania skalowalności organizacyjnej
+
+- Jeden model danych `Worker`, `ShiftPlan` i `WorkSession`; nie tworzyć odrębnych kolekcji dla właściciela pracującego samodzielnie.
+- Jeden interfejs i jedno API do planowania zmian niezależnie od liczby osób. Dodanie kolejnych pracowników nie może wymagać migracji do innego trybu.
+- Jeden algorytm propozycji grafiku i wyznaczania potrzebnej obsady. Liczba dostępnych osób jest parametrem wejściowym.
+- Wymagania prawne zależne od formy zatrudnienia są regułami przypisanymi do osoby lub umowy, a nie odrębną architekturą planowania.
+- Testy regresji: 1, 2 i 5 osób. Należy zweryfikować także równoczesne zapotrzebowanie na kilka osób, zmiany nocne oraz konflikt dostępności.
 
 ## Trzy odrębne fakty
 
@@ -21,7 +31,7 @@ System ma odpowiadać na pytanie: **kiedy i na ile godzin musi przyjść piekarz
 1. Ustal planowaną ilość sztuk lub odbierz propozycję z prognozy popytu (#6), zamówień (#11) albo ręcznego planu (#17).
 2. Zbuduj zapotrzebowanie na etapy produkcji i aktywny czas ludzi, z oznaczeniem źródła czasów: szacunek / pomiar (#14, #18).
 3. Ustal datę i godzinę gotowości pieczywa. Uwzględnij etapy pasywne, chłodzenie, rezerwy, stanowiska i piec.
-4. Wyznacz wstępne godziny rozpoczęcia i zakończenia pracy. Dla jednej osoby umożliw prosty plan wsteczny bez optymalizatora.
+4. Wyznacz wstępne godziny rozpoczęcia i zakończenia pracy dla dostępnych osób. Planowanie wstecz wykorzystuje te same dane i zasady przy każdej liczbie osób. Gdy ograniczeń nie można jeszcze zweryfikować bez CAPP, oznacz wynik jako szacunek.
 5. Sprawdź dostępność osób, umiejętności, przerwy, czas odpoczynku oraz zasoby. Zgłoś braki, nie ukrywaj ich.
 6. Wybierz i zatwierdź wariant planu. Dopiero zatwierdzony plan przekazuj do rozliczeń, MRP i harmonogramu produkcji.
 7. Rejestruj wykonanie oddzielnie. Analizuj odchylenia, ale nie nadpisuj historycznego grafiku.
@@ -42,7 +52,7 @@ System ma odpowiadać na pytanie: **kiedy i na ile godzin musi przyjść piekarz
 
 ## Dostarczanie etapami
 
-**M1: ręczny grafik (#27).** Kalendarz, plan pracy właściciela i 1–2 pracowników, planowana liczba godzin, zmiany nocne, prosty plan wsteczny od godziny gotowości produktu. Bez HRM i pełnego solwera.
+**M1: ręczny grafik (#27).** Jeden kalendarz dla 1–N osób, planowane godziny, zmiany nocne i prosty plan wsteczny od godziny gotowości produktu. Bez osobnego trybu jednoosobowego, bez HRM i bez pełnego solwera.
 
 **M1: rejestr pracy (#28).** Osobne dane `WorkSession` i porównanie z grafikiem. Najpierw rejestr operacyjny i eksport; formalna ewidencja pracownicza wymaga weryfikacji.
 

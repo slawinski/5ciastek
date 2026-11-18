@@ -55,7 +55,7 @@ System ma odpowiadać na pytanie: **kto, kiedy i na ile godzin musi przyjść do
 
 **M1: ręczny grafik (#27).** Jeden kalendarz dla 1–N osób, planowane godziny, zmiany nocne i prosty plan wsteczny od godziny gotowości produktu. Bez osobnego trybu jednoosobowego, bez HRM i bez pełnego solwera.
 
-#27 jest zakresem nadrzędnym dla #38 (zapis/publikacja grafiku), #39 (szacunek początku) i #40 (konflikt obsady). Nie wymaga CAPP #7 ani integracji #29. Pozycje pochodzą z #33; do szacunku można użyć jawnie oznaczonego szkicu, ale nie przedstawiać go jako zatwierdzonej produkcji. Brakujące czasy pozostają estymacją, nie zerem ani gwarancją wykonalności (#27 AC-06/AC-07). Przed użyciem z pracownikami obowiązują mające zastosowanie warunki #28/#23.
+#27 jest zakresem nadrzędnym dla #38 (zapis/publikacja grafiku), #39 (szacunek początku) i #40 (konflikt obsady). Nie wymaga CAPP #7 ani integracji #29. Pozycje pochodzą z #33; do szacunku można użyć jawnie oznaczonego szkicu, ale nie przedstawiać go jako zatwierdzonej produkcji. Brakujące czasy można uzupełnić jawnie oznaczonymi estymacjami ze wskazanym źródłem; bez nich wynik pozostaje niepełnym szacunkiem, nie obliczeniem z zerem ani gwarancją wykonalności (#27 REQ-07, AC-06; #39 REQ-02, AC-02). Przed użyciem z pracownikami obowiązują mające zastosowanie warunki #28/#23.
 
 **M1: rejestr pracy (#28).** Osobne dane `WorkSession` i porównanie z grafikiem. Najpierw rejestr operacyjny i eksport; formalna ewidencja pracownicza wymaga weryfikacji.
 

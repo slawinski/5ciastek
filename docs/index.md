@@ -15,7 +15,7 @@ Start here → select a bounded child issue → read its parent scope, contract 
 | Production events and projection contract | [#18](https://github.com/slawinski/5ciastek/issues/18), children #34–#37 | #19 writes; #30 supplies isolated simulation equivalents; #31 reads. Actual transfer/occupancy requires its own fact |
 | Workforce | [Workforce planning](workforce-planning.md), #26–#29; #27 children #38–#40 | Keep planned availability, individual attendance and anonymous person-minutes distinct; #33 owns the saved production plan |
 | Map presentation | [#31](https://github.com/slawinski/5ciastek/issues/31), children #41–#43; geometry #32 | Layout does not change production results; #32 is not a second renderer/list |
-| Sales balance / cost allocation | [#4](https://github.com/slawinski/5ciastek/issues/4) / [#5](https://github.com/slawinski/5ciastek/issues/5) | Physical returns differ from refunds; anonymous labor needs an explicit allocation split |
+| Sales balance / cost allocation | [#4](https://github.com/slawinski/5ciastek/issues/4) / [#5](https://github.com/slawinski/5ciastek/issues/5) | Physical returns differ from refunds; shared labor needs an explicit allocation split before exact costing |
 
 Shared derived references (the cited issue remains the behavioral authority):
 

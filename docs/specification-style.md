@@ -3,10 +3,32 @@
 ## Zastosowanie
 
 - **Roadmapa i epiki:** opisz cel biznesowy, zakres, MVP, KPI i zależności prostym językiem. Nie dziel ich na drobne wymagania tylko po to, aby zachować formę.
-- **Zadanie implementacyjne:** użyj szablonu [Zadanie implementacyjne](../.github/ISSUE_TEMPLATE/implementation.md). Opisz jedno niezależnie weryfikowalne zachowanie systemu.
+- **Zadanie implementacyjne:** użyj szablonu [Zadanie implementacyjne](../.github/ISSUE_TEMPLATE/implementation.md). Opisz jedną spójną, ograniczoną zdolność systemu, którą można niezależnie zademonstrować. Zadanie potomne może obejmować kilka atomowych wymagań; liczba czasowników nie wyznacza granicy zadania.
 - **Instrukcja pracy / procedura:** zapisz kroki w kolejności wykonywania; dla każdej czynności podaj wykonawcę i wynik.
 
 Stosuj zasady *inspirowane* ASD-STE100. ASD-STE100 dotyczy kontrolowanego języka angielskiego. Dokument w języku polskim nie może zostać uznany za formalnie zgodny ze standardem.
+
+## Język i źródła reguł
+
+- Specyfikacje biznesowe i tekst interfejsu aplikacji zapisuj po polsku. Wytyczne inżynierskie i identyfikatory zapisuj po angielsku; nie tłumacz istniejących identyfikatorów `REQ-*`, `AC-*` ani nazw w kodzie.
+- Utrzymuj jeden [słownik dwujęzyczny](domain/glossary.md): polskie definicje z angielskimi nazwami pojęć, bez równoległych tłumaczeń wymagań. [Przykłady referencyjne](reference-examples.md) i [otwarte decyzje](decisions.md) odsyłają do właściciela reguły i nie zastępują jego wymagań.
+- Wymagania pozostają u właściciela kontraktu w istniejącym Issue lub dokumencie. Odwołania między zadaniami kwalifikuj numerem Issue, np. `#17 AC-01`. Przykład nie zmienia kryterium akceptacji, a propozycja nie staje się przyjętą regułą.
+- Nie rozstrzygaj nieustalonej precyzji masy ani partycjonowania/kolejności strumienia przez dobór przykładu. Otwarta decyzja ogranicza tylko pracę zależną od jej wyniku.
+- [Indeks dokumentacji](index.md) wskazuje aktualny stos i właścicieli zasad; [design system](design-system.md) i [engineering assurance](engineering-assurance.md) zachowują swoje obowiązujące zakresy.
+
+## Znaczenie powiązań
+
+W sekcji zależności podaj typ powiązania, Issue lub dokument oraz zakres/warunek. Ten sam cel może pełnić kilka ról, jeżeli ich zakresy są jawne.
+
+| Typ | Znaczenie |
+|---|---|
+| **Rodzic (parent)** | Określa zakres funkcji nadrzędnej; nie oznacza, że wszystkie jej dzieci muszą być gotowe przed rozpoczęciem zadania. |
+| **Kontrakt wejściowy (contract input)** | Uzgodnione dane lub interfejs, z którym zadanie musi być zgodne; sam kontrakt nie wymaga gotowej implementacji dostawcy. |
+| **Warunek implementacyjny (implementation prerequisite)** | Zaimplementowane zachowanie niezbędne dla wskazanego wycinka; podaj, czy blokuje rozpoczęcie czy demonstrację i w jakich warunkach. |
+| **Adapter opcjonalny (optional adapter)** | Rozszerza wycinek o integrację; nie blokuje jego samodzielnej demonstracji bez tej integracji. |
+| **Warunek wydania (release gate)** | Ogranicza użycie na określonych danych lub etapie wydania; demonstracja syntetyczna nie dowodzi spełnienia tego warunku. |
+
+Oddziel warunki rozpoczęcia, demonstracji i wydania. Nie zamieniaj opcjonalnych integracji w cykliczne warunki rozpoczęcia ani nie usuwaj obowiązków integracyjnych rodzica.
 
 ## Zasady dla specyfikacji implementacyjnej
 

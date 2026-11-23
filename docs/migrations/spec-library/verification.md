@@ -66,3 +66,67 @@ The final scope validator also checks the exact20-owned-path set against tracked
 ## Deliberate-no-product-test-exception
 
 `behavior_changed=false`. Existing product tests inspected: **none**. Tests added/changed/used unchanged: **none**. Product tests/build/install/full suite/browser/hardware checks run: **none**. Red/green or characterization of application behavior: **not applicable, not claimed**. Reason: only repository documentation/planning and temporary read-only document validators changed; application behavior/tooling is excluded by the task. Replacement evidence is the actual source/hash, semantic, task-coverage, reference/DAG, arithmetic and protected-scope checks above. A skipped test is not a passed test. No feature completion, installed enforcement, empirical accuracy, compliance, merge or retirement is inferred.
+
+## Assembled-integration-acceptance
+
+### Checkpoint-and-authority
+
+Date: **2026-11-23**. This is the final integration continuation after the completed, uncommitted ten-file authority/policy update, at unchanged HEAD **ed1f58b** on `docs/repository-spec-library`. It is **local assembled-document acceptance for handoff**; the main integration owner retains the authoritative rerun, review and publication decision. No Git writes, staging, commit, merge, push or GitHub mutation was performed.
+
+**Historical versus current evidence:** every preceding section of this file is the historical U7 receipt at `823dabf` and is retained byte-for-byte. Its correct-at-that-time statements that policy anchors were absent, all capability files were unchanged, the index equaled its offered draft, and the dirty-path set comprised the original U7 outputs are **not claims about the current tree**. The current anchors exist; the ten offered authority/policy files intentionally differ from HEAD; seven capability footers now have durable references. Earlier reserved/pending descriptions in the migration ledger describe the authoring handoff; its Policy-handoff section records the realized interface.
+
+The narrow final edits are confined to these **11 repository paths**:
+
+```text
+docs/specs/demand.md
+docs/specs/owner-assistant.md
+docs/specs/quality-monitoring.md
+docs/specs/b2b-orders.md
+docs/specs/fermentation.md
+docs/specs/recipes.md
+docs/specs/workforce.md
+docs/projects/README.md
+docs/projects/engineering-assurance.md
+docs/migrations/spec-library/coverage.md
+docs/migrations/spec-library/verification.md
+```
+
+The ten offered authority/policy files were fingerprinted before these edits and remain byte-identical to that offered working-tree snapshot. They were not rewritten by this continuation. The product portfolio, decision register and other nine capability specs remain unchanged. No task section or task state changed. No application, tooling, dependency, CI or committed validation framework was added or modified.
+
+### Actual-assembled-checks
+
+Commands use `RUN=/var/folders/zl/fkgnlthd363175f4ffymzcjh0000gn/T/opencode/spec-library-migration-20261121`. These are temporary read-only document validators, not product tests or installed repository commands:
+
+```text
+python3 -B "$RUN/u7-final-integration-check.py" --snapshot
+python3 -B "$RUN/u7-validate.py"
+python3 -B "$RUN/u7-packet-check.py" --historical-head
+python3 -B "$RUN/u7-final-integration-check.py" --pre-receipt
+python3 -B "$RUN/u7-final-integration-check.py"
+git diff --check
+```
+
+The pre-edit snapshot pins the offered files, normative definitions, task sections, source mappings and historical receipt. The pre-receipt check established the assembled results before this appendix was written; the final command checks the same scope after appending it. The old whole-workspace `u7-evidence-check.py` was **not** rerun as though its obsolete `823dabf`/pre-authority byte assertions still applied. Only its arithmetic assertion block was independently re-executed inside the current scoped checker.
+
+| Actual check | Current result and interpretation |
+|---|---|
+| Extended scope and protected work | PASS: exactly the ten offered files plus these eleven final-integration paths differ from `ed1f58b`; staged diff empty. The ten offered file bytes are frozen against their pre-edit fingerprint. The archive and captured excluded HTML are unchanged, the deliberately absent narrow plan remains absent, and the portfolio, decision register and other nine capability specs are unchanged. |
+| Behavioral-contract preservation | PASS: all **401 REQ/AC/EX identity blocks** retain their exact pre-edit bytes, as do all capability context prefixes before dependency sections and all spec dependency-table rows. All **65 project task sections** retain their exact bytes. Only the authorized capability footer/process prose and non-task project guidance changed; no requirement, acceptance example, behavior, new decision or task gate was introduced. |
+| Historical evidence preservation | PASS: the coverage content before Policy-handoff, all twelve source-control mapping rows and the entire historical receipt prefix retain their pre-edit hashes. Normalized source selections and dispositions were not rewritten to fit the new interface. |
+| Realized policy interface | PASS: all **12 exact policy anchors** now exist **once each**, with prior policy, registry and style-guide heading anchors retained. The scratch assembled validator now requires their presence rather than their historical absence. This proves documentation targets exist, not that controls operate or have passed. |
+| Full assembled local links | PASS: **1,419 local link occurrences across 46 canonical/entry/policy/template/reference source files**, with **zero missing files or fragments**. This includes the offered authority routes and both policy owners, not just the earlier U7 surface. External URLs and GitHub-rendered behavior are not verified by this filesystem/heading-style check. |
+| Capability/task identities and coverage | PASS: **211 REQ, 188 AC, 2 EX**, unique identities and own REQ/AC linkage; all **399 REQ/AC IDs** have task coverage, with zero unknown references or uncovered IDs. All **62 worker proposals** still map to the **65 canonical tasks** across fourteen projects. The narrower U7/spec scan now checks **1,111 links**: 457 project, 54 portfolio/decision, 182 migration, 389 capability-spec and 29 registry links. The old counts of 371 capability links and 1,070 total links are historical, not repeated as the current totals. |
+| Typed dependency graph | PASS: **199 typed dependency rows** have target, scope/condition and valid phase; **77 implementation-prerequisite edges** target existing tasks and are acyclic even with conditional edges included conservatively. Parent/input/optional-adapter/release/decision relations remain outside that graph. Manual connected investment has only recipe-task implementation ancestors; common correction has no future quantity/resource predecessor, and manual workforce/B2B intake has no global supplier-epic start dependency. |
+| Readiness and decision classification | PASS: DEC-001–005 remain the five named open decisions, and all **18 classification entries** remain. Footer requests now link to the durable classification and applicable exact DEC boundaries. Method/provider/question choices and qualified run/procedure/legal inputs are not silently converted into new global decisions. The existing mass/stream, advanced composition and B2B identity/lifecycle gates remain. A dated task-state snapshot remains 54 not-started/11 blocked/zero done; current task state is still read only from each project task section. |
+| Source/archive and selected hashes | PASS: all **50 bodies and 44 full comments** match the immutable manifest; the full decoded capture equals the supplied baseline, whose original byte SHA-256 remains `f07346de148f636e5c1f2b5d1cf9be3d64bac6f9ec2c781f0e5931e39750b53c`. All **534 body-envelope**, **44 comment**, **49 offered-contract**, **15 contextual-qualifier** and **17 approved-amendment** selections recompute successfully. No uncovered nonempty nonheading body lines or numbered occurrences; all **424 numbered body occurrences** remain mapped. Counts and line inclusion do not replace the retained clause-level semantic mappings. |
+| Historical worker-digest fidelity | PASS: **1,248 distinct packet digests**, the twelve sentence-slice instances and seven effective-comment selections retain their exact source matches. The command deliberately uses **historical repository bytes at `ed1f58b`** for old spec/guide/policy digests, alongside immutable archive/offered-source bytes. It does not claim that old whole-file hashes equal the intentionally edited current files. |
+| Arithmetic and derived examples | PASS: the six original arithmetic groups were re-executed without application imports: full recipe vectors and starter accounting; labor/allocation/correction; physical returns/conservation/capacity/MRP; required sales, partial connected day, recurrence and growth; UTC DST/backward timing/windows; and follow-on cost/utilization/margin/value examples. Break calculations also give 7.5/7.75 hours and +0.25 hour. Numeric tokens in all **52 derived-reference business/header rows** were compared with HEAD, excluding source-citation fields; all are preserved. These are document oracles, not empirical bakery or product-test results. |
+| Entry compatibility and process cleanup | PASS: the original offered-index engineering-guidance section remains verbatim. No author-unit instruction markers remain in the ten offered files, seven permitted capability footers or two project guidance files. Existing controls, current-maintenance/target-stack separation and actual-use P0/P1/P2 boundaries remain. Historical unit/source descriptions in migration evidence and protected planning artifacts are not mistaken for live maintenance instructions. |
+| Retirement and formatting | PASS: exactly **50 replacement-index rows**, no missing/extra issue, locally resolving replacement targets; retirement remains PENDING. Owned documents pass trailing-whitespace/code-fence checks, and `git diff --check` passes for the full current tracked diff. No source-drift, public-main-link, note/closure or merge receipt was fabricated. |
+
+### Residuals-and-return-boundary
+
+- No local assembled link, identity, task-coverage, DAG, source-selection or protected-scope failure remains in this handoff. The main integration owner must perform the authoritative rerun against its actual final tree; these checkpoint-pinned scripts must not be reused after further edits or commits as evidence for a different snapshot without an explicit new comparison.
+- DEC-001–005 still need their recorded domain decisions and repository-owner appointment of deciders. Per-run values, plant procedures, legal/privacy approvals and real-data release evidence remain qualifications of future product work, not documentation-integration omissions.
+- Main merge, fresh GitHub body/comment drift review, public replacement-link verification, actor appointment and migration-only retirement notes/closures remain separately authorized pending actions. They do not block local documentation authoring or PR delivery. No feature is closed as implemented and no product checkbox is ticked.
+- External/legal-source currency, runtime behavior, browser/hardware behavior, installed CI/rulesets and actual security/privacy/food-safety success were not tested or asserted. `behavior_changed=false`; no product tests were inspected, added, changed or run, and no install, build or application suite was executed. The deliberate documentation-only test exception still applies.

@@ -53,17 +53,17 @@ Oddziel warunki rozpoczęcia, demonstracji i wydania. Tylko rzeczywiste warunki 
 - Zapisz cel/aktora, ograniczony przepływ, pokrywane kanoniczne REQ/AC, wejścia, wyłączenia, typowane zależności, bramki decyzyjne, stan implementacji, osobną ocenę gotowości oraz odsyłacze do dowodów.
 - Stan implementacji to `not-started`, `in-progress`, `blocked` albo `done`. Początkowo użyj `not-started`, chyba że dowody z repozytorium wskazują inaczej. Niezweryfikowany spis implementacji nie dowodzi braku wszystkich funkcji. `blocked` wskazuje rzeczywistą niespełnioną zależność/decyzję. `done` wymaga identyfikacji artefaktu/PR/commitu, wyników właściwych sprawdzeń i daty.
 - Gotowość specyfikacji opisuje kompletność kontraktu i otwarte decyzje. Osobno opisz spełnione i niespełnione warunki startu, demonstracji i wydania zadania. Gotowa specyfikacja może dotyczyć zablokowanego zadania; demonstracja syntetyczna nie jest zgodą na wydanie na rzeczywistych danych. Zatwierdzenie dokumentu nie oznacza `done` implementacji.
-- W migracji U2–U6 używają wyłącznie lokalnych etykiet w pakietach roboczych, np. `U4:cost-allocation`, i proponują projekt docelowy. U7 nadaje finalne ID i zastępuje etykiety; nie mogą one pozostać w kanonicznych zależnościach ani końcowym mapowaniu. Stan zadań pozostaje wyłącznie w plikach projektów.
+- W kanonicznych zależnościach i mapowaniu stosuj stabilne, kwalifikowane ID, nie tymczasowe etykiety robocze. Stan zadań pozostaje wyłącznie w sekcjach zadań w plikach projektów.
 
 ## Zachowanie źródeł podczas migracji
 
-Stosuj [protokół pokrycia źródeł](specs/README.md#source-coverage-protocol) i przypisanego właściciela ekstrakcji. Klucz źródła identyfikuje Issue, treść główną lub tożsamość komentarza, ścieżkę nagłówków, wystąpienie i numer elementu/akapitu, dawne ID, krótki cytat oraz hash treści. Sam numer Issue, lista ID lub nazwa pliku nie wystarcza.
+Przy audycie migracji stosuj [protokół pokrycia źródeł](specs/README.md#source-coverage-protocol) i [rejestr migracji](migrations/spec-library/coverage.md), nie dawny przydział jednostek autorskich jako bieżący proces pracy. Klucz źródła identyfikuje Issue, treść główną lub tożsamość komentarza, ścieżkę nagłówków, wystąpienie i numer elementu/akapitu, dawne ID, krótki cytat oraz hash treści. Sam numer Issue, lista ID lub nazwa pliku nie wystarcza.
 
 Rozlicz także cele, listy prac, zależności, reguły bez numerów, kontrole, MVP/KPI/DoD i pełne komentarze. Każdy blok ma dokładny cel kanoniczny albo jawne uzasadnienie zachowania, podziału, scalenia, zastąpienia lub nienormatywności, z rolą źródła i wynikiem przeglądu. Wspólne bloki zachowaj raz u właściciela. Stare opisy z komentarzy porównaj pod kątem nadal istotnych obowiązków; nie przywracaj ich automatycznie jako bieżących instrukcji. Nowe zatwierdzone zmiany mapuj jako zmiany, nie jako rzekomą dawną treść Issue.
 
 ## Przykład redakcyjny — sprzedaż i braki
 
-Poniższy przykład ilustruje atomowe warunki i wyniki, nie ustanawia kontraktu SAL, nie przydziela jego ID ani nie jest kopią normatywnej specyfikacji. Docelowe reguły i identyfikatory nadaje właściciel SAL; historycznym punktem wyjścia jest #4.
+Poniższy przykład ilustruje atomowe warunki i wyniki, nie ustanawia kontraktu SAL, nie przydziela jego ID ani nie jest kopią normatywnej specyfikacji. Kanoniczne reguły to [SAL-REQ-004](specs/sales-returns.md#sal-req-004) i [SAL-AC-003](specs/sales-returns.md#sal-ac-003); historycznym punktem wyjścia jest #4.
 
 ### Zbyt ogólnie
 

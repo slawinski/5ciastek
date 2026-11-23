@@ -1,35 +1,40 @@
 # Documentation index
 
+Start with the [product portfolio](product-plan.md): MVP-0 recipes, MVP-1 as a narrow connected investment scenario, then MVP-2 mixed-product comparison. Operations and growth remain independent follow-on projects, not compulsory sequential release buckets. Sourced manual measurements can support the first scenario without a complete production recorder.
+
 ## Reading route and authority
 
-Start here → select a bounded child issue → read its parent scope, contract owners and applicable policies → consult cited examples. Existing issue requirements remain behavioral authority. Shared references explain them; examples do not amend acceptance criteria. Use issue-qualified identifiers (for example, `#17 AC-01`) when citing requirements across issues.
+Follow portfolio → bounded [repository task](projects/README.md) → canonical [capability specification](specs/README.md#capability-registry) and qualified REQ/AC → applicable [decision](decisions.md) and policy → derived examples. For example, [TASK-REC-005](projects/recipes.md#task-rec-005) identifies the scaling flow, [REC-REQ-002](specs/recipes.md#rec-req-002) owns its calculation rule and [REC-AC-010](specs/recipes.md#rec-ac-010) gives concrete results. Read its dependencies and DEC-001 boundary before implementation.
+
+Capability specs own business/UI behavior; project task sections are the sole delivery tracker. The portfolio and indexes do not mirror task state. GitHub issues and the [source archive](migrations/spec-library/source-baseline.json) are historical provenance only. [Coverage](migrations/spec-library/coverage.md) explains migration destinations; [retirement](migrations/spec-library/retirement.md) remains a caller-owned postmerge action, not feature completion. Documentation readiness or a synthetic demonstration does not prove implementation or real-data release approval.
 
 | Subject | Read | Boundary |
 |---|---|---|
 | Task form and language | [Specification style](specification-style.md), [implementation template](../.github/ISSUE_TEMPLATE/implementation.md) | Polish business specifications and application UI; English engineering guidance and identifiers |
-| UI | [Design system](design-system.md), [#25](https://github.com/slawinski/5ciastek/issues/25) | Governs tokens, component reuse, accessibility and the Payload Admin exception |
-| Security, integrity, privacy and release | [Engineering assurance](engineering-assurance.md), [#20](https://github.com/slawinski/5ciastek/issues/20), [#21](https://github.com/slawinski/5ciastek/issues/21), [#22](https://github.com/slawinski/5ciastek/issues/22), [#23](https://github.com/slawinski/5ciastek/issues/23), [#24](https://github.com/slawinski/5ciastek/issues/24) | Required controls depend on risk and release stage; documentation is not evidence of enforcement |
-| Recipe versions and frozen composition | [#14](https://github.com/slawinski/5ciastek/issues/14) | Historical published values remain inputs to consumers |
-| Scaling | [#17](https://github.com/slawinski/5ciastek/issues/17) | Takes quantities; does not save or approve a production plan |
-| Saved production plan and approved versions | [#33](https://github.com/slawinski/5ciastek/issues/33) | Approval is not execution or proof of feasibility |
-| Production events and projection contract | [#18](https://github.com/slawinski/5ciastek/issues/18), children #34–#37 | #19 writes; #30 supplies isolated simulation equivalents; #31 reads. Actual transfer/occupancy requires its own fact |
-| Workforce | [Workforce planning](workforce-planning.md), #26–#29; #27 children #38–#40 | Keep planned availability, individual attendance and anonymous person-minutes distinct; #33 owns the saved production plan |
-| Map presentation | [#31](https://github.com/slawinski/5ciastek/issues/31), children #41–#43; geometry #32 | Layout does not change production results; #32 is not a second renderer/list |
-| Sales balance / cost allocation | [#4](https://github.com/slawinski/5ciastek/issues/4) / [#5](https://github.com/slawinski/5ciastek/issues/5) | Physical returns differ from refunds; shared labor needs an explicit allocation split before exact costing |
+| UI | [Design](design-system.md#ui-design), [accessibility](design-system.md#ui-accessibility) | Tokens, component reuse, accessibility and the Payload Admin exception |
+| Security, integrity, privacy and release | [Engineering assurance](engineering-assurance.md#ass-risk), [delivery tasks](projects/engineering-assurance.md) | P0 before actual accounts/data; P1 before actual production-event use, not automatically investment MVP-1; P2 before applicable high-risk use |
+| Recipe versions and frozen composition | [REC-REQ-001](specs/recipes.md#rec-req-001) | Historical published values remain inputs to consumers |
+| Scaling | [REC-REQ-002](specs/recipes.md#rec-req-002), [REC-REQ-012](specs/recipes.md#rec-req-012) | Takes quantities; does not save or approve a production plan |
+| Saved production plan and approved versions | [PLN-REQ-001](specs/production-plans.md#pln-req-001) | Approval is not execution or proof of feasibility |
+| Production events and projection | [EVT-REQ-001](specs/production-records.md#evt-req-001), [EVT-REQ-009](specs/production-records.md#evt-req-009) | Actual transfer/occupancy requires its own fact; simulated equivalents remain isolated |
+| Shared execution, stock and costs | [PRC](specs/process-execution.md), [STK](specs/stock-inventory.md), [ECO](specs/economics-investment.md) | One owner per shared rule, consumed by actual and hypothetical flows |
+| Workforce | [Compatibility guide](workforce-planning.md), [WRK-REQ-001](specs/workforce.md#wrk-req-001) | Planned availability, individual attendance and anonymous person-minutes are distinct; PLN owns the saved production plan |
+| Map presentation | [MAP](specs/flow-map-demo.md) | Layout does not change production results; one renderer and alternative list |
+| Sales balance / cost allocation | [SAL-REQ-003](specs/sales-returns.md#sal-req-003), [STK-REQ-002](specs/stock-inventory.md#stk-req-002), [ECO-REQ-001](specs/economics-investment.md#eco-req-001) | Physical returns differ from refunds; shared labor needs explicit allocation before exact costing |
 
-Shared derived references (the cited issue remains the behavioral authority):
+Derived references (the linked canonical spec remains the behavioral authority):
 
 - [Bilingual glossary](domain/glossary.md): one glossary with Polish definitions and English identities, not translated requirement mirrors.
-- [Reference examples](reference-examples.md): per-domain tables citing issue-qualified AC; executable fixtures remain implementation work.
+- [Reference examples](reference-examples.md): per-domain tables citing qualified canonical REQ/AC; executable fixtures remain implementation work.
 - [Open decisions](decisions.md): unresolved mass precision and stream partition/order, not accepted policy. Only implementations depending on those choices are blocked; do not invent domain answers.
 
-For example, #41/#42 can demonstrate the #18 contract using a #30 fixture without waiting for a live backend. That demonstration does not establish live quantities before #35 or actual resource occupancy before #36. Distinguish a contract input from implemented prerequisites and real-data release gates using the [relationship meanings](specification-style.md#znaczenie-powiązań).
+For example, [TASK-MAP-001](projects/flow-map.md#task-map-001) can demonstrate the EVT projection with isolated MAP fixtures without a live backend. It does not establish actual quantities ([EVT-REQ-011](specs/production-records.md#evt-req-011)) or occupancy ([EVT-REQ-013](specs/production-records.md#evt-req-013)). Distinguish contract inputs, implementation prerequisites and real-data release gates using the [relationship meanings](specification-style.md#znaczenie-powiązań). DEC-001 and DEC-002 remain OPEN at their affected persistent mass/stream boundaries; examples choose neither policy.
 
 ## Current stack and applicability
 
 [package.json](../package.json) is the source for installed dependency declarations and scripts. Current maintenance uses React 19 with TanStack Start, type-safe TanStack Router, TanStack Query, XState 5 for complex transitions, Zod for schema-based validation, and Vite 7 with Nitro server output. Do not substitute a new state library from starter tutorial examples.
 
-Next.js/Payload are target architecture work: [#13](https://github.com/slawinski/5ciastek/issues/13) selects the architecture; [#16](https://github.com/slawinski/5ciastek/issues/16) performs migration. Target-specific policy applies when that work is undertaken; it is not a mandate to rewrite routine maintenance.
+Next.js/Payload are target architecture work: [TASK-REC-001](projects/recipes.md#task-rec-001) selects the architecture; [TASK-REC-002](projects/recipes.md#task-rec-002) performs migration. Target-specific policy applies when that work is undertaken; it is not a mandate to rewrite routine maintenance.
 
 ## Commands
 
@@ -43,7 +48,7 @@ After installing the manifest dependencies with `npm install`:
 | `npm run serve` | `vite preview` | Preview the build, distinct from development and production start |
 | `npm run test` | `vitest run` | Existing product tests |
 
-These are the only current npm scripts. There are no `lint`, `typecheck`, security-gate or release-validation scripts. The assurance policy and #24 describe required delivery work, not installed CI or enforced gates. Listing a command is not evidence that it has run or passed.
+These are the only current npm scripts. There are no `lint`, `typecheck`, security-gate or release-validation scripts. The [assurance policy](engineering-assurance.md#ass-release-evidence) and [TASK-ASS-006](projects/engineering-assurance.md#task-ass-006) describe required delivery work, not installed CI or enforced gates. Listing a command is not evidence that it has run or passed.
 
 ## Engineering guidance
 

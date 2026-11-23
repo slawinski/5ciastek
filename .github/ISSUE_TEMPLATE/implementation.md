@@ -1,70 +1,29 @@
 ---
-name: "KoPieC OS — zadanie implementacyjne"
-about: "Specyfikacja jednej testowalnej zmiany systemu, oparta na zasadach kontrolowanego języka"
-title: "[KoPieC OS] "
+name: "KoPieC OS — repository task pointer"
+about: "Point to canonical repository work; do not create a second delivery tracker"
+title: "[Repository reference] "
 ---
 
-<!-- Przed implementacją: docs/specification-style.md oraz docs/engineering-assurance.md. -->
-<!-- Jedno zadanie potomne = jedna spójna, ograniczona i niezależnie demonstrowalna zdolność, nie jeden czasownik. Wymagania pozostają atomowe. Epiki i roadmapa nie wymagają tej szczegółowości. -->
+## Repository authority
 
-## Powiązany epik
-<!-- Rodzic (parent): wpisz numer Issue, np. #4, i zakres zadania w funkcji nadrzędnej. Rodzic określa zakres, nie gotowość wszystkich dzieci. -->
+Implementation work is specified and tracked in the repository, not in this issue. Start at the [documentation index](../../docs/index.md), follow the [portfolio](../../docs/product-plan.md) to a bounded task in [projects](../../docs/projects/README.md), then read its canonical REQ/AC, decisions and policies. Existing GitHub issues are historical provenance; their state and checkboxes do not establish task completion.
 
-## Cel
-<!-- Jedno zdanie: jaki rezultat biznesowy daje zmiana? -->
+## Canonical task link
 
-## Pojęcia i dane wejściowe
-<!-- Zdefiniuj ważne terminy, jednostki, źródło danych i warunki początkowe. Specyfikacja i UI po polsku; identyfikatory po angielsku. Korzystaj ze wspólnego słownika zgodnie z docs/specification-style.md. -->
+<!-- Link the exact project task heading, for example docs/projects/recipes.md#task-rec-005. If no task exists, propose a repository change first using the conventions below. Do not allocate issue-local REQ/AC or duplicate task state here. -->
 
-## Wymagania
-<!--
-Pisz krótkie, niezależne wymagania.
-Każde rozpoczynaj od REQ-xx.
-Stosuj „System musi...” albo „System nie może...”.
-Podaj warunek i oczekiwany rezultat; unikaj ogólnych sformułowań.
--->
-- **REQ-01:**
-- **REQ-02:**
+## Context for the repository change
 
-## UI i design system (jeśli zadanie dotyczy interfejsu)
-<!-- Obowiązujący web brutalism 5ciastek: docs/design-system.md i Issue #25. -->
-- **Ponowne użycie:** jaki istniejący komponent lub token wykorzystuje zadanie?
-- **Nowy komponent:** dlaczego jest potrzebny i gdzie będzie współdzielony?
-- **Zgodność stylu:** jak zweryfikowano kolory, obramowania, typografię, cienie i stany?
-- **Dostępność i ekrany:** telefon, desktop, w razie potrzeby tablet; klawiatura, focus, kontrast i czytelność.
+<!-- Describe the observation, evidence or proposed scope change, without creating a parallel requirements/acceptance checklist. Business requirements, examples and UI wording are Polish; engineering guidance and identifiers are English. -->
 
-## Bezpieczeństwo, niezawodność i zgodność
-<!-- Krótkie odpowiedzi są wystarczające. Jeśli punkt nie dotyczy funkcji, napisz "nie dotyczy" i dlaczego. -->
-- **Dane i prywatność:** klasa danych, cel zbierania, okres przechowywania i osoba odpowiedzialna.
-- **Dostęp:** kto może czytać, zmieniać i zatwierdzać; gdzie serwer sprawdza uprawnienia.
-- **Integralność:** co stanie się przy nieudanym zapisie, ponowieniu żądania i dwóch urządzeniach.
-- **Odzyskiwanie:** wymagany backup, migracja lub procedura przywrócenia, jeśli zadanie zmienia trwałe dane.
-- **Wymogi prawne/branżowe:** źródło przepisu lub decyzja "do analizy"; zatwierdzenie odpowiedzialnej osoby przy funkcji wysokiego ryzyka.
-- **Dowód:** testy i wynik CI, które potwierdzą kontrole; powiązane Issues #20–#24.
+## What belongs in the repository task
 
-## Kryteria akceptacji
-<!-- Każdy punkt ma zawierać konkretne wejście/zdarzenie i wynik, który da się sprawdzić. -->
-- [ ] **AC-01:**
-- [ ] **AC-02:**
-- [ ] **AC-03 (przypadek błędny lub graniczny):**
+Use the [task conventions](../../docs/specs/README.md#project-and-task-conventions) and [specification style](../../docs/specification-style.md): actor/goal, one bounded demonstrable flow, qualified canonical REQ/AC coverage, inputs/units/source authority, exclusions, typed dependencies (target, scope, condition, phase), decision gates, implementation state, separate readiness and evidence. Keep shared rules at their canonical owner. A new requirement belongs in that owner, not this issue.
 
-## Poza zakresem
-<!-- Zapisz, czego zadanie nie obejmuje. -->
+Record applicable [design/reuse](../../docs/design-system.md#ui-design) and [accessibility](../../docs/design-system.md#ui-accessibility) controls in the task: existing tokens/components, reasons and placement for new components, visual comparison, relevant states, keyboard/focus/contrast, phone/desktop and production tablet.
 
-## Zależności i ograniczenia
-<!-- Istniejące funkcje, uprawnienia, sposób testowania, ewentualna migracja danych. Dla każdego powiązania podaj Issue/dokument oraz zakres/warunek; jeśli nie dotyczy, napisz dlaczego. Ten sam cel może mieć kilka jawnie rozdzielonych ról. Pełne zasady: docs/specification-style.md, sekcja „Znaczenie powiązań”. -->
-- **Rodzic (parent):** zakres funkcji nadrzędnej — wskazany w sekcji „Powiązany epik”, nie warunek gotowości całego epiku.
-- **Kontrakt wejściowy (contract input):** uzgodnione dane/interfejs; zgodność z kontraktem nie oznacza konieczności gotowej implementacji dostawcy.
-- **Warunek implementacyjny (implementation prerequisite):** jakie zaimplementowane zachowanie jest potrzebne i kiedy blokuje rozpoczęcie lub demonstrację tego wycinka?
-- **Adapter opcjonalny (optional adapter):** jaka integracja rozszerza wycinek, ale nie blokuje samodzielnej demonstracji bez niej?
-- **Warunek wydania (release gate):** jakie dane lub etap wymagają spełnienia kontroli przed użyciem? Demonstracja syntetyczna nie stanowi zgody na wydanie na rzeczywistych danych.
+Apply [assurance](../../docs/engineering-assurance.md#ass-risk): data class/purpose/minimum/retention/owner, server read/write/approval rights, validation/trust boundary, write failure/retry/concurrency, history, persistent migration/backup/restore, legal applicability and responsible approver. State why a control is inapplicable rather than silently omitting it. Link source-specific controls, not just a generic promise of security.
 
-## Warunki wydania
-- [ ] Uprawnienia i błędne wejścia są zweryfikowane lub uzasadniono brak potrzeby.
-- [ ] Testy przypadków błędnych i granicznych przeszły.
-- [ ] Zmiana nie pogorszyła odzyskiwania danych ani historii operacji.
-- [ ] Wymagana ocena prawna i operacyjna została wykonana lub wdrożenie jest zablokowane.
-- [ ] Wynik kontroli jest powiązany z wersją kodu. Pominięte kontrole są jawne.
+Completion evidence belongs only in the repository task: artifact/PR/commit SHA, date/environment, exact REQ/AC results, permission/error/boundary checks, recovery evidence and explicit omissions. Preserve history and recovery; do not call a skipped check passed. Legal/operational review must be complete before applicable actual use, or that use remains blocked. Distinguish parent scope, contract input, implementation prerequisite, optional adapter and release gate; a synthetic demonstration is not real-data approval. Technical proposals stay separate from mandatory behavior.
 
-## Notatki techniczne (opcjonalnie)
-<!-- Propozycje implementacji; wyraźnie oddziel je od obowiązkowych wymagań. -->
+Do not maintain a second task checklist, dependency graph or implementation status here. A historical issue's migration/retirement note describes moved requirements, never a completed feature. Retirement requires the separately authorized postmerge [protocol](../../docs/migrations/spec-library/retirement.md).

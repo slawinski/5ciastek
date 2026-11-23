@@ -2,9 +2,9 @@
 
 ## Authority
 
-This registry is the U1 conventions checkpoint for the [repository spec library plan](../plans/2026-11-21-1814-refactor-repository-spec-library-plan.md). Capability specifications own business and UI requirements. Repository project/task records are the sole delivery tracker; GitHub issues are historical evidence, not a synchronized tracker or continuing requirements authority. The portfolio in `docs/product-plan.md` describes outcomes and links project owners without duplicating mutable task status.
+Capability specifications own business and UI requirements. Repository project/task records are the sole delivery tracker; GitHub issues are historical evidence, not a synchronized tracker or continuing requirements authority. Follow the [portfolio](../product-plan.md) → bounded [repository task](../projects/README.md) → canonical REQ/AC → applicable [decision](../decisions.md) and policy → derived examples. The portfolio describes outcomes without duplicating mutable task status.
 
-U1 fixes interfaces for authoring, not product implementation or completion. The registered capability and project paths below are planned destinations; their presence here does not claim that U2–U8 have authored or integrated them. U2–U6 may author independently after this checkpoint. U7 integrates projects and migration proof; U8 updates other authority routes. Do not expand this checkpoint into application code, a PM framework, requirements compiler, runtime mechanism or installed controls.
+This registry defines stable ownership and reference conventions, not product completion. Presence of a specification, task or policy does not prove implemented behavior, installed controls or release approval. Read only the selected task's owners and dependencies; the historical migration plan is not the live work queue.
 
 Business rules, AC, examples and UI wording are Polish. New engineering guidance and identifiers are English. Use the [Polish writing guide](../specification-style.md) and the single [bilingual glossary](../domain/glossary.md); do not create translated requirement mirrors.
 
@@ -12,38 +12,38 @@ Business rules, AC, examples and UI wording are Polish. New engineering guidance
 
 Each prefix has exactly one normative capability owner under `docs/specs/`. These are capability boundaries, not release assignments or one-issue-one-file conversions. Principal sources are reading aids, not exhaustive extraction assignments.
 
-| Prefix | File | Normative ownership | Principal source issues | Author |
-|---|---|---|---|---|
-| REC | `recipes.md` | Ingredients, complete recipe variants, draft/publication/history, catalog, scaling and baker percentages | #3, #14, #15, #17 | U2 |
-| EVT | `production-records.md` | Observed batches/events, envelope/provenance, recorder UI, actual resource facts, corrections and projection reconstruction | #3, #18, #19, #34–#37 | U2 |
-| PRC | `process-execution.md` | Shared process transition/constraint semantics, active/passive/auxiliary time, queues, role/resource contention, supplied intermediate windows | #7, #18, #30, #47; approved corrections | U3 |
-| PLN | `production-plans.md` | Saved draft/approved plan versions, acceptance of proposals, downstream version identity | #33; inputs from #6, #7, #9, #11, #29 | U3 |
-| WRK | `workforce.md` | 1–N availability, published shifts, individual attendance, DST/breaks, backward proposals and workforce integrations | #26–#29, #38–#40 | U3 |
-| STK | `stock-inventory.md` | Shared conservation/units, physical versus saleable stock, WIP/carryover/usability, FEFO, MRP and purchasing approval | #4, #9, #35, #48 | U4 |
-| SAL | `sales-returns.md` | Stable SKU/imports, sales channels, refunds versus confirmed physical returns, stockout and sales reports | #4; #11, #48 | U4 |
-| ECO | `economics-investment.md` | Shared costing/allocation, historical prices, owner income, required sales, calendar/recurrence qualification, CAPEX and payback | #5, #12, #49, #50; #1 investment contract | U4 |
-| SCN | `scenarios-comparison.md` | Saved hypothetical inputs/provenance, isolated runs, comparison and qualified reporting, growth variants | #1, #12, #45–#51 | U5 |
-| MAP | `flow-map-demo.md` | Deterministic demo controls, one renderer/list, presentation layout, demo/live freshness and scoped aggregates | #30–#32, #41–#43 | U5 |
-| DEM | `demand.md` | Censored sales, baseline forecast, walk-forward validation, uncertainty and human corrections | #6 | U6 |
-| OPT | `optimization.md` | CAPP objective, solver-based search, conflict reporting, manual replanning and plan/actual comparison | #7 | U6 |
-| FER | `fermentation.md` | Fermentation observations, baseline/calibration, readiness forecast and uncertainty, baker validation | #8 | U6 |
-| QLT | `quality-monitoring.md` | Device/quality records, alarms, maintenance, corrective actions and procedure-linked human approval | #10 | U6 |
-| B2B | `b2b-orders.md` | Draft/verification/confirmation/production/dispatch, duplicate/cancellation history, capacity qualification and documents | #11 | U6 |
-| AST | `owner-assistant.md` | Read-only dashboard, cited natural-language answers, verified calculations, sensitive-data redaction and human approval boundaries | #12 | U6 |
+| Prefix | File | Normative ownership | Principal historical sources |
+|---|---|---|---|
+| REC | [recipes.md](recipes.md) | Ingredients, complete recipe variants, draft/publication/history, catalog, scaling and baker percentages | #3, #14, #15, #17 |
+| EVT | [production-records.md](production-records.md) | Observed batches/events, envelope/provenance, recorder UI, actual resource facts, corrections and projection reconstruction | #3, #18, #19, #34–#37 |
+| PRC | [process-execution.md](process-execution.md) | Shared process transition/constraint semantics, active/passive/auxiliary time, queues, role/resource contention, supplied intermediate windows | #7, #18, #30, #47; approved corrections |
+| PLN | [production-plans.md](production-plans.md) | Saved draft/approved plan versions, acceptance of proposals, downstream version identity | #33; inputs from #6, #7, #9, #11, #29 |
+| WRK | [workforce.md](workforce.md) | 1–N availability, published shifts, individual attendance, DST/breaks, backward proposals and workforce integrations | #26–#29, #38–#40 |
+| STK | [stock-inventory.md](stock-inventory.md) | Shared conservation/units, physical versus saleable stock, WIP/carryover/usability, FEFO, MRP and purchasing approval | #4, #9, #35, #48 |
+| SAL | [sales-returns.md](sales-returns.md) | Stable SKU/imports, sales channels, refunds versus confirmed physical returns, stockout and sales reports | #4; #11, #48 |
+| ECO | [economics-investment.md](economics-investment.md) | Shared costing/allocation, historical prices, owner income, required sales, calendar/recurrence qualification, CAPEX and payback | #5, #12, #49, #50; #1 investment contract |
+| SCN | [scenarios-comparison.md](scenarios-comparison.md) | Saved hypothetical inputs/provenance, isolated runs, comparison and qualified reporting, growth variants | #1, #12, #45–#51 |
+| MAP | [flow-map-demo.md](flow-map-demo.md) | Deterministic demo controls, one renderer/list, presentation layout, demo/live freshness and scoped aggregates | #30–#32, #41–#43 |
+| DEM | [demand.md](demand.md) | Censored sales, baseline forecast, walk-forward validation, uncertainty and human corrections | #6 |
+| OPT | [optimization.md](optimization.md) | CAPP objective, solver-based search, conflict reporting, manual replanning and plan/actual comparison | #7 |
+| FER | [fermentation.md](fermentation.md) | Fermentation observations, baseline/calibration, readiness forecast and uncertainty, baker validation | #8 |
+| QLT | [quality-monitoring.md](quality-monitoring.md) | Device/quality records, alarms, maintenance, corrective actions and procedure-linked human approval | #10 |
+| B2B | [b2b-orders.md](b2b-orders.md) | Draft/verification/confirmation/production/dispatch, duplicate/cancellation history, capacity qualification and documents | #11 |
+| AST | [owner-assistant.md](owner-assistant.md) | Read-only dashboard, cited natural-language answers, verified calculations, sensitive-data redaction and human approval boundaries | #12 |
 
-[Engineering assurance](../engineering-assurance.md) retains security, integrity/recovery, privacy/legal and release policy ownership (#20–#24). The [design system](../design-system.md) retains UI/design/accessibility ownership (#25). These are not seventeenth/eighteenth business specs. U7 integrates missing stable local control anchors; author packets must identify the exact source control and intended owner, not silently drop it behind a generic policy link. Existing policy meaning is preserved, not translated wholesale or presented as installed enforcement, certification or passed checks. Architecture and release-control delivery belong to engineering tasks.
+[Engineering assurance](../engineering-assurance.md#ass-risk) retains security, integrity/recovery, privacy/legal and release policy ownership (historical #20–#24). The [design system](../design-system.md#ui-design) retains UI/design/accessibility ownership (historical #25). These are not seventeenth/eighteenth business specs. The [policy handoff](../migrations/spec-library/coverage.md#policy-handoff) maps each source control to its stable policy anchor; a generic policy link must not hide an omitted control. Existing policy meaning is not installed enforcement, certification or passed checks. Architecture and release-control delivery belong to engineering tasks.
 
 ## Identifiers
 
 - Registered prefix = spec identity. Requirements use `PREFIX-REQ-NNN`, acceptance criteria `PREFIX-AC-NNN`, examples `PREFIX-EX-NNN`. Use explicit ASCII-only identity headings, for example `### REC-REQ-001`, with Polish prose below. A link then uses `recipes.md#rec-req-001`. Do not append a changing title to the identity heading.
 - Allocate monotonically within each prefix and kind. Never recycle or renumber identities. A retired or split ID keeps a destination note, including all replacements for a split. Qualify every reference; bare `REQ-01` or `AC-01` is only a historical source label, never a canonical reference.
-- Each owning unit allocates its own remaining REQ/AC/EX numbers, respecting the reservations below. Consumers cite the owner; they do not allocate a second shared rule or change a reserved meaning. Before integration, reserved IDs may be cited even though their full prose is pending. This is not a claim that those targets already exist.
-- Decisions use `DEC-NNN` in `docs/decisions.md`, with ASCII identity headings. `DEC-001` and `DEC-002` below remain open; U1 reserves them without editing that shared file.
-- Future tasks use `TASK-PROJECT-NNN`, where PROJECT is a registered project key below, with headings such as `### TASK-INV-001`. U7 alone allocates final task numbers. Preserve task identity when moving it between outcomes and leave a redirect at its old location.
+- Allocate REQ/AC/EX numbers within the registered owner, respecting the shared boundaries below. Consumers cite the owner; they do not allocate a second shared rule or change its meaning. Verify that cited targets exist.
+- Decisions use `DEC-NNN` in [decisions.md](../decisions.md), with ASCII identity headings. `DEC-001` and `DEC-002` below remain open.
+- Tasks use `TASK-PROJECT-NNN`, where PROJECT is a registered project key below, with headings such as `### TASK-INV-001`. Allocate a new number in the owning project without reusing an existing identity. Preserve task identity when moving it between outcomes and leave a redirect at its old location.
 
 ## Reserved-shared-requirements
 
-These are reserved owner boundaries, not English mirrors of the future Polish requirements. The owning unit authors full normative text; consumers reference it.
+These stable shared owner boundaries are navigation aids, not English mirrors of Polish requirements. The linked capability file owns the full normative text; consumers reference it.
 
 | Reserved owner ID | Boundary consumers must use |
 |---|---|
@@ -88,16 +88,16 @@ A dependency record contains **type, local target ID, scope, condition and phase
 
 Only genuine implementation prerequisites form the blocking task DAG. Decisions are separate explicit gates, not fake predecessor tasks. Do not turn optional adapters into cyclic start conditions or erase parent integration obligations. For example, a scenario can consume a recipe contract and manually sourced measurements without a complete recorder; a live operational slice may need its actual event producer at its stated boundary.
 
-| Reserved decision | Still open; affected boundary |
+| Decision | Still open; affected boundary |
 |---|---|
-| DEC-001 | Persistent mass precision/rounding. Migrate existing constraints and affected legacy references from `docs/decisions.md`; recipe publication consistency and dependent persisted calculations cannot be called start-ready at that boundary. UI formatting or exact-number demonstrations do not settle it. |
+| DEC-001 | Persistent mass precision/rounding. Read the binding constraints and affected boundaries in [DEC-001](../decisions.md#dec-001); recipe publication consistency and dependent persisted calculations cannot be called start-ready at that boundary. UI formatting or exact-number demonstrations do not settle it. |
 | DEC-002 | Stream identity/sequence/replay meaning. Preserve envelope identity and within-stream ordering without choosing global or per-batch partition. Event/correction/live consumers remain gated at the persistent concurrency boundary; isolated versioned fixtures do not settle it. |
 
 The repository owner must still name the domain decider for each. Do not invent a decision owner or answer. Block only affected future work, not unrelated documentation. Missing scenario inputs qualify the corresponding result; they are not global decisions and must not become zero/default assumptions.
 
 ## Project-and-task-conventions
 
-U7 exclusively owns project files under `docs/projects/` and final task numbering. This registry fixes project keys/destinations without creating tasks or assigning implementation state.
+The [project index](../projects/README.md) links canonical task files under `docs/projects/`. This registry fixes project keys/destinations without creating tasks or assigning implementation state.
 
 | Project key | File | Delivery scope |
 |---|---|---|
@@ -116,11 +116,11 @@ U7 exclusively owns project files under `docs/projects/` and final task numberin
 | AST | `owner-assistant.md` | Read-only dashboard/cited questions, bounded AI access/redaction, human approval and SCN/ECO growth consumers |
 | ASS | `engineering-assurance.md` | Bounded risk-based access, integrity/recovery, privacy/legal and release-evidence delivery; policy stays with its existing owners |
 
-Tasks are bounded end-to-end demonstrable flows, not layers or broad epics renamed as implementation-ready work. Each task records goal/actor, bounded flow, exact canonical REQ/AC coverage, inputs, exclusions, typed dependencies, decision gates, implementation state, separate readiness assessment and evidence references. Retain the plan's minimum task partition during U7 integration; this scope table does not replace it.
+Tasks are bounded end-to-end demonstrable flows, not layers or broad epics renamed as implementation-ready work. Each task records goal/actor, bounded flow, exact canonical REQ/AC coverage, inputs, exclusions, typed dependencies, decision gates, implementation state, separate readiness assessment and evidence references. This scope table does not replace task sections.
 
 Implementation state is `not-started`, `in-progress`, `blocked` or `done`. Initially use `not-started` unless repository evidence supports another state; this is not a claim that all features are absent. `blocked` names an actual unmet prerequisite or decision. `done` requires artifact/PR/commit identity, relevant check results and date. Issue state, checkboxes and documentation approval do not prove completion. Separately record satisfied/unsatisfied start, demonstration and release conditions. A well-specified task may be blocked; a start-ready task may still lack demonstration/release evidence.
 
-Until integration, U2–U6 keep task proposals in scratch packets only, using unit-local labels such as `U4:cost-allocation` and nominating project `OPS` or `INV`. Do not allocate final `TASK-*` IDs or edit shared project files. U7 assigns stable IDs and replaces provisional cross-packet references; no provisional label survives in canonical dependencies or final coverage rows. Task state belongs only in project task sections, never duplicated in specs, portfolio, GitHub or this registry.
+Use stable qualified targets, not temporary authoring labels, in canonical dependencies and coverage. Task state belongs only in project task sections, never duplicated in specs, portfolio, GitHub or this registry.
 
 ## Historical-source-archive
 
@@ -151,28 +151,8 @@ Each row records source key, source role (`current`, `historical`, `proposal`), 
 
 ### Extraction-ownership
 
-Exactly one unit owns extraction keys and complete body/comment accounting for each source record. Principal source overlap in the capability registry does not change this assignment.
-
-| Extraction owner | Complete source records | Count |
-|---|---|---|
-| U2 | #3, #14, #15, #17, #18, #19, #34–#37 | 10 |
-| U3 | #26–#29, #33, #38–#40 | 8 |
-| U4 | #4, #5, #9, #48–#50 | 6 |
-| U5 | #30–#32, #41–#43, #45–#47, #51 | 10 |
-| U6 | #6–#8, #10–#12 | 6 |
-| U7 | #1, #2, #13, #16, #20–#25 | 10 |
-
-Read cross-owned sources as needed, but obtain their extraction keys from the assigned owner; do not allocate competing keys. Send destination proposals against those keys. An extraction owner retains blocks destined elsewhere as explicit outgoing handoffs rather than omitting them. Source ownership and normative ownership are different: for example U2 extracts #35, while its conservation destinations belong to STK/U4.
+Historical extraction assignments and clause dispositions belong to the [migration coverage ledger](../migrations/spec-library/coverage.md), not the live authoring workflow. Source extraction ownership is distinct from normative ownership: a source block may split across several capabilities, each with one owner. Reuse its recorded source key rather than allocating competing keys.
 
 ### Authoring-packets
 
-Each U2–U6 scratch packet contains:
-
-1. Assigned source-record inventory, full body/comment block keys and accounting, including explicit justified dispositions for non-normative material.
-2. Destination mappings to exact REQ/AC/control IDs, source role/disposition/rationale and review result; outgoing and incoming cross-owner handoffs with the receiving unit and proposed destination.
-3. Bounded task proposals with unit-local provisional labels, nominated project, flow/coverage, typed dependencies, decision/readiness gates and required evidence. Do not claim implementation completion from source state.
-4. Uncovered obligations, conflicts and unresolved incoming mappings, explicitly identified rather than silently repaired by another author.
-
-Before accepting a packet, compare its assigned full source blocks with destinations; ID counts alone are insufficient. U7 reconciles every outgoing handoff against the receiving spec/task and its own extracted records. Missing coverage proof returns to the packet owner. U2–U6 do not write shared coverage/project/decision/policy files or each other's capability files.
-
-U5 owns mapping the offered product-plan R1–R32, A1–A2, F1–F4 and AE1–AE11 with contextual qualifiers. Identical clauses in #1 may consolidate. U7 owns independent approved-amendment coverage rows for repository authority, investment-first releases, manual measurements without recorder dependency, week-boundary qualification and supplied intermediate windows, plus final cross-source reconciliation. Identify amendment source/section/ordinal/quote/hash separately from issue keys; never claim these changes were already explicit in old issues. Preserve all accepted later scope and all meaningful source policy controls without reinstating obsolete release chains.
+Historical authoring packets are evidence behind the migration ledger, not required inputs for ordinary maintenance. To audit a migration claim, compare the exact full source selection and contextual qualifiers with every destination; counts alone do not establish preservation. Approved amendments must remain identified separately from issue clauses, with provenance and rationale rather than a claim that the old issue already required the new behavior. Preserve later capability scope and source-specific policy controls without reinstating obsolete release chains.

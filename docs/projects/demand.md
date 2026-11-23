@@ -1,51 +1,51 @@
 # DEM — Popyt i rekomendacje
 
-Owner [DEM](../specs/demand.md). [Common task/evidence contract](README.md#task-contract). Niezależny projekt po danych, nie bramka wymaganej sprzedaży INV. Wybory metod/wejść zakwalifikowano w [decision classification](../decisions.md#request-classification); specowe prośby o rejestrację nie oznaczają automatycznie nowych globalnych blokad.
+Owner [DEM](../specs/demand.md). [Common task/evidence contract](README.md#task-contract). Niezależny projekt po uzyskaniu danych, nie bramka wyliczenia wymaganej sprzedaży INV. Wybory metod i wejść zakwalifikowano w [klasyfikacji decyzji](../decisions.md#request-classification); prośby o rejestrację zawarte w specyfikacji nie oznaczają automatycznie nowych globalnych blokad.
 
 ### TASK-DEM-001
 
-**Cel/przepływ:** analityk ładuje hourly SKU sales/stockout/features z pochodzeniem i momentem dostępności i odczytuje audytowalną serię censored/noncensored/braki. **Coverage:** DEM-REQ-001 / DEM-AC-001. Inputs: daty/strefa, stable SKU i source fields; bez wyboru forecast modelu.
+**Cel/przepływ:** analityk wczytuje godzinowe dane sprzedaży, niedostępności i cech według SKU, z pochodzeniem i momentem dostępności danych. Odczytuje szereg umożliwiający audyt, z rozróżnieniem okresów ocenzurowanych, nieocenzurowanych i braków. **Coverage:** DEM-REQ-001 / DEM-AC-001. Wejścia: daty i strefa czasu, stabilne SKU i pola źródłowe; bez wyboru modelu prognozy.
 
 | Type | Target | Scope / condition | Phase |
 |---|---|---|---|
-| contract-input | [SAL-REQ-001](../specs/sales-returns.md#sal-req-001), [SAL-REQ-004](../specs/sales-returns.md#sal-req-004), [STK-REQ-002](../specs/stock-inventory.md#stk-req-002) | Sprzedaż/stockout i fizyczne zwroty nie pełny popyt | start |
-| implementation-prerequisite | [TASK-OPS-001](operational-balances.md#task-ops-001) | Rzeczywista seria do actual-data release, lub zgodne niezależne rzeczywiste źródło | release |
-| release-gate | [TASK-ASS-005](engineering-assurance.md#task-ass-005) | Minimalizacja/access/source qualification | release |
+| contract-input | [SAL-REQ-001](../specs/sales-returns.md#sal-req-001), [SAL-REQ-004](../specs/sales-returns.md#sal-req-004), [STK-REQ-002](../specs/stock-inventory.md#stk-req-002) | Sprzedaż, niedostępność i fizyczne zwroty nie określają pełnego popytu | start |
+| implementation-prerequisite | [TASK-OPS-001](operational-balances.md#task-ops-001) | Rzeczywisty szereg do wydania na rzeczywistych danych albo zgodne, niezależne źródło rzeczywistych danych | release |
+| release-gate | [TASK-ASS-005](engineering-assurance.md#task-ass-005) | Minimalizacja danych, dostęp i kwalifikacja źródła | release |
 
-**State:** not-started. **Readiness:** contract specified; source mapping/period qualification w planie, actual data niezweryfikowane. **Decision gates:** brak nowej DEC. **Proof:**20sales/120min unavailable ≠ demand20/zero lost sales;missing weather missing;invalid period/access filtering/source error. Evidence: brak.
+**State:** not-started. **Readiness:** kontrakt określony; mapowanie źródła i kwalifikacja okresów należą do planu, rzeczywiste dane są niezweryfikowane. **Decision gates:** brak nowej DEC. **Proof:** 20 sprzedanych sztuk i 120 min niedostępności nie oznaczają popytu 20 ani zerowej utraconej sprzedaży; brak pogody pozostaje brakiem. Sprawdzić niepoprawny okres, filtrowanie według uprawnień i błąd źródła. Dowody: brak.
 
 ### TASK-DEM-002
 
-**Cel/przepływ:** planista wybiera historię, czyta daily recommendation/uncertainty/partie/godziny, zapisuje uzasadnioną korektę i porównuje oryginał/korektę z actual sales/waste/stockout. **Coverage:** DEM-REQ-002, DEM-REQ-006, DEM-REQ-008, DEM-REQ-010 / DEM-AC-002, DEM-AC-006 (propozycja), DEM-AC-007. Bez automatycznej zmiany planu/grafiku i bez ML performance claim.
+**Cel/przepływ:** planista wybiera historię, odczytuje dzienną rekomendację, niepewność, partie i godziny, zapisuje uzasadnioną korektę i porównuje oryginał oraz korektę z rzeczywistą sprzedażą, odpadami i niedostępnością. **Coverage:** DEM-REQ-002, DEM-REQ-006, DEM-REQ-008, DEM-REQ-010 / DEM-AC-002, DEM-AC-006 (propozycja), DEM-AC-007. Bez automatycznej zmiany planu lub grafiku i bez deklarowania skuteczności ML.
 
 | Type | Target | Scope / condition | Phase |
 |---|---|---|---|
-| implementation-prerequisite | [TASK-DEM-001](#task-dem-001) | Qualified series | demonstration |
-| contract-input | [ECO-REQ-006](../specs/economics-investment.md#eco-req-006), [ECO-REQ-011](../specs/economics-investment.md#eco-req-011) | Cost labels/source basis, missing cost ogranicza tylko ekonomię | demonstration |
-| release-gate | [DEM-REQ-005](../specs/demand.md#dem-req-005), [TASK-ASS-006](engineering-assurance.md#task-ass-006) | Prawdziwe dane before empirical claims, dowody/privacy/UI | release |
+| implementation-prerequisite | [TASK-DEM-001](#task-dem-001) | Szereg z określoną kwalifikacją danych | demonstration |
+| contract-input | [ECO-REQ-006](../specs/economics-investment.md#eco-req-006), [ECO-REQ-011](../specs/economics-investment.md#eco-req-011) | Oznaczenia kosztów i podstawa źródłowa; brak kosztu ogranicza tylko ocenę ekonomiczną | demonstration |
+| release-gate | [DEM-REQ-005](../specs/demand.md#dem-req-005), [TASK-ASS-006](engineering-assurance.md#task-ass-006) | Rzeczywiste dane przed twierdzeniami empirycznymi; dowody, prywatność i UI | release |
 
-**State:** not-started. **Readiness:** metoda mean/median, porównywalność dni/adequacy/uncertainty muszą być jawnie wybrane i odtwarzalne w bounded planie; źródło nie nakazuje jednego uniwersalnego progu. **Decision gates:** brak nowej DEC. **Proof:**median10/14/18=14 z listą dni; no comparable history → no basis nie0;30→34 z powodem i actual31/3/0, oryginał zachowany; denied override; niepotwierdzone godziny nazwane propozycją. Evidence: brak.
+**State:** not-started. **Readiness:** metoda średniej albo mediany, porównywalność dni, adekwatność danych i niepewność muszą być jawnie wybrane i odtwarzalne w ograniczonym planie zadania; źródło nie nakazuje jednego uniwersalnego progu. **Decision gates:** brak nowej DEC. **Proof:** mediana 10/14/18=14 z listą dni; brak porównywalnej historii daje brak podstaw, nie 0. Korekta 30→34 zachowuje powód, rzeczywisty wynik 31/3/0 i oryginał; sprawdzić odmowę nieuprawnionej korekty. Niepotwierdzone godziny są nazwane propozycją. Dowody: brak.
 
 ### TASK-DEM-003
 
-**Cel/przepływ:** planista przekazuje datowaną positive integer propozycję do skalowania i jawnie przyjmuje ilości/terminy do szkicu PLN. Manual dated proposal może być wejściem bez pełnego predyktora. **Coverage:** DEM-REQ-007, DEM-REQ-009 / DEM-AC-006 (scaling), DEM-AC-008.
+**Cel/przepływ:** planista przekazuje datowaną propozycję dodatniej całkowitej liczby sztuk do skalowania i jawnie przyjmuje ilości oraz terminy do szkicu PLN. Ręczna datowana propozycja może być wejściem bez pełnego modelu prognostycznego. **Coverage:** DEM-REQ-007, DEM-REQ-009 / DEM-AC-006 (skalowanie), DEM-AC-008.
 
 | Type | Target | Scope / condition | Phase |
 |---|---|---|---|
-| implementation-prerequisite | [TASK-REC-005](recipes.md#task-rec-005), [TASK-PLN-001](production-planning.md#task-pln-001) | Real scaling/draft handoff, nie samo liczenie baseline | demonstration |
-| optional-adapter | [WRK-REQ-017](../specs/workforce.md#wrk-req-017) | Staffing feedback, nie blocker | demonstration |
-| release-gate | [DEM-REQ-009](../specs/demand.md#dem-req-009) | Human choice/permission/no auto publish | release |
+| implementation-prerequisite | [TASK-REC-005](recipes.md#task-rec-005), [TASK-PLN-001](production-planning.md#task-pln-001) | Działające przekazanie do skalowania i szkicu, nie samo liczenie wyniku metody bazowej | demonstration |
+| optional-adapter | [WRK-REQ-017](../specs/workforce.md#wrk-req-017) | Informacja zwrotna o obsadzie, nie warunek blokujący | demonstration |
+| release-gate | [DEM-REQ-009](../specs/demand.md#dem-req-009) | Wybór człowieka, uprawnienia i brak automatycznej publikacji | release |
 
-**State:** not-started. **Decision gate:** DEC-001 tylko persisted scaling boundary. **Readiness:** contract known, providers unverified. **Proof:**30 uses REC once;0 no batch;2,5/missing mapping error;accept draft only;denied user no change, shifts/confirmed B2B unchanged. Evidence: brak.
+**State:** not-started. **Decision gate:** DEC-001 tylko na granicy utrwalanego skalowania. **Readiness:** kontrakt znany, dostawcy danych niezweryfikowani. **Proof:** 30 korzysta ze skalowania REC raz; 0 nie tworzy partii; 2,5 lub brak mapowania daje błąd. Przyjęcie dotyczy tylko szkicu; odmowa użytkownikowi nie zmienia danych, grafiki i potwierdzone B2B pozostają bez zmian. Dowody: brak.
 
 ### TASK-DEM-004
 
-**Cel/przepływ:** analityk porównuje baseline/kandydata w walk-forward i osobnym teście, koszt odpadów/unavailability i noncensored error; pozostawia baseline bez wykazanej przewagi na danych produkcyjnych. **Coverage:** DEM-REQ-003–005 / DEM-AC-003–005. Inputs: training/test boundaries, history/feature availability, jawny objective/cost basis i zasady qualification, nie wymyślone minimum history/MAE/wagi. Dodatkowe statystyczne/ML modele tylko warunkowo.
+**Cel/przepływ:** analityk porównuje metodę bazową i kandydata w ocenie kroczącej oraz osobnym teście, uwzględniając koszt odpadów i niedostępności oraz błąd dla okresów nieocenzurowanych; pozostawia metodę bazową, jeżeli nie wykazano przewagi na danych produkcyjnych. **Coverage:** DEM-REQ-003–005 / DEM-AC-003–005. Wejścia: granice zbiorów uczącego i testowego, historia i dostępność cech, jawny cel, podstawa kosztów i zasady kwalifikacji, nie wymyślone minimum historii, MAE ani wagi. Dodatkowe modele statystyczne lub ML są dopuszczalne tylko warunkowo.
 
 | Type | Target | Scope / condition | Phase |
 |---|---|---|---|
 | implementation-prerequisite | [TASK-DEM-001](#task-dem-001) | Wiarygodna seria i dostępność cech | demonstration |
 | contract-input | [ECO-REQ-006](../specs/economics-investment.md#eco-req-006), [ECO-REQ-011](../specs/economics-investment.md#eco-req-011) | Jawne koszty strat/niedostępności | start |
-| release-gate | [DEM-REQ-005](../specs/demand.md#dem-req-005) | Production evaluation i declared criterion przed modelem/accuracy claim | release |
+| release-gate | [DEM-REQ-005](../specs/demand.md#dem-req-005) | Ocena na danych produkcyjnych i zadeklarowane kryterium przed zastosowaniem modelu lub deklaracją trafności | release |
 
-**State:** not-started. **Readiness:** outcome fixed; evaluation rule/method/basis musi być zapisana przed pomiarem i zweryfikowana przez odbiorcę, nie uniwersalna global DEC. **Decision gates:** brak nowej. **Proof:**no future weather/sales/parameter leakage;held-out test oddzielony;16 vs10PLN z kwalifikacją lost sales;lower MAE bez cost advantage nie wybiera ML, absent source/cost not0. Evidence: brak.
+**State:** not-started. **Readiness:** rezultat określony; reguła, metoda i podstawa oceny muszą być zapisane przed pomiarem i zweryfikowane przez odbiorcę, nie stanowią uniwersalnej globalnej DEC. **Decision gates:** brak nowej. **Proof:** brak przecieku przyszłej pogody lub sprzedaży do uczenia i doboru parametrów; odłożony test pozostaje oddzielony. Porównanie 16 wobec 10 PLN zachowuje kwalifikację utraconej sprzedaży; niższy MAE bez przewagi kosztowej nie wybiera ML, brak źródła lub kosztu nie oznacza 0. Dowody: brak.

@@ -25,3 +25,9 @@ The new precision tests first failed because the implementation module did not e
 Node 24.22.3 was obtained through npm exec; installed machine default was 24.8.0 and is not the supported Payload runtime. Native Admin synthetic create/read passed, anonymous create returned 403. Scoped spike production build passed; production root returned 200. See `docs/architecture/mvp-zero.md` for its limited scope.
 
 Initial target-stack dependency audit reported 13 vulnerabilities (2 critical, 4 high, 7 moderate). Remediation and applicability assessment remain required before shipping; this result is not a passed security gate.
+
+## Route migration
+
+Full application production build passed on Node 24.22.3 after removing the temporary spike TypeScript scope. A simultaneous typecheck initially failed because build regenerated `.next/types`; rerunning after build passed. Verification commands that share generated output must run serially.
+
+Playwright production smoke visited all five preserved routes at desktop 1280 and phone 390 widths: all returned 200, and no page exceptions were observed. Screenshots named `after-*` were captured beside the baseline. Default fermentation/hydration values match baseline. Mock history/profile and wizard surfaces remain present. Further interaction/error and visual checks are required at the final browser gate.

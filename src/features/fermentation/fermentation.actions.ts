@@ -1,0 +1,34 @@
+'use server';
+import { fermentationSchema } from "./fermentation";
+import { expDecay, params } from "@/utils/schedule.utils";
+
+export async function calculateFermentationTimesServer({ data: input }: { data: { temperature: number; hydration: string } }) {
+    const data = fermentationSchema.parse(input);
+    const { temperature, hydration } = data;
+
+    const adjustmentFactor = 75 / hydration;
+
+    const bulkTime =
+      expDecay(
+        temperature,
+        params.bulk_fermentation_time.a,
+        params.bulk_fermentation_time.b,
+        params.bulk_fermentation_time.c
+      ) * adjustmentFactor;
+    const proofTime =
+      expDecay(
+        temperature,
+        params.proofing_time.a,
+        params.proofing_time.b,
+        params.proofing_time.c
+      ) * adjustmentFactor;
+    const totalTime =
+      expDecay(
+        temperature,
+        params.total_fermentation_time.a,
+        params.total_fermentation_time.b,
+        params.total_fermentation_time.c
+      ) * adjustmentFactor;
+
+    return { bulkTime, proofTime, totalTime };
+}

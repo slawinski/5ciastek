@@ -1,3 +1,4 @@
+'use client';
 import React, { useState, useMemo, Suspense } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { InputField } from "@/components/InputField";

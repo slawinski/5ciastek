@@ -1,3 +1,4 @@
+'use client';
 import Button from "@/components/Button";
 import { StepSchedule } from "./components/StepSchedule";
 import { StepDough } from "./components/StepDough";

@@ -1,7 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
+'use client';
 import { useState, useMemo, Suspense } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import styles from "./index.module.css";
+import styles from "../../routes/index.module.css";
 import layoutStyles from "@/components/PageLayout/PageLayout.module.css";
 import { InputField } from "@/components/InputField";
 import { formatTime } from "@/utils/time.utils";
@@ -12,17 +12,6 @@ import ResultsPanel from "@/features/fermentation/components/ResultsPanel";
 import { fermentationSchema } from "@/features/fermentation/fermentation";
 import { useDebounce } from "@/hooks/useDebounce";
 import { PageLayout } from "@/components/PageLayout";
-
-export const Route = createFileRoute("/")({
-  component: FermentationCalculator,
-  loader: async ({ context: { queryClient } }) => {
-    // Prefetch both tips and default fermentation results
-    await Promise.all([
-      queryClient.ensureQueryData(bakingTipsQueryOptions),
-      queryClient.ensureQueryData(fermentationQueryOptions({ temperature: 23, hydration: "75" })),
-    ]);
-  },
-});
 
 function BakingTipsList() {
   const { data: bakingTips = [] } = useSuspenseQuery(bakingTipsQueryOptions);
@@ -96,7 +85,7 @@ function FermentationResults({
   );
 }
 
-function FermentationCalculator() {
+export default function FermentationCalculator() {
   const [temperature, setTemperature] = useState<string>('23');
   const debouncedTemperature = useDebounce(temperature, 500);
 

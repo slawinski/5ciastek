@@ -1,43 +1,5 @@
-import { createServerFn } from "@tanstack/react-start";
-import { queryOptions } from "@tanstack/react-query";
-import { fermentationSchema } from "./fermentation";
-import { expDecay, params } from "@/utils/schedule.utils";
-
-export const calculateFermentationTimesServer = createServerFn()
-  .inputValidator((data) => fermentationSchema.parse(data))
-  .handler(async ({ data }) => {
-    const { temperature, hydration } = data;
-
-    const adjustmentFactor = 75 / hydration;
-
-    const bulkTime =
-      expDecay(
-        temperature,
-        params.bulk_fermentation_time.a,
-        params.bulk_fermentation_time.b,
-        params.bulk_fermentation_time.c
-      ) * adjustmentFactor;
-    const proofTime =
-      expDecay(
-        temperature,
-        params.proofing_time.a,
-        params.proofing_time.b,
-        params.proofing_time.c
-      ) * adjustmentFactor;
-    const totalTime =
-      expDecay(
-        temperature,
-        params.total_fermentation_time.a,
-        params.total_fermentation_time.b,
-        params.total_fermentation_time.c
-      ) * adjustmentFactor;
-
-    return { bulkTime, proofTime, totalTime };
-  });
-
-export const fermentationQueryOptions = (data: { temperature: number; hydration: string }) => 
-  queryOptions({
-    queryKey: ["fermentation", data],
-    queryFn: () => calculateFermentationTimesServer({ data }),
-    staleTime: 1000 * 60 * 60, // Cache for 1 hour
-  });
+import { queryOptions } from '@tanstack/react-query';
+import { calculateFermentationTimesServer } from './fermentation.actions';
+export const fermentationQueryOptions = (data: { temperature: number; hydration: string }) => queryOptions({
+  queryKey: ['fermentation', data], queryFn: () => calculateFermentationTimesServer({ data }), staleTime: 3600000,
+});

@@ -1,5 +1,6 @@
+'use client';
 import Button from "@/components/Button";
-import { Link } from "@tanstack/react-router";
+import Link from 'next/link';
 import { useState, useRef, useEffect } from "react";
 import {
   Home,
@@ -75,7 +76,7 @@ export default function Header() {
           <Menu size={24} />
         </Button>
         <h1 className={styles.title}>
-          <Link to="/" className={styles["centered-link-content"]}>
+          <Link href="/" className={styles["centered-link-content"]}>
             <Croissant /> 5ciastek
           </Link>
         </h1>
@@ -94,7 +95,7 @@ export default function Header() {
             {isProfileMenuOpen && (
               <div className={styles["profile-dropdown"]}>
                 <Link
-                  to="/profile"
+                  href="/profile"
                   className={styles["dropdown-item"]}
                   onClick={() => setIsProfileMenuOpen(false)}
                 >
@@ -115,7 +116,7 @@ export default function Header() {
       <aside ref={asideRef} className={sidebarClassName}>
         <div className={styles["sidebar-header"]}>
           <h2 className={styles["sidebar-title"]}>
-            <Link to="/" className={styles["desktop-title"]} onClick={() => setIsOpen(false)}>
+            <Link href="/" className={styles["desktop-title"]} onClick={() => setIsOpen(false)}>
               <Croissant /> 5ciastek
             </Link>
             <span className={styles["mobile-title"]}>Navigation</span>
@@ -131,7 +132,7 @@ export default function Header() {
 
         <nav className={styles.nav}>
           <Link
-            to="/"
+            href="/"
             onClick={() => setIsOpen(false)}
             className={styles.navLink}
           >
@@ -139,7 +140,7 @@ export default function Header() {
             <span>Fermentation Calculator</span>
           </Link>
           <Link
-            to="/hydration"
+            href="/hydration"
             onClick={() => setIsOpen(false)}
             className={styles.navLink}
           >
@@ -147,7 +148,7 @@ export default function Header() {
             <span>Hydration Calculator</span>
           </Link>
           <Link
-            to="/bake-a-long"
+            href="/bake-a-long"
             onClick={() => setIsOpen(false)}
             className={styles.navLink}
           >
@@ -155,7 +156,7 @@ export default function Header() {
             <span>Bake-A-Long</span>
           </Link>
           <Link
-            to="/bake-history"
+            href="/bake-history"
             onClick={() => setIsOpen(false)}
             className={styles.navLink}
           >

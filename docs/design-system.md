@@ -77,4 +77,18 @@ To lista kandydatów, nie polecenie budowy wszystkich komponentów w MVP-0.
 - [ ] Test lub porównanie wizualne wykrywa niezamierzone odstępstwa od stylu.
 - [ ] Migracja Next.js nie powoduje nieuzgodnionej zmiany palety, typografii, obramowań ani stylu kart i przycisków.
 
-Powiązane Issues: [#1 — roadmapa](https://github.com/slawinski/5ciastek/issues/1), [#16 — migracja](https://github.com/slawinski/5ciastek/issues/16), [#15 — katalog receptur](https://github.com/slawinski/5ciastek/issues/15), [#19 — interfejs produkcyjny](https://github.com/slawinski/5ciastek/issues/19).
+## Stable control interface
+
+### ui-design
+
+This document remains the UI policy owner. Preserve the existing brutalist tokens, typography, borders, hard shadows and CSS Modules above. Inventory existing screens/components and capture mobile/desktop references before migration; compare actual changed screens afterwards without perpetuating known accessibility defects. Reuse or extend existing patterns before adding components. Keep generic primitives shared and feature-specific components with their feature; document APIs, states, variants and examples incrementally. Candidate components are not a mandate to build the entire catalog or install Storybook.
+
+Current maintenance retains the [current stack](index.md#current-stack-and-applicability). Future architecture/migration belong to [TASK-REC-001](projects/recipes.md#task-rec-001) and [TASK-REC-002](projects/recipes.md#task-rec-002); neither library adoption nor migration authorizes an arbitrary reskin. Native Payload Admin may retain its own UI under section 5's exception; an administrative feature moved into KoPieC OS follows this design system. Shared UI delivery belongs to [TASK-REC-007](projects/recipes.md#task-rec-007), not a new policy owner.
+
+### ui-accessibility
+
+For each affected component/screen, verify semantic HTML, keyboard operation, visible focus, contrast, descriptive accessible names and usable touch targets. Check phone, production tablet and desktop, including high zoom. Preserve readable text and information when motion is stopped or `prefers-reduced-motion` is active. Meaning must not depend on color or motion alone. Map controls and their alternative accessible list must expose the same states and quantities ([MAP-REQ-010](specs/flow-map-demo.md#map-req-010)).
+
+Provide normal, focus, disabled, loading, empty, error and permission-denied states wherever applicable; distinguish failed retrieval from an empty result and an unconfirmed write from success. Business/UI text is Polish. Verification must exercise actual changed screens and interactions; a documentation screenshot, component list or approved specification is not accessibility or visual-regression evidence. The existing acceptance checklist above still applies.
+
+Historical provenance: #25 and the UI clauses of #15/#16/#17/#19/#31/#32/#41 are mapped in [policy coverage](migrations/spec-library/coverage.md#policy-handoff). Canonical capability specs own feature behavior; project task sections alone own delivery state.

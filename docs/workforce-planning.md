@@ -1,82 +1,40 @@
-# KoPieC OS — Workforce Planning
+# KoPieC OS — planowanie pracy zespołu
 
-**Status:** plan domeny. Nie oznacza, że funkcja istnieje ani że ewidencja czasu pracy jest prawnie zgodna.
+Ten dokument jest pochodnym przewodnikiem zgodności pojęć i dawnych odnośników, nie drugą specyfikacją ani rejestrem realizacji. Zacznij od [portfela](product-plan.md), wybierz ograniczone zadanie w [projekcie WRK](projects/workforce.md), a następnie przeczytaj wskazane wymagania i kryteria w [kanonicznej specyfikacji WRK](specs/workforce.md). Zapis dokumentacji nie dowodzi działania funkcji ani zgodności ewidencji z prawem.
 
 ## Cel
 
-System ma odpowiadać na pytanie: **kto, kiedy i na ile godzin musi przyjść do pracy, aby zaplanowana produkcja była gotowa na czas?**
-
-**Jedna architektura, 1–N osób.** System musi działać dla jednej osoby, dwóch osób i większego zespołu. Praca właściciela w pojedynkę jest tylko konfiguracją grafiku z jedną osobą — nie wymaga osobnego modułu, trybu ani zestawu reguł obliczeniowych. Rozróżnienie formy współpracy ma znaczenie dla wymagań prawnych i ewidencji, ale nie dla podstawowego mechanizmu planowania.
-
-## Wymagania skalowalności organizacyjnej
-
-- Jeden model danych `Worker`, `ShiftPlan` i `WorkSession`; nie tworzyć odrębnych kolekcji dla właściciela pracującego samodzielnie.
-- Jeden interfejs i jedno API do planowania zmian niezależnie od liczby osób. Dodanie kolejnych pracowników nie może wymagać migracji do innego trybu.
-- Jeden algorytm propozycji grafiku i wyznaczania potrzebnej obsady. Liczba dostępnych osób jest parametrem wejściowym.
-- Wymagania prawne zależne od formy zatrudnienia są regułami przypisanymi do osoby lub umowy, a nie odrębną architekturą planowania.
-- Testy regresji: 1, 2 i 5 osób. Należy zweryfikować także równoczesne zapotrzebowanie na kilka osób, zmiany nocne oraz konflikt dostępności.
+Pytanie biznesowe pozostaje to samo: **kto, kiedy i na ile godzin ma przyjść, aby produkcja była gotowa na czas?** [WRK-REQ-002](specs/workforce.md#wrk-req-002) określa jedną architekturę, model Worker/ShiftPlan/WorkSession, interfejs, API i reguły dla 1–N osób. Właściciel pracujący sam jest konfiguracją obsady, nie oddzielnym trybem. [WRK-AC-002](specs/workforce.md#wrk-ac-002) zachowuje sprawdzenie 1, 2 i 5 osób; noce i równoczesność sprawdzają [WRK-AC-004](specs/workforce.md#wrk-ac-004) oraz [WRK-AC-009](specs/workforce.md#wrk-ac-009).
 
 ## Trzy odrębne fakty
 
-| Typ | Znaczenie | Źródło |
-|---|---|---|
-| `ShiftPlan` | Plan: kto ma pracować oraz początek i koniec zmiany | Kierownik / właściciel, później rekomendacja planera |
-| `WorkSession` | Wykonanie: rzeczywiste godziny pracy/obecności osoby; przerwy i korekty | Ręczne zdarzenia, później ewentualne RCP |
-| `LaborSegment` | Nakład pracy nad konkretną operacją / partią; liczba osób × czas | Moduł produkcji #18 |
-
-**Nie sumować `LaborSegment` jako formalnej ewidencji czasu pracy.** Jedna osoba może obsługiwać kilka równoległych partii i zadań. Zapisy `LaborSegment` mogą nie zawierać identyfikatorów osób, nie uwzględniają całej pracy, przerw, urlopów ani innych obowiązków. Czas właściciela i pracowników także ma inne znaczenie prawne.
-
-## Proces planowania
-
-1. Ustal planowaną ilość sztuk w ręcznym planie (#33); #17 wyłącznie przelicza masy. Prognoza popytu (#6) i zamówienia (#11) mogą dostarczyć propozycje wejścia, ale nie zastępują zatwierdzenia konkretnej wersji planu.
-2. Zbuduj zapotrzebowanie na etapy produkcji i aktywny czas ludzi, z oznaczeniem źródła czasów: szacunek / pomiar (#14, #18).
-3. Ustal datę i godzinę gotowości pieczywa. Uwzględnij etapy pasywne, chłodzenie, rezerwy, stanowiska i piec.
-4. Wyznacz wstępne godziny rozpoczęcia i zakończenia pracy dla dostępnych osób. Planowanie wstecz wykorzystuje te same dane i zasady przy każdej liczbie osób. Gdy ograniczeń nie można jeszcze zweryfikować bez CAPP, oznacz wynik jako szacunek.
-5. Sprawdź dostępność osób, umiejętności, przerwy, czas odpoczynku oraz zasoby. Zgłoś braki, nie ukrywaj ich.
-6. Wybierz i zatwierdź konkretną wersję planu produkcji (#33). Odbiorcom rozliczeń, MRP i harmonogramu przekazuj jej identyfikator i wersję. Grafik ma osobną publikację (#27); zatwierdzenie ilości nie tworzy wykonanych partii, nie potwierdza wykonalności zasobów, nie wysyła zakupów ani nie publikuje automatycznie grafiku.
-7. Rejestruj wykonanie oddzielnie. Analizuj odchylenia, ale nie nadpisuj historycznego grafiku.
-
-## Integracje i źródło prawdy
-
-| System | Przekazuje do Workforce Planning | Otrzymuje z Workforce Planning |
-|---|---|---|
-| Katalog receptur #14–#17 | Produkty, masy i wstępne etapy | Docelowe ilości do skalowania |
-| Ręczny plan produkcji #33 | Pozycje, terminy gotowości, identyfikator i zatwierdzona wersja | Jawnie wybrany wariant do zatwierdzenia; szkic nie zastępuje wersji zatwierdzonej |
-| Produkcja #3, #18–#19 | Czas aktywny, wynik operacji, odchylenia | Dostępnych pracowników/zmiany |
-| Sprzedaż i prognoza #4, #6 | Oczekiwane ilości i godziny sprzedaży | Ostrzeżenia o niewystarczającej zdolności |
-| CAPP #7 | Zapotrzebowanie na czas, umiejętności i maszyny | Zasoby ludzkie i ograniczenia czasu |
-| Zakupy #9 | Dostępność surowców | Zatwierdzony plan do zapotrzebowania MRP |
-| Zamówienia B2B #11 | Potwierdzone ilości i terminy | Flaga wykonalności; nie automatyczna anulacja zamówienia |
-| Koszty #5 | Stawki kosztowe i reguły kalkulacji | Planowane/faktyczne godziny; rozróżnienie pracy właściciela |
-
-**Priorytet danych:** potwierdzone zamówienia nie mogą zostać zmniejszone przez samą rekomendację. Niepotwierdzone zamówienia i prognoza mogą być przedmiotem propozycji ograniczenia, zaakceptowanej przez człowieka.
-
-## Dostarczanie etapami
-
-**M1: ręczny grafik (#27).** Jeden kalendarz dla 1–N osób, planowane godziny, zmiany nocne i prosty plan wsteczny od godziny gotowości produktu. Bez osobnego trybu jednoosobowego, bez HRM i bez pełnego solwera.
-
-#27 jest zakresem nadrzędnym dla #38 (zapis/publikacja grafiku), #39 (szacunek początku) i #40 (konflikt obsady). Nie wymaga CAPP #7 ani integracji #29. Pozycje pochodzą z #33; do szacunku można użyć jawnie oznaczonego szkicu, ale nie przedstawiać go jako zatwierdzonej produkcji. Brakujące czasy można uzupełnić jawnie oznaczonymi estymacjami ze wskazanym źródłem; bez nich wynik pozostaje niepełnym szacunkiem, nie obliczeniem z zerem ani gwarancją wykonalności (#27 REQ-07, AC-06; #39 REQ-02, AC-02). Przed użyciem z pracownikami obowiązują mające zastosowanie warunki #28/#23.
-
-**M1: rejestr pracy (#28).** Osobne dane `WorkSession` i porównanie z grafikiem. Najpierw rejestr operacyjny i eksport; formalna ewidencja pracownicza wymaga weryfikacji.
-
-**M2/M3: integracja i rekomendacje (#29).** Zapotrzebowanie na pracę z produkcji i zamówień; ostrzeżenia, propozycje obsady i ograniczenia nowych zamówień. W miarę potrzeb optymalizator #7.
-
-| Etap integracji | Wejście i granica zależności |
+| Fakt | Znaczenie i właściciel |
 |---|---|
-| A — podstawowe ostrzeżenia i propozycja obsady | Zatwierdzony plan #33 + dostępność #27 + jawne estymacje operacji. Możliwy bez adapterów #7/#9/#11; maszyny, surowce i zamówienia pozostają jawnie niezweryfikowane (#29 AC-DEP-01). Nie publikuje automatycznie grafiku. |
-| B — porównania i prognoza | #28 dodaje wykonanie, #6 prognozę. Prognoza może zmienić najwyżej szkic, nie zatwierdzony plan ani grafik (#29, przyrostowe zależności). |
-| C — rozszerzone ograniczenia | #7 dodaje maszyny/ograniczenia, #9 surowce, #11 zamówienia. To adaptery rozszerzające wycinek A, nie warunki rozpoczęcia podstawowego zapisu planu. Ich brak nie oznacza potwierdzenia pełnej wykonalności (#29 AC-DEP-01). |
+| `ShiftPlan` | Planowana dostępność i przerwy osoby, z osobną publikacją, wersją i historią: [WRK-REQ-004](specs/workforce.md#wrk-req-004), [WRK-REQ-005](specs/workforce.md#wrk-req-005). Nie dowodzi obecności. |
+| `WorkSession` | Rzeczywista obecność, przerwy i kontrolowane korekty: [WRK-REQ-012](specs/workforce.md#wrk-req-012), [WRK-REQ-013](specs/workforce.md#wrk-req-013). Nie jest automatycznie czasem płatnym ani formalną ewidencją. |
+| `LaborSegment` | Nakład konkretnej operacji: czas × liczba osób, zapisany przez [EVT-REQ-005](specs/production-records.md#evt-req-005). Może być anonimowy; nie dowodzi tożsamości ani unikalnej liczby osób. |
 
-Nie sumować obecności `WorkSession` i nakładu operacji jako dwóch kosztów tej samej pracy. Anonimowa współdzielona praca wymaga jawnego podziału przed dokładną alokacją kosztu (#5 AC-LAB-01, #43 AC-01/AC-02). Pojęcia wyjaśnia [słownik](domain/glossary.md), a obliczenia czasu, przerw i nakładu — [przykłady referencyjne](reference-examples.md). Reguły formy powiązań określają [zasady specyfikacji](specification-style.md#znaczenie-powiązań); wejście do dokumentacji znajduje się w [indeksie](index.md).
+[WRK-REQ-001](specs/workforce.md#wrk-req-001) zabrania utożsamiania tych faktów. Równoległa praca nad partiami nie tworzy automatycznie indywidualnej ewidencji; anonimowe odcinki nie obejmują całej pracy, przerw, urlopów ani innych obowiązków. [ECO-REQ-001](specs/economics-investment.md#eco-req-001) jest jedynym właścicielem alokacji: obecności i operacji nie dodaje się jako dwóch kosztów tej samej pracy. Dokładny podział współdzielonych 30 minut wymaga jawnej alokacji; przykład 50/50 daje 15 + 15, nie 30 + 30 osobominut ([ECO-AC-001](specs/economics-investment.md#eco-ac-001)).
+
+## Plan produkcji i przepływ propozycji
+
+Zapisany plan i jego zatwierdzona wersja należą do [PLN-REQ-001](specs/production-plans.md#pln-req-001), nie do REC. [REC-REQ-002](specs/recipes.md#rec-req-002) przelicza masy; [REC-REQ-012](specs/recipes.md#rec-req-012) nie zapisuje ani nie zatwierdza planu. Pozycje i jednoznaczne terminy zachowuje [PLN-REQ-002](specs/production-plans.md#pln-req-002). Zatwierdzenie następcy, a nie samo utworzenie szkicu, zastępuje poprzednią wersję ([PLN-AC-002](specs/production-plans.md#pln-ac-002)).
+
+| Potrzeba | Kanoniczny kontrakt i granica |
+|---|---|
+| Ustalenie etapów, gotowości i godzin rozpoczęcia | [WRK-REQ-009](specs/workforce.md#wrk-req-009), [WRK-REQ-010](specs/workforce.md#wrk-req-010) odsyłają do wspólnego [PRC](specs/process-execution.md): czasy aktywne/pasywne, chłodzenie, pakowanie, bufory, stanowiska, piec, dostępność i zadane okna. Pomiar, estymacja i brak zachowują źródło. Brak czasu nie jest zerem; heurystyka nie gwarantuje wykonalności. |
+| Ręczny grafik i konflikty | [WRK-REQ-004](specs/workforce.md#wrk-req-004) działa bez planu produkcji; [WRK-REQ-011](specs/workforce.md#wrk-req-011) sprawdza przedziały, równoczesną obsadę, umiejętności, przerwy i mający zastosowanie odpoczynek. Suma godzin nie zastępuje równoczesności. |
+| Etap A rekomendacji | [WRK-REQ-016](specs/workforce.md#wrk-req-016), [WRK-AC-013](specs/workforce.md#wrk-ac-013): zatwierdzony plan PLN, dostępność i jawne estymacje wystarczają do podstawowych ostrzeżeń/propozycji. Bez adapterów maszyn, surowców i B2B te zakresy pozostają niezweryfikowane. Nie ma automatycznej publikacji grafiku. |
+| Etapy B/C | [WRK-REQ-024](specs/workforce.md#wrk-req-024), [WRK-AC-020](specs/workforce.md#wrk-ac-020): wykonanie i prognoza rozszerzają B; maszyny/harmonogram OPT, materiały/MRP STK i B2B rozszerzają C. To przyrosty, nie warunki podstawowego zapisu grafiku ani całe obowiązkowe wydania MVP. |
+| Akceptacja i przekazanie | [WRK-REQ-017](specs/workforce.md#wrk-req-017), [WRK-REQ-018](specs/workforce.md#wrk-req-018): prognoza może zasilić szkic po wyborze człowieka, nie zmienić zatwierdzonego planu/grafiku. Rekomendacja nie zmniejsza ani nie anuluje potwierdzonego B2B. Odbiorcy kosztów, MRP i harmonogramu dostają identyfikator/wersję zatwierdzonego PLN oraz źródło godzin; nie powstaje wysłany zakup ani opublikowany grafik. |
+| Obserwacje i koszty | [WRK-REQ-019](specs/workforce.md#wrk-req-019) porównuje plan i wykonanie oraz pozwala jawnie poprawić estymacje bez nadpisywania historii. Stawki, koszt pracodawcy i ekonomiczna wartość pracy właściciela należą do [ECO](specs/economics-investment.md#eco-req-005); pomiary operacji do [EVT-REQ-010](specs/production-records.md#evt-req-010). |
+
+Dokładne zależności, fazy i dowody dostarczenia określają wyłącznie [zadania WRK](projects/workforce.md). Ręczny scenariusz inwestycyjny ze źródłowymi pomiarami nie wymaga pełnego rejestratora, rekomendacji ani formalnej ewidencji. [Słownik](domain/glossary.md), [przykłady czasu i nakładu](reference-examples.md) oraz [znaczenie powiązań](specification-style.md#znaczenie-powiązań) pomagają czytać kontrakt, nie zmieniają go.
 
 ## Bezpieczeństwo i prawo
 
-- Widoczność danych osobowych, grafiki oraz indywidualny czas pracy wymagają właściwych ról i polityki retencji (Issues #21, #23).
-- Warunki publikacji grafiku, minimalne okresy odpoczynku, ewidencja i obowiązki pracodawcy zależą od stosunku prawnego i systemu czasu pracy. Nie przenoś automatycznie norm dla pracowników na właściciela.
-- Dokumenty z KoPieC OS **nie mogą być oznaczane jako zgodne z wymaganiami prawa pracy bez weryfikacji**.
-- Rzeczywiste zdarzenia muszą mieć źródło, autora i możliwość kontrolowanej korekty zgodnie z #22 i #24.
-- Dane z kamer nie mogą automatycznie służyć do identyfikacji lub oceny pracy osób; przed takim rozwiązaniem potrzebna jest osobna analiza prawa (#23).
+[WRK-REQ-007](specs/workforce.md#wrk-req-007) i [WRK-REQ-008](specs/workforce.md#wrk-req-008) rozdzielają jednoznaczne chwile, czas rzeczywisty, obecność i płatność przerw. Przykładowa 30-minutowa przerwa nie ustanawia normy prawnej. [WRK-REQ-014](specs/workforce.md#wrk-req-014) oraz polityki [dostępu](engineering-assurance.md#ass-access) i [prywatności](engineering-assurance.md#ass-privacy) określają role, minimalizację i retencję. Rzeczywiste fakty i korekty zachowują źródło, autora i historię w granicach retencji; błędy, ponowienia i współbieżność podlegają [WRK-REQ-021](specs/workforce.md#wrk-req-021) i [integralności](engineering-assurance.md#ass-integrity).
 
-Źródła: [PIP — czas pracy](https://www.pip.gov.pl/dla-pracodawcow/porady-prawne/czas-pracy), [PIP — ewidencja vs lista obecności](https://www.pip.gov.pl/dla-pracodawcow/pytania-i-odpowiedzi/jaka-jest-roznica-miedzy-ewidencja-czasu-pracy-a-lista-obecnosci), [rozporządzenie w sprawie dokumentacji pracowniczej](https://eli.gov.pl/api/acts/DU/2026/474/text/O/D20260474.pdf).
+[WRK-REQ-020](specs/workforce.md#wrk-req-020) i [polityka prawna](engineering-assurance.md#ass-legal) wymagają oceny formy współpracy, systemu czasu pracy i wyjątków przed użyciem z pracownikami: publikacji/przekazania grafiku, odpoczynku, przerw, norm i pracy nocnej. Nie stosuje się automatycznie norm pracowniczych do właściciela. Domyślnie powstają dane operacyjne i eksport do zewnętrznych kadr. Formalna ewidencja wymaga dodatkowej weryfikacji zakresu danych, nadgodzin, dni wolnych, absencji i przechowywania; bez niej nie wolno oznaczać dokumentów jako zgodnych z Kodeksem pracy ([WRK-REQ-015](specs/workforce.md#wrk-req-015), [WRK-AC-012](specs/workforce.md#wrk-ac-012)). Kamery nie uprawniają do identyfikacji lub oceny osób bez osobnej uprzedniej oceny prawa i prywatności.
 
-**Powiązane Issues:** #26 (epik), #27 (grafik; dzieci #38–#40), #28 (czas), #29 (integracja), #33 (plan produkcji), #17 (skalowanie), #7 (CAPP).
+Źródła do tej oceny zachowuje [WRK — źródła prawne](specs/workforce.md#specification-readiness): PIP i przepisy dokumentacji pracowniczej. Sam odnośnik ani poprawny start/stop nie dowodzą zgodności. Ten przewodnik zastępuje dawny opis oparty na #26–#29/#33/#38–#40; ich pochodzenie zachowuje [rejestr migracji](migrations/spec-library/coverage.md), nie drugi aktywny harmonogram realizacji.

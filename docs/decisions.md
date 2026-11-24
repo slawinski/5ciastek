@@ -1,6 +1,6 @@
 # Decyzje kontraktowe
 
-Właściciel repozytorium musi wyznaczyć decydenta domenowego dla każdej otwartej decyzji. Nie wskazano jeszcze tych osób ani nie przyjęto odpowiedzi na poniższe pytania. Specyfikacje określają wymagane zachowanie, a sekcje zadań w projektach są jedynym miejscem śledzenia wykonania. Status w tym rejestrze dotyczy **decyzji**, nie zadań.
+Właściciel repozytorium musi wyznaczyć decydenta domenowego dla każdej nadal otwartej decyzji. DEC-001 została zatwierdzona przez użytkownika; pozostałe pytania pozostają otwarte. Specyfikacje określają wymagane zachowanie, a sekcje zadań w projektach są jedynym miejscem śledzenia wykonania. Status w tym rejestrze dotyczy **decyzji**, nie zadań.
 
 Przykład liczbowy ani przygotowany zestaw danych testowych nie rozstrzygają polityki biznesowej. Otwarta decyzja blokuje tylko wskazaną, zależną od niej część implementacji. Nie blokuje dokumentacji, niepowiązanych funkcji ani demonstracji obliczeń na dokładnych liczbach.
 

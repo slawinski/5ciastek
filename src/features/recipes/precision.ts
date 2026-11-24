@@ -5,6 +5,16 @@ export const ratio = (numerator: bigint, denominator = 1n): Rational => {
   return { numerator, denominator };
 };
 
+export const add = (a: Rational, b: Rational) => ratio(a.numerator * b.denominator + b.numerator * a.denominator, a.denominator * b.denominator);
+export const multiply = (a: Rational, numerator: bigint, denominator = 1n) => ratio(a.numerator * numerator, a.denominator * denominator);
+
+export function percent(value: Rational, base: Rational): string {
+  const numerator = value.numerator * base.denominator * 10000n;
+  const denominator = value.denominator * base.numerator;
+  const rounded = (numerator * 2n + denominator) / (2n * denominator);
+  return (Number(rounded) / 100).toString();
+}
+
 export function grams(value: string): bigint {
   if (!/^\d+(?:\.\d{1,3})?$/.test(value)) throw new Error('Podaj masę w g z dokładnością do 0,001 g.');
   const [whole, decimal = ''] = value.split('.');

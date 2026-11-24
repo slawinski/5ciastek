@@ -26,15 +26,15 @@ Derived references (the linked canonical spec remains the behavioral authority):
 
 - [Bilingual glossary](domain/glossary.md): one glossary with Polish definitions and English identities, not translated requirement mirrors.
 - [Reference examples](reference-examples.md): per-domain tables citing qualified canonical REQ/AC; executable fixtures remain implementation work.
-- [Open decisions](decisions.md): unresolved mass precision and stream partition/order, not accepted policy. Only implementations depending on those choices are blocked; do not invent domain answers.
+- [Decisions](decisions.md): DEC-001 accepts 0.001 g precision; stream partition/order remains open in DEC-002. Only implementations depending on an open choice are blocked.
 
 For example, [TASK-MAP-001](projects/flow-map.md#task-map-001) can demonstrate the EVT projection with isolated MAP fixtures without a live backend. It does not establish actual quantities ([EVT-REQ-011](specs/production-records.md#evt-req-011)) or occupancy ([EVT-REQ-013](specs/production-records.md#evt-req-013)). Distinguish contract inputs, implementation prerequisites and real-data release gates using the [relationship meanings](specification-style.md#znaczenie-powiązań). DEC-001 and DEC-002 remain OPEN at their affected persistent mass/stream boundaries; examples choose neither policy.
 
 ## Current stack and applicability
 
-[package.json](../package.json) is the source for installed dependency declarations and scripts. Current maintenance uses React 19 with TanStack Start, type-safe TanStack Router, TanStack Query, XState 5 for complex transitions, Zod for schema-based validation, and Vite 7 with Nitro server output. Do not substitute a new state library from starter tutorial examples.
+[package.json](../package.json) is the source for installed dependencies and scripts. Current maintenance uses React 19, Next.js App Router, Payload 3 with SQLite, TanStack Query, XState 5 and Zod. Vite supports Vitest, not the application runtime. See [ADR-001](architecture/mvp-zero.md) for compatibility and deployment constraints.
 
-Next.js/Payload are target architecture work: [TASK-REC-001](projects/recipes.md#task-rec-001) selects the architecture; [TASK-REC-002](projects/recipes.md#task-rec-002) performs migration. Target-specific policy applies when that work is undertaken; it is not a mandate to rewrite routine maintenance.
+Architecture/migration evidence belongs to [TASK-REC-001](projects/recipes.md#task-rec-001) and [TASK-REC-002](projects/recipes.md#task-rec-002). Actual-account/data release remains subject to P0 approval.
 
 ## Commands
 
@@ -42,13 +42,12 @@ After installing the manifest dependencies with `npm install`:
 
 | Command | Manifest script | Purpose |
 |---|---|---|
-| `npm run dev` | `vite dev --port 3000` | Local development on port 3000 |
-| `npm run build` | `vite build` | Production build; required before production start |
-| `npm run start` | `node .output/server/index.mjs` | Start the built production server, not first-time development setup |
-| `npm run serve` | `vite preview` | Preview the build, distinct from development and production start |
+| `npm run dev` | `next dev --webpack -p 3000` | Local development on port 3000 |
+| `npm run build` | `next build --webpack` | Production build; required before production start |
+| `npm run start` | `next start -p 3000` | Start the built production server |
 | `npm run test` | `vitest run` | Existing product tests |
 
-These are the only current npm scripts. There are no `lint`, `typecheck`, security-gate or release-validation scripts. The [assurance policy](engineering-assurance.md#ass-release-evidence) and [TASK-ASS-006](projects/engineering-assurance.md#task-ass-006) describe required delivery work, not installed CI or enforced gates. Listing a command is not evidence that it has run or passed.
+Also run `npm run lint`, `npm run typecheck`, `npm run test:integration` and `npm run security`. Use Node from `.node-version`, install with `npm ci`, and provide explicit `PAYLOAD_SECRET`/`DATABASE_URI` from `.env.example`. [MVP-0 operations](architecture/mvp-zero.md) describes migration and synthetic setup. CI configuration is not evidence of activated branch protection or actual-data release approval.
 
 ## Engineering guidance
 
@@ -57,8 +56,8 @@ These are the only current npm scripts. There are no `lint`, `typecheck`, securi
 - Use TypeScript with specific interfaces. Do not use `any` or `unknown` for component props or business logic; use appropriate concrete types such as `React.ButtonHTMLAttributes<HTMLButtonElement>`.
 - Follow the [design system](design-system.md) placement rule: truly generic primitives belong in `src/components/ComponentName/` with `index.tsx` and `ComponentName.module.css`; feature-specific components stay with their feature in `src/features/`. Do not move every component to the shared library.
 - Group domain components, machines, schemas and server functions within their feature. Keep complex logic in XState machines or utilities, not rendering components; use `src/machines/` or `src/utils/` for shared logic rather than moving feature logic out of its domain.
-- Keep page-specific routing in `src/routes/` and delegate business logic to features. The shared layout is `src/routes/__root.tsx`; use the router's `Link` for SPA navigation and route loaders or TanStack Query for data loading as appropriate to the existing feature.
-- Use TanStack Start server functions for database operations or heavy computations, co-located with their feature. Use React Context providers for complex state shared within a feature instead of prop-drilling.
+- Keep page-specific routing in `src/app/(app)/` and delegate business logic to features. Its layout owns the frontend shell; use Next `Link` and server pages / Query hydration for data loading.
+- Use validated Next server functions co-located with their feature. Payload owns persistence; user-facing Local API calls explicitly enforce actor access. Use React Context providers for complex state shared within a feature instead of prop-drilling.
 
 ### UI, accessibility and performance
 

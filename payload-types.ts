@@ -68,7 +68,9 @@ export interface Config {
   blocks: {};
   collections: {
     users: User;
+    ingredients: Ingredient;
     recipes: Recipe;
+    publications: Publication;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -77,7 +79,9 @@ export interface Config {
   collectionsJoins: {};
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
+    ingredients: IngredientsSelect<false> | IngredientsSelect<true>;
     recipes: RecipesSelect<false> | RecipesSelect<true>;
+    publications: PublicationsSelect<false> | PublicationsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -146,11 +150,77 @@ export interface User {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ingredients".
+ */
+export interface Ingredient {
+  id: number;
+  name: string;
+  kind: 'flour' | 'water' | 'salt' | 'starter' | 'other' | 'unknown';
+  flourType?: string | null;
+  compositionKnown?: boolean | null;
+  composition?: {
+    waterGrams?: string | null;
+    flours?:
+      | {
+          flourType: string;
+          grams: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "recipes".
  */
 export interface Recipe {
   id: number;
   name: string;
+  code?: string | null;
+  audience: 'bakers' | 'editors';
+  standalone?: boolean | null;
+  yield?: number | null;
+  portionGrams?: string | null;
+  description?: string | null;
+  ingredients?:
+    | {
+        ingredient: number | Ingredient;
+        mass?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  process?:
+    | {
+        instruction: string;
+        id?: string | null;
+      }[]
+    | null;
+  publicationNumber?: number | null;
+  publishNow?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "publications".
+ */
+export interface Publication {
+  id: number;
+  recipe: number | Recipe;
+  version: number;
+  versionKey: string;
+  audience: 'bakers' | 'editors';
+  snapshot:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -183,8 +253,16 @@ export interface PayloadLockedDocument {
         value: number | User;
       } | null)
     | ({
+        relationTo: 'ingredients';
+        value: number | Ingredient;
+      } | null)
+    | ({
         relationTo: 'recipes';
         value: number | Recipe;
+      } | null)
+    | ({
+        relationTo: 'publications';
+        value: number | Publication;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -254,10 +332,68 @@ export interface UsersSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ingredients_select".
+ */
+export interface IngredientsSelect<T extends boolean = true> {
+  name?: T;
+  kind?: T;
+  flourType?: T;
+  compositionKnown?: T;
+  composition?:
+    | T
+    | {
+        waterGrams?: T;
+        flours?:
+          | T
+          | {
+              flourType?: T;
+              grams?: T;
+              id?: T;
+            };
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "recipes_select".
  */
 export interface RecipesSelect<T extends boolean = true> {
   name?: T;
+  code?: T;
+  audience?: T;
+  standalone?: T;
+  yield?: T;
+  portionGrams?: T;
+  description?: T;
+  ingredients?:
+    | T
+    | {
+        ingredient?: T;
+        mass?: T;
+        id?: T;
+      };
+  process?:
+    | T
+    | {
+        instruction?: T;
+        id?: T;
+      };
+  publicationNumber?: T;
+  publishNow?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "publications_select".
+ */
+export interface PublicationsSelect<T extends boolean = true> {
+  recipe?: T;
+  version?: T;
+  versionKey?: T;
+  audience?: T;
+  snapshot?: T;
   updatedAt?: T;
   createdAt?: T;
 }

@@ -15,7 +15,7 @@ Rezultat MVP-0 i późniejsze niezależne rozszerzenie. Reguły: [REC](../specs/
 | contract-input | [TASK-ASS-001](engineering-assurance.md#task-ass-001) | Macierz zagrożeń/aktorów do ADR, bez całego assurance jako start blocker | start |
 | release-gate | [TASK-ASS-002](engineering-assurance.md#task-ass-002), [TASK-ASS-003](engineering-assurance.md#task-ass-003), [TASK-ASS-005](engineering-assurance.md#task-ass-005), [TASK-ASS-006](engineering-assurance.md#task-ass-006) | P0 przed rzeczywistymi kontami/danymi; syntetyczny PoC nie potwierdza bramek | release |
 
-**State:** not-started. **Readiness:** zakres spike określony; plan techniczny/środowisko i zatwierdzenie ADR jeszcze bez dowodu. **Decision gates:** brak wyboru domenowego; wersje/DB/deployment to rezultat spike. **Proof:** admin dodaje testową recepturę, frontend czyta publikację, nieuprawniony zapis odrzucony, build/start na zapisanych wersjach; ADR z bazą, deploymentem, zagrożeniami i dowodami. Evidence: brak.
+**State:** done (synthetic implementation evidence, 2026-11-24). **Readiness:** [ADR-001](../architecture/mvp-zero.md) przyjęty w ramach autonomicznego upoważnienia użytkownika. Native Admin create/read, odmowa 403, zgodne wersje, build/start i późniejsza publikacja mają [dowody](../verification/mvp-zero.md). Rzeczywiste konta/dane nadal wymagają P0.
 
 ### TASK-REC-002
 
@@ -31,7 +31,7 @@ Rezultat MVP-0 i późniejsze niezależne rozszerzenie. Reguły: [REC](../specs/
 | contract-input | [TASK-REC-007](#task-rec-007) | Inwentaryzacja i zrzuty powstają w tej migracji przed zmianą widoków, nie drugi wielki sprint | start |
 | release-gate | [TASK-ASS-003](engineering-assurance.md#task-ass-003), [TASK-ASS-006](engineering-assurance.md#task-ass-006) | Izolacja, rollback, build i dowody zachowanych funkcji | release |
 
-**State:** not-started. **Readiness:** macierz i ADR wymagają dowodów przed migracją; decyzje o wycofaniu tylko per funkcja. **Proof:** produkcyjny build/start, `/` bez 500, brak nieobsłużonej hydratacji/nawigacji, test zachowanego zachowania i load failure każdej pozycji macierzy, mobile/desktop przed/po, tokeny/CSS Modules i bezkolizyjny admin. Evidence: brak.
+**State:** implemented, verification in progress. **Readiness:** ADR i macierz powstały przed migracją; wszystkie pięć tras zachowano, bez wycofania funkcji. Pełny build/start, testy kalkulatorów/wizarda i mobile/desktop smoke mają [dowody](../verification/mvp-zero.md); końcowy przegląd i bramka przeglądarki pozostają w toku.
 
 ### TASK-REC-003
 
@@ -45,7 +45,7 @@ Rezultat MVP-0 i późniejsze niezależne rozszerzenie. Reguły: [REC](../specs/
 | contract-input | [REC-REQ-001](../specs/recipes.md#rec-req-001), [REC-REQ-002](../specs/recipes.md#rec-req-002) | Zamrożone wartości i zgodność publikacji | start |
 | release-gate | [TASK-ASS-002](engineering-assurance.md#task-ass-002), [TASK-ASS-003](engineering-assurance.md#task-ass-003), [TASK-ASS-005](engineering-assurance.md#task-ass-005), [TASK-ASS-006](engineering-assurance.md#task-ass-006) | P0: wszystkie API, prywatność, restore i release | release |
 
-**State:** blocked. **Decision gate:** [DEC-001](../decisions.md#dec-001), przed rozpoczęciem trwałej reprezentacji i walidacji publikacji. **Readiness:** kontrakt podstawowy określony; dokładny zestaw testowy i UI możliwe, ale nie rozstrzygają precyzji. **Proof:** 500+350+10=860; 4000/5=800 kontra 750; odrzucenie 0, wartości ujemnych, ułamkowego N i wariantu z samymi dodatkami. Wersja v1 zachowuje kompozycję po edycji i publikacji v2; sprawdzić wyszukiwanie redaktora, eksport relacji i mas, odmowy API oraz awarie publikacji i odtworzenia. Dowody: brak.
+**State:** implemented, verification in progress. **Decision gate:** [DEC-001](../decisions.md#dec-001) zatwierdzona przez użytkownika. **Proof:** rzeczywista izolowana SQLite, pełna publikacja i historia, walidacja, role/odmowy, eksport, atomowa awaria, konkurencja i odtworzenie mają [dowody](../verification/mvp-zero.md). Końcowy przegląd i bramka przeglądarki pozostają w toku; P0 rzeczywistych danych nie jest zatwierdzone.
 
 ### TASK-REC-004
 
@@ -59,7 +59,7 @@ Rezultat MVP-0 i późniejsze niezależne rozszerzenie. Reguły: [REC](../specs/
 | contract-input | [REC-REQ-001](../specs/recipes.md#rec-req-001) | Fixture listy może powstać wcześniej | start |
 | release-gate | [TASK-ASS-002](engineering-assurance.md#task-ass-002), [TASK-REC-007](#task-rec-007) | Odmowa prywatnego odczytu, spójne UI | release |
 
-**State:** not-started. **Decision gates:** DEC-001 tylko w odziedziczonej publikacji, nie formatowaniu listy. **Readiness:** kontrakt i zestaw testowy dostępne; integracja wymaga dowodu publikacji. **Proof:** 3 publikacje + szkic → 3 dostępne; wyszukiwanie daje trafiony lub pusty wynik. Dla 500/350 g suma wynosi 850, zachowane są kolejność i historyczny skład; błąd API nie oznacza pustego katalogu, ponowienie odzyskuje dane. Sprawdzić klawiaturę, telefon i komputer. Dowody: brak.
+**State:** implemented, verification in progress. **Proof:** połączony katalog `/recipes`, trzy syntetyczne publikacje i odizolowany szkic, filtr/pusty stan, wersja/proces, błąd API i skuteczne ponowienie mają [dowody](../verification/mvp-zero.md). Końcowy przegląd i bramka przeglądarki pozostają w toku.
 
 ### TASK-REC-005
 
@@ -73,7 +73,7 @@ Rezultat MVP-0 i późniejsze niezależne rozszerzenie. Reguły: [REC](../specs/
 | optional-adapter | [DEM-REQ-007](../specs/demand.md#dem-req-007), [PLN-REQ-001](../specs/production-plans.md#pln-req-001) | Późniejsze T i odbiorca planu | demonstration |
 | release-gate | [TASK-REC-007](#task-rec-007), [TASK-ASS-006](engineering-assurance.md#task-ass-006) | UI i testy presetów bez mutacji | release |
 
-**State:** not-started. **Decision gate:** DEC-001 przed zależnymi ogólnymi lub trwałymi obliczeniami, nie dokładnym wzorcem wyniku testu. **Readiness:** formuła i gotowe wybory liczby sztuk znane; integracja publikacji i precyzja niepotwierdzone. **Proof:** REC-AC-010: pełne masy i 8/12/16/24 kg; 3120 g = 3,12 kg; 10→30→10; 100/78/2/20%; 8 kg mąki w podziale 6,4/1,6; 1 kg zakwasu 100% wnosi 0,5 kg mąki raz, nie drugą pozycję ważenia. Brak kompozycji nie daje dokładnych %. Dowody: brak.
+**State:** implemented, verification in progress. **Decision gate:** zatwierdzona DEC-001 jest wdrożona. **Proof:** presety 8/12/16/24 kg, 10→30→10, g/kg/%, podział mąki, zakwas liczony raz i jawny brak kompozycji są sprawdzone jednostkowo i w połączonej przeglądarce; [dowody](../verification/mvp-zero.md). Końcowy przegląd i bramka przeglądarki pozostają w toku.
 
 ### TASK-REC-006
 
@@ -99,7 +99,11 @@ Rezultat MVP-0 i późniejsze niezależne rozszerzenie. Reguły: [REC](../specs/
 | contract-input | [TASK-REC-002](#task-rec-002) | Referencje/inwentaryzacja przed zmianą w migracji; porównanie na jej widokach, nie cykl blockerów | demonstration |
 | optional-adapter | [TASK-OBS-001](production-recording.md#task-obs-001), [TASK-MAP-001](flow-map.md#task-map-001) | Późniejsze komponenty ekranu produkcji i mapy dostarczają własne dowody zgodności | demonstration |
 
-**State:** not-started. **Decision gates:** tylko jawna zgoda na zmianę tokenu/wyglądu, jeśli proponowana; brak mandatu redesignu. **Readiness:** polityka znana, referencje i implementacja wymagają dowodów. **Proof:** telefon/desktop i produkcyjny tablet, zoom, touch/tekst/kontrast, focus/disabled/loading/error/empty jeśli stosowne, klawiatura, reduced-motion i widok bez koloru/ruchu; porównanie wizualne, spójne kontrolki katalogu/produkcji przy ich integracji. Evidence: brak.
+**State:** implemented, verification in progress. **Readiness:** zachowane tokeny/CSS Modules i istniejące PageLayout/InputField/Button; nowy katalog pozostaje komponentem feature. Referencje przed/po oraz telefon/tablet/desktop są w [dowodach](../verification/mvp-zero.md). Końcowa kontrola dostępności i porównanie wizualne pozostają w toku; natywny Admin korzysta z dozwolonego wyjątku.
+
+**Dowody uzupełniające TASK-REC-002/003/004/005, 2026-11-25:** [Wybrane poprawki przeglądu](../verification/mvp-zero.md#selected-review-fixes--2026-11-25) obejmują ponowienie błędnego klucza kalkulatora, odmowę nieobsługiwanej publikacji zbiorczej przed zapisem, sumę udziałów mąki 100%, migracje/odtworzenie i autoryzowany produkcyjny HTTP smoke. Dodatkowo sprawdzono ignorowanie nieaktualnych odpowiedzi katalogu, wyczyszczenie opcjonalnej masy porcji oraz trwałość zapisu po konkurencji i rzeczywistej awarii COMMIT, także niezależnym połączeniem i procesem po odtworzeniu. Cel migracji jest dekodowany i kanonizowany przed kontrolą backupu, a test awarii potwierdza wykonanie DDL przed zamierzonym błędem. Stany zadań pozostają „verification in progress”; końcowy przegląd/przeglądarka/CI i P0 rzeczywistych danych nie są zatwierdzone.
+
+**Dowody poprawek przeglądarki, 2026-11-25:** [Reprodukcja i ponowna kontrola F1–F5](../verification/mvp-zero-browser.md#correction-recheck--2026-11-25) obejmuje wywołania kalkulatorów poza renderem, stałą kolejność hooków pomocy, wygenerowaną mapę importów Admin oraz fokus/Escape i ograniczony ruch nawigacji. [Końcowa kontrola siedmiu tras](../verification/mvp-zero-browser.md#final-browser-closure--2026-11-25) na tym samym poprawionym źródle zakończyła się PASS, bez nieoczekiwanych błędów konsoli i strony; zachowuje jawne pominięcia oraz wcześniejsze dowody publikacji, historii i odzyskiwania, bez ponowienia każdej kombinacji przepływu i szerokości. Dane są syntetyczne; nie jest to zatwierdzenie P0. Stany TASK-REC-002/003/004/005/007 pozostają „verification in progress”; publikacja gałęzi i CI należą do nadrzędnego procesu.
 
 ### TASK-REC-008
 

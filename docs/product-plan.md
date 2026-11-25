@@ -10,7 +10,7 @@ Wymagania biznesowe i interfejsu określa [16 specyfikacji](specs/README.md#capa
 
 **Następny rezultat: receptury.** Uprawniony redaktor publikuje pełną recepturę v1. Piekarz znajduje ją, odczytuje proces i przelicza ilości na 10/15/20/30 sztuk w g, kg i procentach piekarskich, z jednoczesnym odczytem mas. Nowy szkic i zmiana surowca nie zmieniają v1. Brak kompozycji zakwasu pozostaje widoczny. Sekwencja 10 → 30 → 10 nie kumuluje błędów.
 
-[REC](projects/recipes.md) obejmuje kolejno ograniczoną próbę architektury i zapis decyzji architektonicznej (ADR), migrację zachowującą zachowanie i wygląd, publikację z historycznym składem, katalog oraz skalowanie. Kierunek docelowy to wspólny projekt Next.js App Router/Payload. Wybór zgodnych wersji i PostgreSQL albo SQLite należy do próby architektury, nie do tej migracji dokumentów. Zapisanie planu nie zmienia obecnego stosu technologicznego. Pełny model firmy, rejestrator i symulator nie należą do MVP-0. [DEC-001](decisions.md#dec-001) nadal ogranicza zależne od tej decyzji utrwalanie i obliczanie mas.
+[REC](projects/recipes.md) obejmuje próbę architektury i ADR, migrację zachowującą zachowanie i wygląd, publikację z historycznym składem, katalog oraz skalowanie. Wspólny projekt Next.js App Router/Payload z SQLite określa [ADR-001](architecture/mvp-zero.md). Pełny model firmy, rejestrator i symulator nie należą do MVP-0. Zatwierdzona [DEC-001](decisions.md#dec-001) ustala regułę 0,001 g; nie jest zgodą na wydanie na rzeczywistych danych.
 
 ## MVP-1
 

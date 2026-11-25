@@ -1,5 +1,6 @@
+'use client';
 import Button from "@/components/Button";
-import { Link } from "@tanstack/react-router";
+import Link from 'next/link';
 import { useState, useRef, useEffect } from "react";
 import {
   Home,
@@ -19,11 +20,31 @@ export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const asideRef = useRef<HTMLElement>(null); // Create a ref for the aside element
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
   const profileMenuRef = useRef<HTMLDivElement>(null);
 
   const sidebarClassName = `${styles.sidebar} ${
     isOpen ? styles["sidebar-open"] : ""
   }`;
+
+  const closeMenu = () => {
+    setIsOpen(false);
+    menuButtonRef.current?.focus();
+  };
+
+  useEffect(() => {
+    if (!isOpen) return;
+    closeButtonRef.current?.focus();
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsOpen(false);
+        menuButtonRef.current?.focus();
+      }
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen]);
 
   // Effect to handle clicks outside the aside
   useEffect(() => {
@@ -68,14 +89,17 @@ export default function Header() {
     <>
       <header className={styles.header}>
         <Button
+          ref={menuButtonRef}
           onClick={() => setIsOpen(true)}
           className={styles["icon-button"]}
           aria-label="Open menu"
+          aria-expanded={isOpen}
+          aria-controls="main-navigation"
         >
           <Menu size={24} />
         </Button>
         <h1 className={styles.title}>
-          <Link to="/" className={styles["centered-link-content"]}>
+          <Link href="/" className={styles["centered-link-content"]}>
             <Croissant /> 5ciastek
           </Link>
         </h1>
@@ -94,7 +118,7 @@ export default function Header() {
             {isProfileMenuOpen && (
               <div className={styles["profile-dropdown"]}>
                 <Link
-                  to="/profile"
+                  href="/profile"
                   className={styles["dropdown-item"]}
                   onClick={() => setIsProfileMenuOpen(false)}
                 >
@@ -112,16 +136,17 @@ export default function Header() {
         )}
       </header>
 
-      <aside ref={asideRef} className={sidebarClassName}>
+      <aside id="main-navigation" ref={asideRef} className={sidebarClassName}>
         <div className={styles["sidebar-header"]}>
           <h2 className={styles["sidebar-title"]}>
-            <Link to="/" className={styles["desktop-title"]} onClick={() => setIsOpen(false)}>
+            <Link href="/" className={styles["desktop-title"]} onClick={() => setIsOpen(false)}>
               <Croissant /> 5ciastek
             </Link>
             <span className={styles["mobile-title"]}>Navigation</span>
           </h2>
           <Button
-            onClick={() => setIsOpen(false)}
+            ref={closeButtonRef}
+            onClick={closeMenu}
             className={styles["icon-button"]}
             aria-label="Close menu"
           >
@@ -130,8 +155,9 @@ export default function Header() {
         </div>
 
         <nav className={styles.nav}>
+          <Link href="/recipes" onClick={() => setIsOpen(false)} className={styles.navLink}><Croissant size={20} /><span>Receptury</span></Link>
           <Link
-            to="/"
+            href="/"
             onClick={() => setIsOpen(false)}
             className={styles.navLink}
           >
@@ -139,7 +165,7 @@ export default function Header() {
             <span>Fermentation Calculator</span>
           </Link>
           <Link
-            to="/hydration"
+            href="/hydration"
             onClick={() => setIsOpen(false)}
             className={styles.navLink}
           >
@@ -147,7 +173,7 @@ export default function Header() {
             <span>Hydration Calculator</span>
           </Link>
           <Link
-            to="/bake-a-long"
+            href="/bake-a-long"
             onClick={() => setIsOpen(false)}
             className={styles.navLink}
           >
@@ -155,7 +181,7 @@ export default function Header() {
             <span>Bake-A-Long</span>
           </Link>
           <Link
-            to="/bake-history"
+            href="/bake-history"
             onClick={() => setIsOpen(false)}
             className={styles.navLink}
           >

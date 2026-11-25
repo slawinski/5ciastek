@@ -10,12 +10,12 @@ interface ModalProps {
 }
 
 const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
-  if (!isOpen) return null;
-
   const modalContentRef = useRef<HTMLDivElement>(null);
 
   // Effect to handle clicks outside the modal content
   useEffect(() => {
+    if (!isOpen) return;
+
     function handleClickOutside(event: MouseEvent) {
       if (modalContentRef.current && !modalContentRef.current.contains(event.target as Node)) {
         onClose();
@@ -26,8 +26,9 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [onClose]);
+  }, [isOpen, onClose]);
 
+  if (!isOpen) return null;
 
   return (
     <div className={styles['modal-overlay']}>
@@ -37,7 +38,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
       >
         <div className={styles['modal-window-bar']}>
           <div className={styles['window-controls']}>
-            <Button className={styles["close-button"]} onClick={onClose}>
+            <Button className={styles["close-button"]} onClick={onClose} aria-label="Zamknij pomoc">
               <X />
             </Button>
           </div>

@@ -1,0 +1,15 @@
+.grid { display: grid; gap: 2rem; }
+.panel { border: var(--border-width) solid var(--color-black); background: var(--color-white); box-shadow: var(--shadow-offset) var(--shadow-offset) 0 var(--color-black); padding: 1.25rem; min-width: 0; }
+.panel h2, .panel h3 { font-family: var(--font-mono); overflow-wrap: anywhere; }
+.panel select { display: block; min-height: 44px; border: var(--border-width) solid var(--color-black); padding: .5rem; font: inherit; width: 100%; }
+.panel p, .panel li { line-height: 1.6; }
+.list { list-style: none; padding: 0; display: grid; gap: 1rem; }
+.controls { display: flex; flex-wrap: wrap; gap: .75rem; }
+.controls button { min-height: 44px; }
+.panel button[aria-pressed="true"] { background: var(--color-yellow); }
+.panel fieldset { margin: 1.5rem 0; border: var(--border-width) solid var(--color-black); padding: 1rem; }
+.panel :focus-visible { outline: 3px solid var(--color-black); outline-offset: 4px; }
+.table { overflow-x: auto; }
+.table table { width: 100%; border-collapse: collapse; }
+.table th, .table td { text-align: left; border-bottom: 2px solid var(--color-black); padding: .75rem .5rem; overflow-wrap: anywhere; }
+@media (--laptop) { .grid { grid-template-columns: minmax(220px, 1fr) minmax(0, 2fr); align-items: start; } }

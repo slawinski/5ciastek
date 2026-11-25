@@ -1,12 +1,14 @@
-# Otwarte decyzje kontraktowe
+# Decyzje kontraktowe
 
-Właściciel repozytorium musi wyznaczyć decydenta domenowego dla każdej otwartej decyzji. Nie wskazano jeszcze tych osób ani nie przyjęto odpowiedzi na poniższe pytania. Specyfikacje określają wymagane zachowanie, a sekcje zadań w projektach są jedynym miejscem śledzenia wykonania. Status w tym rejestrze dotyczy **decyzji**, nie zadań.
+Właściciel repozytorium musi wyznaczyć decydenta domenowego dla każdej nadal otwartej decyzji. DEC-001 została zatwierdzona przez użytkownika; pozostałe pytania pozostają otwarte. Specyfikacje określają wymagane zachowanie, a sekcje zadań w projektach są jedynym miejscem śledzenia wykonania. Status w tym rejestrze dotyczy **decyzji**, nie zadań.
 
 Przykład liczbowy ani przygotowany zestaw danych testowych nie rozstrzygają polityki biznesowej. Otwarta decyzja blokuje tylko wskazaną, zależną od niej część implementacji. Nie blokuje dokumentacji, niepowiązanych funkcji ani demonstracji obliczeń na dokładnych liczbach.
 
 ## DEC-001
 
-**OPEN — trwała precyzja i zgodność mas.** Należy ustalić wspólną precyzję mas zapisywanych i używanych w obliczeniach, zasady zaokrąglania na tych granicach oraz porównywania zgodności wartości po sprowadzeniu do przyjętej precyzji. Publikacja receptury i jej odbiorcy muszą zachować jednakowe znaczenie tych wartości. Decydenta wyznacza właściciel repozytorium; rozstrzygnięcie wymaga uzgodnienia z właścicielem REC i jego odbiorcami.
+**ACCEPTED — 2026-11-24, user-approved.** Użytkownik zatwierdził regułę po przedstawieniu alternatywy całych gramów i jej kosztu: utraty składników poniżej 1 g. Masy receptury i składników zapisuje się w gramach z precyzją 0,001 g. Dokładniejsze wejście jest odrzucane, bez cichej konwersji. Skalowanie i wkład zakwasu liczy się bez zaokrągleń pośrednich, zawsze z opublikowanej bazy. Na granicach stałej precyzji wynik zaokrągla się do najbliższej 0,001 g; dokładne połowy w górę. Pomocniczą podaną masę porcji porównuje się z sumą mas / N po tym samym zaokrągleniu, bez dodatkowej tolerancji. Zaokrąglenie prezentacji nie zmienia zapisu. Historyczna publikacja zachowuje oryginalne masy i kompozycję.
+
+**Przykłady wiążące:** publikacja 500 + 350 + 10 = 860 g; 4000 / 5 = 800 g, więc 750 g jest sprzeczne. Wejście 1,2345 g jest odrzucane, 1,235 g zachowane; obliczone 1,2345 g na granicy daje 1,235 g, a 0,0005 g daje 0,001 g. Dla N=3 i 1 g porcja wynosi po zaokrągleniu 0,333 g: 0,333 g jest zgodne, 0,334 g nie. Skalowanie 10→30→10 z tej samej bazy odtwarza identyczne wyniki. 1 kg zakwasu 100% wnosi dokładnie 500 g mąki i 500 g wody, raz; 1 g zakwasu z proporcją mąka:woda 1:2 wnosi bez pośredniego zaokrąglenia 1/3 g mąki i 2/3 g wody. Odczyt v1 po edycji surowca zachowuje jej wcześniejsze wartości. 3120 g = 3,12 kg; zmiana jednostki nie zmienia masy źródłowej.
 
 **Właściciel i dotknięte wymagania:** [REC-REQ-001](specs/recipes.md#rec-req-001)–REC-REQ-003 oraz REC-REQ-008–011; REC-AC-001–005, REC-AC-010–014. Decyzja dotyczy także zależnych mas utrwalanych lub używanych przez EVT-REQ-002–003/011–012, STK-REQ-001/004/007–009, PLN-REQ-002–003, SCN-REQ-002/007/012 i ECO-REQ-003/007, ale tylko tam, gdzie dana funkcja rzeczywiście korzysta z takiej masy. Samo formatowanie ani obserwacja ograniczona do liczby sztuk lub osób nie tworzą tej zależności.
 
@@ -14,7 +16,7 @@ Przykład liczbowy ani przygotowany zestaw danych testowych nie rozstrzygają po
 
 **Już wiążące ograniczenia:** masy są podawane w g; wymagane są kompletne dodatnie masy i dodatni całkowity uzysk `N`. Masa porcji wynika z sumy mas podzielonej przez `N`, a sprzeczne źródła wartości nie mogą przejść publikacji. Skalowanie korzysta z bazy, sumuje masy przed zaokrągleniem prezentacji i zachowuje wynik przy zmianie 10 → 30 → 10. Sposób prezentacji nie zmienia wartości źródłowych. Wkład mąki, wody i rodzajów mąki z zakwasu jest uwzględniany raz; brak kompozycji wyklucza pozornie dokładne procenty. Zmiana surowca nie zmienia historycznych wartości opublikowanej receptury.
 
-Czytelne formatowanie g/kg i organizacja kalkulatora są wyborami inżynierskimi. Nie mogą jednak rozstrzygać liczby miejsc dziesiętnych, tolerancji ani algorytmu zaokrąglania dla trwałego zapisu i obliczeń.
+Czytelne formatowanie g/kg i organizacja kalkulatora są wyborami inżynierskimi w granicach przyjętej reguły.
 
 **Warunek rozstrzygnięcia:** zatwierdzona reguła precyzji na poszczególnych granicach i porównywania zgodności, z przykładami publikacji, wielokrotnego skalowania, kompozycji zakwasu, odczytu historii i konwersji. Dotknięte wymagania i kryteria akceptacji trzeba zaktualizować przed implementacją zależnego zapisu trwałego.
 

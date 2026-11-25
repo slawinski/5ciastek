@@ -11,3 +11,11 @@ count.txt
 # .output
 # .vinxi
 todos.json
+.next/
+.output/
+.playwright-mcp/
+*.tsbuildinfo
+data/
+*.db*
+.env.*
+!.env.example

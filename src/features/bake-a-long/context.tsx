@@ -1,10 +1,11 @@
 import { createContext, useContext, ReactNode } from 'react';
 import { useMachine } from '@xstate/react';
 import { bakeAlongMachine } from './bakeAlongMachine';
+import type { ActorRefFrom, SnapshotFrom } from 'xstate';
 
 interface BakeAlongContextType {
-  state: any; // Type accurately if needed, but 'any' from useMachine is common for rapid dev
-  send: (event: any) => void;
+  state: SnapshotFrom<typeof bakeAlongMachine>;
+  send: ActorRefFrom<typeof bakeAlongMachine>['send'];
 }
 
 const BakeAlongContext = createContext<BakeAlongContextType | null>(null);

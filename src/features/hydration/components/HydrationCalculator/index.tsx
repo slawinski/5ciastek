@@ -1,5 +1,6 @@
+'use client';
 import React, { useState, useMemo, Suspense } from "react";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { InputField } from "@/components/InputField";
 import { useDebounce } from "@/hooks/useDebounce";
 import { hydrationSchema } from "../../hydration";
@@ -9,15 +10,17 @@ import styles from "./HydrationCalculator.module.css";
 import layoutStyles from "@/components/PageLayout/PageLayout.module.css";
 
 const HydrationResults: React.FC<{ queryData: { flourWeight: number; desiredHydration: number } | null }> = ({ queryData }) => {
-  const { data: hydrationResults } = useSuspenseQuery({
+  // Server Actions dispatch Router state; start them after render, not via Suspense.
+  const { data: hydrationResults, isPending } = useQuery({
     ...hydrationQueryOptions(queryData || { flourWeight: 500, desiredHydration: 70 }),
+    throwOnError: true,
   });
 
   return (
     <ResultsPanel 
       title="Recipe Results" 
       results={hydrationResults || null} 
-      isLoading={false}
+      isLoading={isPending}
     />
   );
 };

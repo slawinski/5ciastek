@@ -1,3 +1,4 @@
+'use client';
 import styles from './Profile.module.css';
 import Button from '@/components/Button';
 import { PageLayout } from '@/components/PageLayout';

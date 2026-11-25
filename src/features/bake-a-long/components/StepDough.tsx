@@ -60,14 +60,14 @@ export const StepDough = () => {
       <div className={styles.group}>
         <span className={styles.label}>Autolyse Type</span>
         <div className={styles.radioList}>
-          {['autolyse', 'fermentolyse'].map((type) => (
+          {(['autolyse', 'fermentolyse'] as const).map((type) => (
             <label key={type} className={styles.radioOption}>
               <input
                 type="radio"
                 name="autolyseType"
                 value={type}
                 checked={localAutolyseType === type}
-                onChange={() => setLocalAutolyseType(type as any)}
+                onChange={() => setLocalAutolyseType(type)}
                 className={styles.radioInput}
               />
               <span style={{ textTransform: 'capitalize' }}>{type}</span>

@@ -26,7 +26,7 @@ Przy publikacji system musi zamrozić pełne masy, uzysk i wartości kompozycji 
 
 ### REC-REQ-002
 
-Dla kompletnej opublikowanej receptury system musi wyliczać masę bazową jako sumę bazowych mas składników, a masę porcji jako tę sumę podzieloną przez dodatni całkowity uzysk N. Dla docelowego T każdą masę wylicza z bazy przez T/N; masę partii sumuje przed zaokrągleniem prezentacji. Kolejne wybory zawsze korzystają z bazy, nie z ostatniego wyniku. Pomocnicza masa porcji nie zastępuje N i nie może po cichu zmieniać składników. Publikacja sprzecznych wartości wymaga odmowy zgodności według wspólnej precyzji, nadal otwartej w DEC-001.
+Dla kompletnej opublikowanej receptury system musi wyliczać masę bazową jako sumę bazowych mas składników, a masę porcji jako tę sumę podzieloną przez dodatni całkowity uzysk N. Dla docelowego T każdą masę wylicza z bazy przez T/N; masę partii sumuje przed zaokrągleniem prezentacji. Kolejne wybory zawsze korzystają z bazy, nie z ostatniego wyniku. Pomocnicza masa porcji nie zastępuje N i nie może po cichu zmieniać składników. Obowiązuje zatwierdzona DEC-001: zapis w g do 0,001 g, odmowa dokładniejszych wejść, brak pośrednich zaokrągleń skalowania i wkładu zakwasu, najbliższa 0,001 g z połowami w górę na granicach stałej precyzji. Podana masa porcji musi równać się sumie / N po tym samym zaokrągleniu, bez dodatkowej tolerancji; formatowanie nie zmienia zapisu ani historii.
 
 ### REC-REQ-003
 
@@ -88,7 +88,7 @@ Sprawdza REC-REQ-002, REC-REQ-003. Administrator zapisuje 500 g, 350 g i 10 g: s
 
 ### REC-AC-002
 
-Sprawdza REC-REQ-002, REC-REQ-003. Dla 4000 g i N=5 system pokazuje 800 g ciasta na porcję. Jednoczesne pomocnicze wejście 750 g powoduje odmowę publikacji z błędem zgodności; składniki pozostają 4000 g. Przykład nie wybiera tolerancji ani precyzji DEC-001.
+Sprawdza REC-REQ-002, REC-REQ-003. Dla 4000 g i N=5 system pokazuje 800 g ciasta na porcję. Jednoczesne pomocnicze wejście 750 g powoduje odmowę publikacji z błędem zgodności; składniki pozostają 4000 g. Obowiązuje DEC-001 bez dodatkowej tolerancji.
 
 ### REC-AC-003
 
@@ -159,7 +159,7 @@ REC-REQ-002/REC-REQ-008 i REC-AC-010 ustalają przykład: 4000 g / 5 szt. = 800 
 | optional-adapter | EVT-REQ-012 | Późniejszy odczyt rzeczywistego uzysku i strat, bez zmiany historii | demonstration |
 | release-gate | REC-REQ-006 | Kontrole dostępu i ochrony danych według engineering assurance przed danymi rzeczywistymi | release |
 
-[DEC-001](../decisions.md#dec-001) pozostaje otwarta: blokuje wybór trwałej reprezentacji mas i walidacji zgodności przy publikacji (REC-REQ-001–003), a następnie zależne utrwalane obliczenia REC-REQ-008–011. Nie blokuje dokumentacji, układu katalogu ani demonstracji dokładnych liczb. Właściciel repozytorium musi wskazać decydenta domenowego; przykłady nie ustalają tolerancji, liczby miejsc ani algorytmu.
+[DEC-001](../decisions.md#dec-001) została zatwierdzona przez użytkownika 2026-11-24. Trwały zapis, walidacja publikacji i zależne obliczenia REC-REQ-001–003/008–011 muszą stosować tę regułę; jej zatwierdzenie nie jest dowodem implementacji.
 
 [TASK-REC-001](../projects/recipes.md#task-rec-001) określa docelową architekturę, a [TASK-REC-002](../projects/recipes.md#task-rec-002) obejmuje migrację przed zależnym dostarczeniem MVP-0. Zadania zachowują wymaganie wspólnego projektu Next.js/Payload, prawdziwej bazy i zatwierdzonej wersji przez API/Local API. Nie jest to polecenie zmiany obecnego stosu w ramach dokumentacji ani wybór wersji lub bazy.
 

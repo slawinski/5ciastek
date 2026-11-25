@@ -1,0 +1,23 @@
+.workspace { display: grid; gap: 1.5rem; min-width: 0; }
+.workspace p { max-width: 75ch; }
+.workspace fieldset { border: var(--border-width) solid var(--color-black); padding: 1rem; min-width: 0; }
+.workspace legend, .workspace summary { font-weight: 700; font-family: var(--font-mono); }
+.workspace summary { cursor: pointer; padding: .75rem 0; }
+.workspace select { width: 100%; min-height: 44px; border: var(--border-width) solid var(--color-black); background: var(--color-white); color: var(--color-black); font: inherit; padding: .5rem; }
+.workspace :is(input, select, button, summary, a):focus-visible { outline: var(--border-width) solid var(--color-black); outline-offset: 4px; }
+.fields { display: grid; gap: 1rem; min-width: 0; }
+.fields > :is(fieldset, details) { grid-column: 1 / -1; }
+.row { margin-bottom: 1.5rem; }
+.group { min-width: 0; padding: .5rem 0; }
+.commands { display: flex; flex-wrap: wrap; gap: 1rem; }
+.selectLabel { display: grid; align-content: start; gap: .5rem; font-weight: 700; }
+.report { border: var(--border-width) solid var(--color-black); padding: 1rem; box-shadow: var(--shadow-main); background: var(--color-white); min-width: 0; }
+.report h3 { margin-top: 2rem; }
+.report li { margin-bottom: .75rem; overflow-wrap: anywhere; }
+.totals { display: grid; gap: .75rem; }
+.totals div { padding: .75rem; background: var(--color-grey-soft); }
+.totals dt { font-weight: 700; }
+.totals dd { margin: 0; font: 700 1.25rem var(--font-mono); }
+.fingerprint { overflow-wrap: anywhere; }
+.snapshot { white-space: pre-wrap; overflow-wrap: anywhere; font-size: .875rem; }
+@media (--laptop) { .fields { grid-template-columns: repeat(2, minmax(0, 1fr)); } .report { padding: 2rem; } }

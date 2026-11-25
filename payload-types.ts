@@ -71,6 +71,8 @@ export interface Config {
     ingredients: Ingredient;
     recipes: Recipe;
     publications: Publication;
+    'scenario-revisions': ScenarioRevision;
+    'scenario-runs': ScenarioRun;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -82,6 +84,8 @@ export interface Config {
     ingredients: IngredientsSelect<false> | IngredientsSelect<true>;
     recipes: RecipesSelect<false> | RecipesSelect<true>;
     publications: PublicationsSelect<false> | PublicationsSelect<true>;
+    'scenario-revisions': ScenarioRevisionsSelect<false> | ScenarioRevisionsSelect<true>;
+    'scenario-runs': ScenarioRunsSelect<false> | ScenarioRunsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -226,6 +230,54 @@ export interface Publication {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "scenario-revisions".
+ */
+export interface ScenarioRevision {
+  id: number;
+  owner: number | User;
+  scenarioKey: string;
+  revision: number;
+  previousRevision?: (number | null) | ScenarioRevision;
+  requestKey: string;
+  fingerprint: string;
+  schemaVersion: number;
+  body:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "scenario-runs".
+ */
+export interface ScenarioRun {
+  id: number;
+  owner: number | User;
+  revision: number | ScenarioRevision;
+  requestKey: string;
+  fingerprint: string;
+  engineVersion: string;
+  body:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -263,6 +315,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'publications';
         value: number | Publication;
+      } | null)
+    | ({
+        relationTo: 'scenario-revisions';
+        value: number | ScenarioRevision;
+      } | null)
+    | ({
+        relationTo: 'scenario-runs';
+        value: number | ScenarioRun;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -394,6 +454,36 @@ export interface PublicationsSelect<T extends boolean = true> {
   versionKey?: T;
   audience?: T;
   snapshot?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "scenario-revisions_select".
+ */
+export interface ScenarioRevisionsSelect<T extends boolean = true> {
+  owner?: T;
+  scenarioKey?: T;
+  revision?: T;
+  previousRevision?: T;
+  requestKey?: T;
+  fingerprint?: T;
+  schemaVersion?: T;
+  body?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "scenario-runs_select".
+ */
+export interface ScenarioRunsSelect<T extends boolean = true> {
+  owner?: T;
+  revision?: T;
+  requestKey?: T;
+  fingerprint?: T;
+  engineVersion?: T;
+  body?: T;
   updatedAt?: T;
   createdAt?: T;
 }

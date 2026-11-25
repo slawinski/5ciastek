@@ -25,3 +25,5 @@ jobs:
       - run: npm run security
       - name: Authenticated migrated production HTTP smoke
         run: npm run test:production
+      - name: Connected investment scenario HTTP smoke
+        run: npm run test:scenarios:production

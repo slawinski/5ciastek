@@ -49,6 +49,8 @@ After installing the manifest dependencies with `npm install`:
 
 Also run `npm run lint`, `npm run typecheck`, `npm run test:integration` and `npm run security`. Use Node from `.node-version`, install with `npm ci`, and provide explicit `PAYLOAD_SECRET`/`DATABASE_URI` from `.env.example`. [MVP-0 operations](architecture/mvp-zero.md) describes migration and synthetic setup. CI configuration is not evidence of activated branch protection or actual-data release approval.
 
+The connected investment workspace is at `/investment-scenarios`, with saved history at `/investment-scenarios/[scenarioKey]`; use the existing `/recipes` login. Scenario ownership currently follows the administrator-owner mapping in the [implementation architecture](architecture/investment-scenarios.md). `npm run test:integration` runs both isolated recipe and scenario database suites; `npm run test:scenarios` selects the scenario suite alone. After a build, `npm run test:scenarios:production` verifies authenticated scenario actions and ownership-filtered REST against its own synthetic temporary database. [MVP-1 local evidence](verification/mvp-one.md) records actual results and caller-owned remaining delivery gates.
+
 ## Engineering guidance
 
 ### Structure and types

@@ -20,11 +20,31 @@ export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const asideRef = useRef<HTMLElement>(null); // Create a ref for the aside element
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
   const profileMenuRef = useRef<HTMLDivElement>(null);
 
   const sidebarClassName = `${styles.sidebar} ${
     isOpen ? styles["sidebar-open"] : ""
   }`;
+
+  const closeMenu = () => {
+    setIsOpen(false);
+    menuButtonRef.current?.focus();
+  };
+
+  useEffect(() => {
+    if (!isOpen) return;
+    closeButtonRef.current?.focus();
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsOpen(false);
+        menuButtonRef.current?.focus();
+      }
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen]);
 
   // Effect to handle clicks outside the aside
   useEffect(() => {
@@ -69,9 +89,12 @@ export default function Header() {
     <>
       <header className={styles.header}>
         <Button
+          ref={menuButtonRef}
           onClick={() => setIsOpen(true)}
           className={styles["icon-button"]}
           aria-label="Open menu"
+          aria-expanded={isOpen}
+          aria-controls="main-navigation"
         >
           <Menu size={24} />
         </Button>
@@ -113,7 +136,7 @@ export default function Header() {
         )}
       </header>
 
-      <aside ref={asideRef} className={sidebarClassName}>
+      <aside id="main-navigation" ref={asideRef} className={sidebarClassName}>
         <div className={styles["sidebar-header"]}>
           <h2 className={styles["sidebar-title"]}>
             <Link href="/" className={styles["desktop-title"]} onClick={() => setIsOpen(false)}>
@@ -122,7 +145,8 @@ export default function Header() {
             <span className={styles["mobile-title"]}>Navigation</span>
           </h2>
           <Button
-            onClick={() => setIsOpen(false)}
+            ref={closeButtonRef}
+            onClick={closeMenu}
             className={styles["icon-button"]}
             aria-label="Close menu"
           >

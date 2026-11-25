@@ -1,6 +1,6 @@
 'use client';
 import { useState, useMemo, Suspense } from "react";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import styles from "../../routes/index.module.css";
 import layoutStyles from "@/components/PageLayout/PageLayout.module.css";
 import { InputField } from "@/components/InputField";
@@ -48,8 +48,10 @@ function FermentationResults({
   queryData: { temperature: number; hydration: string } | null,
   toggleModal: () => void
 }) {
-  const { data: fermentationResults } = useSuspenseQuery({
+  // Server Actions dispatch Router state; start them after render, not via Suspense.
+  const { data: fermentationResults, isPending } = useQuery({
     ...fermentationQueryOptions(queryData || { temperature: 23, hydration: "75" }),
+    throwOnError: true,
   });
 
   const results = useMemo(() => {
@@ -80,7 +82,7 @@ function FermentationResults({
       title="Results" 
       results={results} 
       onLearnMoreClick={toggleModal} 
-      isLoading={false}
+      isLoading={isPending}
     />
   );
 }

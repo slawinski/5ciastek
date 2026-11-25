@@ -101,6 +101,8 @@ Rezultat MVP-0 i późniejsze niezależne rozszerzenie. Reguły: [REC](../specs/
 
 **State:** implemented, verification in progress. **Readiness:** zachowane tokeny/CSS Modules i istniejące PageLayout/InputField/Button; nowy katalog pozostaje komponentem feature. Referencje przed/po oraz telefon/tablet/desktop są w [dowodach](../verification/mvp-zero.md). Końcowa kontrola dostępności i porównanie wizualne pozostają w toku; natywny Admin korzysta z dozwolonego wyjątku.
 
+**Dowody uzupełniające TASK-REC-002/003/004/005, 2026-11-25:** [Wybrane poprawki przeglądu](../verification/mvp-zero.md#selected-review-fixes--2026-11-25) obejmują ponowienie błędnego klucza kalkulatora, odmowę nieobsługiwanej publikacji zbiorczej przed zapisem, sumę udziałów mąki 100%, migracje/odtworzenie i autoryzowany produkcyjny HTTP smoke. Dodatkowo sprawdzono ignorowanie nieaktualnych odpowiedzi katalogu, wyczyszczenie opcjonalnej masy porcji oraz trwałość zapisu po konkurencji i rzeczywistej awarii COMMIT, także niezależnym połączeniem i procesem po odtworzeniu. Cel migracji jest dekodowany i kanonizowany przed kontrolą backupu, a test awarii potwierdza wykonanie DDL przed zamierzonym błędem. Stany zadań pozostają „verification in progress”; końcowy przegląd/przeglądarka/CI i P0 rzeczywistych danych nie są zatwierdzone.
+
 ### TASK-REC-008
 
 **Cel/przepływ (późniejsze rozszerzenie):** redaktor na zaakceptowanym przykładzie wspólnej bazy i dwóch produktów zapisuje różnice, publikuje i ponownie odczytuje pełne składy/pochodzenie oraz uzgodnione zaawansowane założenia hydracji i uzysku. Wcześniejsza samodzielna publikacja pozostaje niezmienna.

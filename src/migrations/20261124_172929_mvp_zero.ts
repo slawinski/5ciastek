@@ -188,18 +188,18 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
 }
 
 export async function down({ db }: MigrateDownArgs): Promise<void> {
+  await db.run(sql`DROP TABLE \`payload_locked_documents_rels\`;`)
+  await db.run(sql`DROP TABLE \`payload_preferences_rels\`;`)
   await db.run(sql`DROP TABLE \`users_sessions\`;`)
-  await db.run(sql`DROP TABLE \`users\`;`)
   await db.run(sql`DROP TABLE \`ingredients_composition_flours\`;`)
-  await db.run(sql`DROP TABLE \`ingredients\`;`)
   await db.run(sql`DROP TABLE \`recipes_ingredients\`;`)
   await db.run(sql`DROP TABLE \`recipes_process\`;`)
-  await db.run(sql`DROP TABLE \`recipes\`;`)
   await db.run(sql`DROP TABLE \`publications\`;`)
+  await db.run(sql`DROP TABLE \`recipes\`;`)
+  await db.run(sql`DROP TABLE \`ingredients\`;`)
+  await db.run(sql`DROP TABLE \`users\`;`)
   await db.run(sql`DROP TABLE \`payload_kv\`;`)
   await db.run(sql`DROP TABLE \`payload_locked_documents\`;`)
-  await db.run(sql`DROP TABLE \`payload_locked_documents_rels\`;`)
   await db.run(sql`DROP TABLE \`payload_preferences\`;`)
-  await db.run(sql`DROP TABLE \`payload_preferences_rels\`;`)
   await db.run(sql`DROP TABLE \`payload_migrations\`;`)
 }

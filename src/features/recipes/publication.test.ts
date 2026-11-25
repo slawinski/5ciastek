@@ -24,4 +24,9 @@ describe('recipe publication contract', () => {
     expect(freezeRecipe({ ...draft, portionGrams: '0.333' }).portionGrams).toBe('0.333');
     expect(() => freezeRecipe({ ...draft, portionGrams: '0.334' })).toThrow();
   });
+  it('treats only the exact empty optional portion as absent, without relaxing masses', () => {
+    expect(freezeRecipe({ ...base, portionGrams: '' }).portionGrams).toBe('800.000');
+    for (const portionGrams of [' ', '0', '800.0001', '750']) expect(() => freezeRecipe({ ...base, portionGrams })).toThrow();
+    expect(() => freezeRecipe({ ...base, ingredients: [{ ingredient: flour, mass: '' }] })).toThrow();
+  });
 });

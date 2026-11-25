@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { z } from 'zod';
 import { PageLayout } from '@/components/PageLayout';
 import { InputField } from '@/components/InputField';
@@ -27,29 +27,48 @@ export default function Catalog() {
   const [unit, setUnit] = useState<Unit>('g');
   const [loginError, setLoginError] = useState('');
   const [loggingIn, setLoggingIn] = useState(false);
-  async function load() {
+  const generation = useRef(0);
+  const activeRequest = useRef<AbortController | null>(null);
+  const beginRequest = useCallback(() => {
+    activeRequest.current?.abort();
+    const controller = new AbortController();
+    activeRequest.current = controller;
+    const current = ++generation.current;
+    return { signal: controller.signal, isCurrent: () => generation.current === current && !controller.signal.aborted };
+  }, []);
+  const load = useCallback(async () => {
+    const request = beginRequest();
     setState('loading');
     try {
-      const response = await fetch('/api/publications?limit=0&depth=0&sort=-createdAt', { cache: 'no-store' });
+      const response = await fetch('/api/publications?limit=0&depth=0&sort=-createdAt', { cache: 'no-store', signal: request.signal });
+      if (!request.isCurrent()) return;
       if (response.status === 401 || response.status === 403) { setState('login'); return; }
       if (!response.ok) throw new Error('Błąd pobrania');
-      const { docs } = responseSchema.parse(await response.json());
+      const body = await response.json();
+      if (!request.isCurrent()) return;
+      const { docs } = responseSchema.parse(body);
       setPublications(docs);
-      setSelected(previous => docs.some(doc => doc.id === previous) ? previous : null);
+      setSelected(previous => request.isCurrent() && !docs.some(doc => doc.id === previous) ? null : previous);
       setState('ready');
-    } catch { setState('error'); }
-  }
-  useEffect(() => { void load(); }, []);
+    } catch { if (request.isCurrent()) setState('error'); }
+  }, [beginRequest]);
+  useEffect(() => {
+    void load();
+    return () => { generation.current++; activeRequest.current?.abort(); };
+  }, [load]);
   async function login(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const request = beginRequest();
     setLoggingIn(true); setLoginError('');
     const form = new FormData(event.currentTarget);
     try {
-      const response = await fetch('/api/users/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: form.get('email'), password: form.get('password') }) });
+      const response = await fetch('/api/users/login', { method: 'POST', signal: request.signal, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: form.get('email'), password: form.get('password') }) });
+      if (!request.isCurrent()) return;
       if (!response.ok) throw new Error();
+      setLoggingIn(false);
       await load();
-    } catch { setLoginError('Logowanie nie powiodło się. Sprawdź dane i spróbuj ponownie.'); }
-    finally { setLoggingIn(false); }
+    } catch { if (request.isCurrent()) setLoginError('Logowanie nie powiodło się. Sprawdź dane i spróbuj ponownie.'); }
+    finally { if (request.isCurrent()) setLoggingIn(false); }
   }
   const latest = new Map<number, Publication>();
   for (const publication of publications) if (!latest.has(publication.recipe) || latest.get(publication.recipe)!.version < publication.version) latest.set(publication.recipe, publication);

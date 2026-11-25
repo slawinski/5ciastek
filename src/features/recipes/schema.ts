@@ -17,7 +17,7 @@ export const ingredientSchema = z.object({
 export const draftSchema = z.object({
   name: z.string().trim().min(1).max(200), code: z.string().nullable().optional(),
   yield: z.number().int().positive(), standalone: z.literal(true, 'Wariant musi zawierać pełną samodzielną recepturę.'),
-  portionGrams: massSchema.nullable().optional(), description: z.string().trim().min(1).max(10000),
+  portionGrams: z.preprocess(value => value === '' ? null : value, massSchema.nullable().optional()), description: z.string().trim().min(1).max(10000),
   process: z.array(z.object({ instruction: z.string().trim().min(1).max(10000) })).min(1).max(100),
   ingredients: z.array(z.object({ ingredient: ingredientSchema, mass: massSchema })).min(1).max(200),
 });

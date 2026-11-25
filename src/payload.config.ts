@@ -1,5 +1,5 @@
 import { buildConfig } from 'payload';
-import { sqliteAdapter } from '@payloadcms/db-sqlite';
+import { durableSQLiteAdapter } from './db/sqlite';
 import { Users, Ingredients, Recipes, Publications } from './collections/recipes';
 
 if (!process.env.PAYLOAD_SECRET || process.env.PAYLOAD_SECRET.length < 32) {
@@ -11,6 +11,6 @@ export default buildConfig({
   secret: process.env.PAYLOAD_SECRET,
   admin: { user: 'users', importMap: { baseDir: process.cwd() } },
   graphQL: { disable: true },
-  db: sqliteAdapter({ client: { url: process.env.DATABASE_URI }, transactionOptions: {} }),
+  db: durableSQLiteAdapter({ client: { url: process.env.DATABASE_URI }, transactionOptions: {}, push: process.env.NODE_ENV === 'test' ? false : undefined }),
   collections: [Users, Ingredients, Recipes, Publications],
 });

@@ -10,6 +10,7 @@
     "start": "next start -p 3000",
     "test": "vitest run",
     "test:integration": "NODE_ENV=test tsx --test src/tests/recipes.integration.test.ts",
+    "test:production": "node scripts/production-smoke.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src scripts",
     "payload": "payload",
@@ -17,6 +18,8 @@
     "db:migrate": "node scripts/migrate.mjs"
   },
   "dependencies": {
+    "@libsql/client": "0.14.0",
+    "drizzle-orm": "0.45.2",
     "@tanstack/react-query": "^5.90.21",
     "@payloadcms/next": "3.94.2",
     "@payloadcms/db-sqlite": "3.94.2",

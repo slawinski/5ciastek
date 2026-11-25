@@ -1,8 +1,8 @@
 import type { Access, CollectionConfig, PayloadRequest } from 'payload';
-import { ValidationError } from 'payload';
+import { APIError, ValidationError } from 'payload';
 import { ZodError } from 'zod';
 import { freezeRecipe } from '@/features/recipes/publication';
-import { draftSchema, massSchema, snapshotSchema } from '@/features/recipes/schema';
+import { draftSchema, massSchema, snapshotSchema, type Snapshot } from '@/features/recipes/schema';
 
 export const administrator = ({ req }: { req: Pick<PayloadRequest, 'user'> }) => req.user?.role === 'administrator';
 export const editor = ({ req }: { req: Pick<PayloadRequest, 'user'> }) => ['administrator', 'editor'].includes(req.user?.role ?? '');
@@ -54,7 +54,13 @@ export const Recipes: CollectionConfig = {
   admin: { useAsTitle: 'name', defaultColumns: ['name', 'publicationNumber', 'updatedAt'] },
   access: { create: editor, read: editor, update: editor, delete: () => false },
   hooks: {
-    beforeChange: [async ({ data, originalDoc, req }) => {
+    beforeOperation: [({ args, operation }) => {
+      if (operation === 'update' && !('id' in args && args.id) && 'data' in args && args.data?.publishNow && args.data.publishNow !== 'false') {
+        throw new APIError('Publikuj receptury pojedynczo. Publikacja zbiorcza nie jest obsługiwana.', 400);
+      }
+      return args;
+    }],
+    beforeChange: [async ({ data, originalDoc, req, operation }) => {
       const merged = { ...originalDoc, ...data };
       if (!data.publishNow) return data;
       if (!['administrator', 'editor'].includes(req.user?.role ?? '')) throw new Error('Brak prawa publikacji.');
@@ -64,7 +70,9 @@ export const Recipes: CollectionConfig = {
         return { mass: row.mass, ingredient: { ...source, composition: source.compositionKnown ? source.composition : null } };
       }));
       try {
-        req.context.recipeSnapshot = freezeRecipe(draftSchema.parse({ ...merged, ingredients }));
+        const snapshots: Map<string, Snapshot> = req.context.recipeSnapshots instanceof Map ? req.context.recipeSnapshots : new Map();
+        req.context.recipeSnapshots = snapshots;
+        snapshots.set(operation === 'create' ? 'create' : String(originalDoc.id), freezeRecipe(draftSchema.parse({ ...merged, ingredients })));
       } catch (error) {
         const errors = error instanceof ZodError
           ? error.issues.map(issue => ({ path: issue.path.join('.'), message: issue.message }))
@@ -75,10 +83,12 @@ export const Recipes: CollectionConfig = {
       data.publishNow = false;
       return data;
     }],
-    afterChange: [async ({ doc, req }) => {
-      if (!req.context.recipeSnapshot) return doc;
-      const snapshot = snapshotSchema.parse(req.context.recipeSnapshot);
-      delete req.context.recipeSnapshot;
+    afterChange: [async ({ doc, req, operation }) => {
+      const snapshots: Map<string, Snapshot> | undefined = req.context.recipeSnapshots instanceof Map ? req.context.recipeSnapshots : undefined;
+      const key = operation === 'create' ? 'create' : String(doc.id);
+      if (!snapshots?.has(key)) return doc;
+      const snapshot = snapshotSchema.parse(snapshots.get(key));
+      snapshots.delete(key);
       await req.payload.create({ collection: 'publications', req, overrideAccess: true,
         context: { publicationFromRecipe: true },
         data: { recipe: doc.id, version: doc.publicationNumber, versionKey: `${doc.id}:${doc.publicationNumber}`, audience: doc.audience, snapshot } });

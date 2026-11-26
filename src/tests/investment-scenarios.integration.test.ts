@@ -11,6 +11,8 @@ import { ZodError } from 'zod';
 import { saveScenario, listScenarios, readScenario, readRevision, runScenario, readRuns } from '@/features/investment-scenarios/service';
 import { scenarioFixture, sourced } from './fixtures/investment-scenarios';
 import { savedInputSchema } from '@/features/investment-scenarios/schema';
+import { upgradeScenario } from '@/features/investment-scenarios/upgrade';
+import { versionedSavedInputSchema, versionedRunBodySchema } from '@/features/investment-scenarios/versioned';
 
 test('scenario revisions are owned, immutable, idempotent and independently committed', async () => {
   const directory = await mkdtemp(join(tmpdir(), '5ciastek-scenarios-test-'));
@@ -136,6 +138,14 @@ test('scenario revisions are owned, immutable, idempotent and independently comm
     assert.deepEqual((await readRevision(payload, admin, 'test', first.id)).body, first.body);
     await assert.rejects(readRevision(payload, admin, 'capacity', first.id), /Brak dostępu/);
     await assert.rejects(readRevision(payload, other, 'test', first.id));
+    const weeklyInput = upgradeScenario(command.input);
+    const weekly = await saveScenario(payload, admin, { scenarioKey: 'weekly', expectedRevision: 0, requestKey: randomUUID(), input: weeklyInput });
+    assert.equal(weekly.schemaVersion, 2);
+    assert.deepEqual(versionedSavedInputSchema.parse((await readRevision(payload, admin, 'weekly', weekly.id)).body).input, weeklyInput);
+    const weeklyRun = await runScenario(payload, admin, { revisionId: weekly.id, requestKey: randomUUID() });
+    assert.equal(versionedRunBodySchema.parse(weeklyRun.body).output.engineVersion, 'investment-scenario/2');
+    assert.deepEqual((await runScenario(payload, admin, runCommand)).body, run.body, 'v1 retry remains the original receipt after adding v2');
+    assert.deepEqual((await readRevision(payload, admin, 'test', first.id)).body, first.body);
     await payload.update({ collection: 'users', id: admin.id, user: other, overrideAccess: false, data: { email: admin.email, role: 'editor' } });
     await assert.rejects(payload.delete({ collection: 'users', id: admin.id, user: other, overrideAccess: false }), /właściciela/);
     await payload.update({ collection: 'users', id: admin.id, user: other, overrideAccess: false, data: { role: 'administrator' } });

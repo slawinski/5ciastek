@@ -1,5 +1,6 @@
 import type { Evidence } from '@/features/investment-scenarios/values';
 import type { ScenarioInput } from '@/features/investment-scenarios/schema';
+import { upgradeScenario } from './upgrade';
 
 export const sourced = (value: string, unit: string, period = 'day'): Evidence => ({ status: 'estimated', value, unit, source: 'Syntetyczny przykład SCN-AC-021', date: '2026-11-25', version: '1', period, context: 'Jawne założenie demonstracyjne' });
 export const missing = (unit: string, reason = 'Brak danych'): Evidence => ({ status: 'missing', unit, reason });
@@ -31,4 +32,20 @@ export function scenarioFixture(publicationA = 1, publicationB = 2): ScenarioInp
       { id: 'seller', expenseId: 'seller', name: 'Sprzedawca', category: 'labor', basis: 'fixed', method: 'pool', quantity: sourced('1', 'day'), rate: sourced('80', 'PLN/day'), taxBasis: 'gross', period: 'day', allocations: [] },
     ], requiredSales: { budget: missing('PLN'), period: 'day', mix: [] }, cashReceipts: missing('PLN'), cashPayments: missing('PLN'), ownerCharges: missing('PLN'), ownerValue: missing('PLN'), bottleneckMinutes: sourced('50', 'min') },
   };
+}
+
+export function weeklyFixture(publicationA = 1, publicationB = 2) {
+  const input = upgradeScenario(scenarioFixture(publicationA, publicationB));
+  input.name = 'Syntetyczny tydzień z WIP — uzupełnij źródła'; input.period = 'week'; input.finance.period = 'week';
+  input.interval = { start: '2026-11-23T00:00:00+01:00', end: '2026-11-30T00:00:00+01:00', zone: 'Europe/Warsaw' };
+  input.resources.forEach(resource => { resource.availability = [input.interval]; });
+  const stage = input.operations.find(operation => operation.id === 'prep-A')!;
+  stage.kind = 'passive'; stage.requestedStart = '2026-11-22T22:00:00+01:00'; stage.duration = sourced('480', 'min', 'week'); stage.demands = [];
+  const bake = input.operations.find(operation => operation.id === 'bake-A')!; bake.requestedStart = '2026-11-23T06:00:00+01:00'; bake.readyBy = '2026-11-23T07:00:00+01:00';
+  input.lots[0].availableAt = bake.requestedStart;
+  input.movements[0].at = '2026-11-23T07:00:00+01:00';
+  input.openingWip = [{ id: 'sunday-wip', batchId: 'batch:A', operationId: stage.id, startedAt: stage.requestedStart, quantity: { value: '20', unit: 'piece' }, evidence: sourced('20', 'piece', 'week'), priorLabor: missing('person-min'), priorCost: missing('PLN'), coverage: [{ ingredientId: 1, quantity: { value: '10000', unit: 'g' }, evidence: sourced('10000', 'g', 'week') }] }];
+  input.lots.push({ id: 'flour-opening', itemId: '1', location: 'magazyn', kind: 'material', quantity: { value: '20000', unit: 'g' }, evidence: sourced('20000', 'g', 'week'), availableAt: input.interval.start, expiresAt: input.interval.end, admitted: true, admissionSource: 'Syntetyczne dopuszczenie', sourceParts: ['manual-opening'], preparationContext: 'Źródłowy stan otwarcia' });
+  // Day-scoped costs remain visibly unaligned until the owner supplies weekly costs.
+  return input;
 }

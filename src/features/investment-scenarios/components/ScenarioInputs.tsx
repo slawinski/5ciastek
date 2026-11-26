@@ -3,11 +3,13 @@ import { InputField } from '@/components/InputField';
 import Button from '@/components/Button';
 import { useState } from 'react';
 import { scenarioFixture } from '../reference';
+import { missing } from '../reference';
 import styles from './ScenarioWorkspace.module.css';
 
 export type FormValue = string | number | boolean | null | FormValue[] | { [key: string]: FormValue };
 export type PublicationOption = { id: number; name: string; versionKey: string };
 const labels: Record<string, string> = {
+  batches: 'Partie produkcyjne', batchId: 'Partia produkcyjna', openingWip: 'WIP otwarcia', operationId: 'Operacja', startedAt: 'Historyczny start z offsetem', priorLabor: 'Wcześniejsza praca (osobominuty)', priorCost: 'Wcześniejszy koszt przygotowania', coverage: 'Składniki zawarte w WIP', windows: 'Źródłowe okna przejścia', predecessorId: 'Poprzednik będący podstawą okna', useFromMinutes: 'Użycie od (min od gotowości)', useUntilMinutes: 'Użycie do (min od gotowości)', month: 'Kalendarz i uzgodnienie miesiąca', investment: 'Nakład początkowy', equipment: 'Wyposażenie', premises: 'Przygotowanie lokalu', deposit: 'Kaucja', initialStock: 'Zapas początkowy',
   name: 'Nazwa', period: 'Okres (wspólny identyfikator)', interval: 'Badany przedział', start: 'Początek z offsetem', end: 'Koniec z offsetem', zone: 'Strefa czasowa',
   products: 'Produkty i publikacje', operations: 'Kolejność i pomiary procesu', resources: 'Ludzie i urządzenia', lots: 'Partie i stany', movements: 'Ruchy, sprzedaż i straty', finance: 'Założenia finansowe',
   id: 'Identyfikator', publicationId: 'Opublikowana wersja receptury', target: 'Produkcja (szt.)', price: 'Cena sprzedaży', unitCost: 'Pełny koszt zmienny / wyprodukowaną sztukę', lossPercent: 'Strata (%)', readyOperationId: 'Operacja gotowości',
@@ -28,6 +30,10 @@ const enums: Record<string, [string, string][]> = {
 };
 const templates = JSON.parse(JSON.stringify(scenarioFixture())) as { [key: string]: FormValue };
 const templateFor = (key: string): FormValue => {
+  if (key === 'batches') return { id: crypto.randomUUID(), productId: 'A', target: 20, readyOperationId: 'bake-A' };
+  if (key === 'openingWip') return { id: crypto.randomUUID(), batchId: 'batch:A', operationId: 'prep-A', startedAt: '2026-11-24T23:45:00+01:00', quantity: { value: '20', unit: 'piece' }, evidence: missing('piece'), priorLabor: missing('person-min'), priorCost: missing('PLN'), coverage: [] };
+  if (key === 'coverage') return { ingredientId: 1, quantity: { value: '0', unit: 'g' }, evidence: missing('g') };
+  if (key === 'windows') return { id: crypto.randomUUID(), batchId: 'batch:A', operationId: 'bake-A', predecessorId: 'prep-A', useFromMinutes: '0', useUntilMinutes: missing('min') };
   if (key === 'predecessors' || key === 'sourceParts') return '';
   if (key === 'mix') return { productId: 'A', soldPieces: 1, price: templates.products instanceof Array ? (templates.products[0] as { [key: string]: FormValue }).price : null, unitCost: (templates.products as { [key: string]: FormValue }[])[0].unitCost, lossPercent: (templates.products as { [key: string]: FormValue }[])[0].lossPercent };
   if (key === 'allocations') return { productId: 'A', share: '1' };
@@ -49,7 +55,7 @@ function ValueEditor({ value, onChange, path, label, publications, revealPath }:
   if (Array.isArray(value)) return <fieldset id={`input-${path}`}><legend>{label}</legend>{value.map((row, index) => <div className={styles.row} key={index}>
     <ValueEditor value={row} onChange={next => onChange(value.map((item, i) => i === index ? next : item))} path={`${path}.${index}`} label={`${label} ${index + 1}`} publications={publications} revealPath={revealPath} />
     <Button type="button" onClick={() => onChange(value.filter((_, i) => i !== index))}>Usuń {label.toLocaleLowerCase('pl')} {index + 1}</Button>
-  </div>)}<Button type="button" onClick={() => { const next = templateFor(key); if (next && typeof next === 'object' && !Array.isArray(next) && 'id' in next) next.id = crypto.randomUUID(); onChange([...value, next]); }}>Dodaj: {label.toLocaleLowerCase('pl')}</Button></fieldset>;
+  </div>)}<Button type="button" onClick={() => { const next = structuredClone(value[0] ?? templateFor(key)); if (next && typeof next === 'object' && !Array.isArray(next) && 'id' in next) next.id = crypto.randomUUID(); onChange([...value, next]); }}>Dodaj: {label.toLocaleLowerCase('pl')}</Button></fieldset>;
   if (value !== null && typeof value === 'object') {
     if ('status' in value) return <fieldset id={`input-${path}`}><legend>{label}</legend><label htmlFor={`input-${path}-status`}>Podstawa</label><select id={`input-${path}-status`} value={String(value.status)} onChange={event => {
       const status = event.target.value;

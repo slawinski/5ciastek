@@ -5,11 +5,10 @@ import { ZodError } from 'zod';
 import config from '@/payload.config';
 import { listScenarios, readScenario, readRevision, readRuns, saveScenario, runScenario, type SaveCommand } from './service';
 import { authorizeOwner } from './access';
-import { savedInputSchema } from './schema';
+import { versionedSavedInputSchema as savedInputSchema, versionedRunBodySchema as runBodySchema } from './versioned';
 import { keySchema } from './values';
 import { snapshotSchema } from '../recipes/schema';
 import { validationMessage } from './validation';
-import { runBodySchema } from './report-schema';
 
 async function session() {
   const payload = await getPayload({ config });

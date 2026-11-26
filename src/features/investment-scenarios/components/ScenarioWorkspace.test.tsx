@@ -26,6 +26,18 @@ it('retains the previous report and local input after a save conflict', async ()
   expect((screen.getAllByLabelText('Nazwa')[0] as HTMLInputElement).value).toBe('Zmiana niezapisana');
   expect(screen.getByRole('heading', { name: 'Raport · wersja 1 · przebieg 1' })).toBeTruthy();
 });
+it('extends a historical v1 into a new weekly draft without relabeling its report', async () => {
+  render(<ScenarioWorkspace scenarioKey="test" />);
+  await screen.findByRole('heading', { name: 'Raport · wersja 1 · przebieg 1' });
+  fireEvent.click(screen.getByRole('button', { name: 'Rozszerz do tygodnia MVP-2' }));
+  expect(screen.getByRole('heading', { name: 'Tydzień, partie i WIP' })).toBeTruthy();
+  expect(screen.getByText(/Wynik dawnych wejść/)).toBeTruthy();
+  fireEvent.click(screen.getByRole('button', { name: 'Dodaj kolejną partię produktu' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Zapisz nową wersję' }));
+  await waitFor(() => expect(actions.save).toHaveBeenCalled());
+  expect(actions.save.mock.calls[0][0].input.batches).toHaveLength(3);
+  expect(actions.save.mock.calls[0][0].input.schemaVersion).toBe(2);
+});
 it('ignores a late response after switching the variant', async () => {
   let resolveOld: (value: typeof data) => void = () => {};
   actions.load.mockImplementationOnce(() => new Promise(resolve => { resolveOld = resolve; })).mockResolvedValueOnce({ ...data, revision: null, run: null, scenarios: [] });

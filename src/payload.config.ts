@@ -1,6 +1,7 @@
 import { buildConfig } from 'payload';
 import { durableSQLiteAdapter } from './db/sqlite';
 import { Users, Ingredients, Recipes, Publications } from './collections/recipes';
+import { ScenarioRevisions, ScenarioRuns } from './collections/investment-scenarios';
 
 if (!process.env.PAYLOAD_SECRET || process.env.PAYLOAD_SECRET.length < 32) {
   throw new Error('PAYLOAD_SECRET must contain at least 32 characters.');
@@ -12,5 +13,5 @@ export default buildConfig({
   admin: { user: 'users', importMap: { baseDir: process.cwd() } },
   graphQL: { disable: true },
   db: durableSQLiteAdapter({ client: { url: process.env.DATABASE_URI }, transactionOptions: {}, push: process.env.NODE_ENV === 'test' ? false : undefined }),
-  collections: [Users, Ingredients, Recipes, Publications],
+  collections: [Users, Ingredients, Recipes, Publications, ScenarioRevisions, ScenarioRuns],
 });

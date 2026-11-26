@@ -155,6 +155,7 @@ export default function Header() {
         </div>
 
         <nav className={styles.nav}>
+          <Link href="/investment-scenarios" onClick={() => setIsOpen(false)} className={styles.navLink}><ClipboardClock size={20} /><span>Scenariusze inwestycyjne</span></Link>
           <Link href="/recipes" onClick={() => setIsOpen(false)} className={styles.navLink}><Croissant size={20} /><span>Receptury</span></Link>
           <Link
             href="/"

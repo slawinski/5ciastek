@@ -2,8 +2,9 @@ import { z } from 'zod';
 import { operationSchema, resourceSchema } from '../process-execution/schema';
 import { lotSchema, movementSchema } from '../stock-inventory/schema';
 import { financeSchema } from '../economics-investment/schema';
+import { add, compare, decimal } from '../economics-investment/money';
 import { snapshotSchema } from '../recipes/schema';
-import { evidenceSchema, intervalSchema, keySchema, known, textSchema } from './values';
+import { decimalSchema, evidenceSchema, intervalSchema, keySchema, known, textSchema } from './values';
 
 export const productSchema = z.strictObject({ id: keySchema, publicationId: z.number().int().positive(), target: z.number().int().positive().max(Number.MAX_SAFE_INTEGER),
   price: evidenceSchema, unitCost: evidenceSchema, lossPercent: evidenceSchema, readyOperationId: keySchema,
@@ -20,6 +21,7 @@ export const scenarioSchema = z.strictObject({ schemaVersion: z.literal(1), name
   const operations = new Map(value.operations.map(operation => [operation.id, operation]));
   const products = new Map(value.products.map(product => [product.id, product]));
   const resources = new Map(value.resources.map(resource => [resource.id, resource]));
+  const lotIds = new Set(value.lots.map(lot => lot.id));
   const visiting = new Set<string>(); const visited = new Set<string>();
   const visit = (id: string): boolean => {
     if (visiting.has(id)) return false;
@@ -40,6 +42,19 @@ export const scenarioSchema = z.strictObject({ schemaVersion: z.literal(1), name
       const equipment = operation.demands.filter(demand => resources.get(demand.resourceId)?.kind === 'equipment');
       if (equipment.some(demand => demand.resourceId !== operation.context.machine)) issue(['operations', index, 'context', 'machine'], 'Pomiar innego urządzenia wymaga jawnej estymacji.');
       if (operation.context.batch.unit === 'piece' && operation.context.batch.value !== String(products.get(operation.productId)?.target)) issue(['operations', index, 'context', 'batch'], 'Pomiar innej skali wymaga jawnej estymacji.');
+      const labor = operation.demands.filter(demand => resources.get(demand.resourceId)?.kind === 'role');
+      const segments = labor.flatMap(demand => {
+        const amount = known(demand.amount); const duration = known(demand.duration);
+        if (demand.unit !== 'person' || amount === null || !/^\d+$/.test(amount) || duration === null || !decimalSchema.safeParse(duration).success || !decimalSchema.safeParse(demand.offsetMinutes).success) return [];
+        const start = decimal(demand.offsetMinutes);
+        return [{ start, end: add(start, decimal(duration)), amount: BigInt(amount) }];
+      });
+      // Concurrent role demands are headcount, not summed person-minutes or inferred identities.
+      const staff = segments.reduce((peak, segment) => {
+        const concurrent = segments.reduce((sum, other) => compare(other.start, segment.start) <= 0n && compare(other.end, segment.start) > 0n ? sum + other.amount : sum, 0n);
+        return concurrent > peak ? concurrent : peak;
+      }, 0n);
+      if (segments.length !== labor.length || staff !== BigInt(operation.context.staff)) issue(['operations', index, 'context', 'staff'], 'Obsada pomiaru nie odpowiada zapotrzebowaniu ról; wskaż estymację z oryginalnym pomiarem albo brak czasu.');
     }
     operation.demands.forEach((demand, demandIndex) => {
       const resource = resources.get(demand.resourceId);
@@ -79,13 +94,16 @@ export const scenarioSchema = z.strictObject({ schemaVersion: z.literal(1), name
     const content = JSON.stringify(movement);
     if (movements.has(movement.id) && movements.get(movement.id) !== content) issue(['movements', index, 'id'], 'Sprzeczna treść ruchu.');
     movements.set(movement.id, content);
-    if (!value.lots.some(lot => lot.id === movement.lotId)) issue(['movements', index, 'lotId'], 'Nieznana partia.');
+    if (!lotIds.has(movement.lotId)) issue(['movements', index, 'lotId'], 'Nieznana partia.');
     if (Date.parse(movement.at) < Date.parse(value.interval.start) || Date.parse(movement.at) >= Date.parse(value.interval.end)) issue(['movements', index, 'at'], 'Ruch wykracza poza badany okres.');
   });
   const expenses = new Map<string, Set<string>>();
   value.finance.costs.forEach((cost, index) => {
-    const methods = expenses.get(cost.expenseId) ?? new Set(); methods.add(cost.method); expenses.set(cost.expenseId, methods);
-    if (methods.has('full-unit') && methods.size > 1) issue(['finance', 'costs', index], 'Pełny koszt i składniki tego samego wydatku dublują koszt.');
+    const methods = expenses.get(cost.expenseId) ?? new Set<string>();
+    if (methods.size && (cost.method !== 'component' || methods.has('pool') || methods.has('full-unit'))) issue(['finance', 'costs', index], 'Ten sam wydatek wymaga jednej puli, jednego pełnego kosztu albo odrębnych składników.');
+    methods.add(cost.method); expenses.set(cost.expenseId, methods);
+    const product = cost.productId ? products.get(cost.productId) : undefined;
+    if (cost.basis === 'product' && product && known(product.unitCost) !== null) issue(['finance', 'costs', index], 'Pełny koszt produktu i składniki dublują ten sam wydatek.');
   });
   for (const field of ['costs', 'mix'] as const) {
     const rows = field === 'costs' ? value.finance.costs.map(row => row.id) : value.finance.requiredSales.mix.map(row => row.productId);

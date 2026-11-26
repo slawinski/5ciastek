@@ -7,7 +7,8 @@ import { randomBytes, randomUUID } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import { getPayload } from 'payload';
 import { createClient } from '@libsql/client';
-import { saveScenario, readScenario, runScenario, readRuns } from '@/features/investment-scenarios/service';
+import { ZodError } from 'zod';
+import { saveScenario, listScenarios, readScenario, readRevision, runScenario, readRuns } from '@/features/investment-scenarios/service';
 import { scenarioFixture, sourced } from './fixtures/investment-scenarios';
 import { savedInputSchema } from '@/features/investment-scenarios/schema';
 
@@ -41,6 +42,21 @@ test('scenario revisions are owned, immutable, idempotent and independently comm
     assert.equal(first.revision, 1);
     assert.equal((await independent.execute('SELECT count(*) AS n FROM scenario_revisions')).rows[0].n, 1);
     assert.deepEqual(savedInputSchema.parse(first.body).input, command.input);
+    await assert.rejects(payload.update({ collection: 'users', id: admin.id, user: other, overrideAccess: false, data: { password: 'peer-takeover-password' } }));
+    const bulkCredentials = await payload.update({ collection: 'users', where: { id: { equals: admin.id } }, user: other, overrideAccess: false, data: { email: 'taken@example.invalid' } });
+    assert.equal(bulkCredentials.docs.length, 0);
+    assert.equal(bulkCredentials.errors.length, 1);
+    await assert.rejects(payload.delete({ collection: 'users', id: admin.id, user: other, overrideAccess: false }));
+    const bulkDelete = await payload.delete({ collection: 'users', where: { id: { equals: admin.id } }, user: other, overrideAccess: false });
+    assert.equal(bulkDelete.docs.length, 0);
+    const invalidStep = structuredClone(command.input);
+    invalidStep.operations[2].step = 999;
+    await assert.rejects(saveScenario(payload, admin, { ...command, expectedRevision: 1, requestKey: randomUUID(), input: invalidStep }), error => {
+      assert.ok(error instanceof ZodError);
+      assert.deepEqual(error.issues.map(({ path, message }) => ({ path, message })), [{ path: ['input', 'operations', 2, 'step'], message: 'Nieznany etap publikacji.' }]);
+      return true;
+    });
+    assert.equal((await independent.execute('SELECT count(*) AS n FROM scenario_revisions')).rows[0].n, 1);
     const runCommand = { revisionId: first.id, requestKey: randomUUID() };
     const run = await runScenario(payload, admin, runCommand);
     assert.equal((await runScenario(payload, admin, runCommand)).id, run.id);
@@ -112,6 +128,26 @@ test('scenario revisions are owned, immutable, idempotent and independently comm
     const capacityBody = capacityRun.body as { output: { economics: { comparison: { A: { ready: string; required: string; deficit: string } }; requiredSales: { revenue: string } } } };
     assert.deepEqual(capacityBody.output.economics.comparison.A, { ready: '2200', required: '2400', deficit: '200' });
     assert.equal(capacityBody.output.economics.requiredSales.revenue, '48000.00');
+    for (let revision = 4; revision <= 101; revision++) await saveScenario(payload, admin, { ...command, expectedRevision: revision - 1, requestKey: randomUUID() });
+    const history = await readScenario(payload, admin, 'test');
+    assert.equal(history.docs.length, 101);
+    assert.equal(history.docs.at(-1)?.id, first.id);
+    assert.deepEqual(new Set((await listScenarios(payload, admin)).docs.map(doc => doc.scenarioKey)), new Set(['test', 'capacity']));
+    assert.deepEqual((await readRevision(payload, admin, 'test', first.id)).body, first.body);
+    await assert.rejects(readRevision(payload, admin, 'capacity', first.id), /Brak dostępu/);
+    await assert.rejects(readRevision(payload, other, 'test', first.id));
+    await payload.update({ collection: 'users', id: admin.id, user: other, overrideAccess: false, data: { email: admin.email, role: 'editor' } });
+    await assert.rejects(payload.delete({ collection: 'users', id: admin.id, user: other, overrideAccess: false }), /właściciela/);
+    await payload.update({ collection: 'users', id: admin.id, user: other, overrideAccess: false, data: { role: 'administrator' } });
+    const selfPassword = randomBytes(24).toString('hex');
+    await payload.update({ collection: 'users', id: other.id, user: other, overrideAccess: false, data: { email: 'self@example.invalid', password: selfPassword } });
+    assert.equal((await payload.login({ collection: 'users', data: { email: 'self@example.invalid', password: selfPassword } })).user?.id, other.id);
+    const selfBulk = await payload.update({ collection: 'users', where: { id: { equals: other.id } }, user: other, overrideAccess: false, data: { email: 'self-bulk@example.invalid', password: selfPassword } });
+    assert.equal(selfBulk.docs[0].id, other.id);
+    assert.equal((await payload.login({ collection: 'users', data: { email: 'self-bulk@example.invalid', password: selfPassword } })).user?.id, other.id);
+    const recoveryPassword = randomBytes(24).toString('hex');
+    await payload.update({ collection: 'users', id: other.id, overrideAccess: true, data: { email: 'other@example.invalid', password: recoveryPassword } });
+    assert.equal((await payload.login({ collection: 'users', data: { email: 'other@example.invalid', password: recoveryPassword } })).user?.id, other.id);
     const expected = { revisions: (await payload.find({ collection: 'scenario-revisions', user: admin, overrideAccess: false, depth: 0, sort: 'id', limit: 0 })).docs,
       runs: (await payload.find({ collection: 'scenario-runs', user: admin, overrideAccess: false, depth: 0, sort: 'id', limit: 0 })).docs };
     await writeFile(join(directory, 'expected.json'), JSON.stringify(expected));

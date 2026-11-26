@@ -24,11 +24,17 @@ export async function transaction<T>(payload: Payload, actor: PayloadRequest['us
 }
 export async function listScenarios(payload: Payload, actor: PayloadRequest['user']) {
   authorizeOwner({ user: actor });
-  return payload.find({ collection: 'scenario-revisions', user: actor, overrideAccess: false, depth: 0, sort: '-revision', limit: 100 });
+  return payload.find({ collection: 'scenario-revisions', user: actor, overrideAccess: false, depth: 0, sort: '-revision', pagination: false, limit: 0 });
 }
 export async function readScenario(payload: Payload, actor: PayloadRequest['user'], scenarioKey: string) {
   authorizeOwner({ user: actor }); keySchema.parse(scenarioKey);
-  return payload.find({ collection: 'scenario-revisions', user: actor, overrideAccess: false, depth: 0, where: { scenarioKey: { equals: scenarioKey } }, sort: '-revision', limit: 100 });
+  return payload.find({ collection: 'scenario-revisions', user: actor, overrideAccess: false, depth: 0, where: { scenarioKey: { equals: scenarioKey } }, sort: '-revision', pagination: false, limit: 0 });
+}
+export async function readRevision(payload: Payload, actor: PayloadRequest['user'], scenarioKey: string, revisionId: number) {
+  authorizeOwner({ user: actor }); keySchema.parse(scenarioKey); z.number().int().positive().parse(revisionId);
+  const revision = await payload.findByID({ collection: 'scenario-revisions', id: revisionId, user: actor, overrideAccess: false, depth: 0 });
+  if (revision.scenarioKey !== scenarioKey) throw new APIError('Brak dostępu.', 403);
+  return revision;
 }
 export async function saveScenario(payload: Payload, actor: PayloadRequest['user'], raw: SaveCommand) {
   authorizeOwner({ user: actor });
@@ -46,7 +52,9 @@ export async function saveScenario(payload: Payload, actor: PayloadRequest['user
     const publications = await Promise.all(command.input.products.map(async product => {
       const publication = await payload.findByID({ collection: 'publications', id: product.publicationId, req, overrideAccess: false, depth: 0 });
       const snapshot = snapshotSchema.parse(publication.snapshot);
-      for (const operation of command.input.operations.filter(operation => operation.productId === product.id)) if (!snapshot.process[operation.step]) throw new APIError('Nieznany etap publikacji.', 400);
+      const issues = command.input.operations.flatMap((operation, index) => operation.productId === product.id && !snapshot.process[operation.step]
+        ? [{ code: 'custom' as const, path: ['input', 'operations', index, 'step'], message: 'Nieznany etap publikacji.' }] : []);
+      if (issues.length) throw new z.ZodError(issues);
       scaleRecipe(snapshot, product.target);
       return { productId: product.id, publicationId: publication.id, versionKey: publication.versionKey, snapshot };
     }));

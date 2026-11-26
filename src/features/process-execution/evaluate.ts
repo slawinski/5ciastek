@@ -50,12 +50,12 @@ export function evaluateProcess(operations: Operation[], resources: Resource[], 
         for (const window of demand.resource!.availability) candidates.add(Math.max(earliest, Date.parse(window.start) - demand.offset));
         for (const reservation of result.reservations.filter(reservation => reservation.resourceId === demand.resource!.id)) candidates.add(Math.max(earliest, reservation.end - demand.offset));
       }
+      const existingReservations = exactReservations.map(({ record, amount }) => ({ ...record, amount }));
       const canFit = (start: number) => demands.every(demand => {
         const segmentStart = start + demand.offset; const segmentEnd = segmentStart + demand.duration;
         if (!demand.resource!.availability.some(window => Date.parse(window.start) <= segmentStart && Date.parse(window.end) >= segmentEnd)) return false;
         const own = demands.filter(other => other.resource!.id === demand.resource!.id).map(other => ({ resourceId: other.resource!.id, operationId: operation.id, start: start + other.offset, end: start + other.offset + other.duration, amount: other.amount }));
-        const existing = exactReservations.map(({ record, amount }) => ({ ...record, amount }));
-        const reservations = [...existing, ...own].filter(reservation => reservation.resourceId === demand.resource!.id && reservation.start < segmentEnd && reservation.end > segmentStart);
+        const reservations = [...existingReservations, ...own].filter(reservation => reservation.resourceId === demand.resource!.id && reservation.start < segmentEnd && reservation.end > segmentStart);
         const points = [segmentStart, ...reservations.map(reservation => Math.max(segmentStart, reservation.start))];
         return points.every(point => compare(reservations.filter(reservation => reservation.start <= point && reservation.end > point).reduce((sum, reservation) => add(sum, reservation.amount), ratio(0n)), decimal(known(demand.resource!.capacity)!)) <= 0n);
       });

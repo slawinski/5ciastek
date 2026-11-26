@@ -1,9 +1,4 @@
 'use client';
-/* THESIS: one sourced variant, one confirmed revision, one qualified report.
- * OWN-WORLD: incumbent black borders, white surfaces, yellow actions, hard shadows.
- * STORY: choose publications, edit assumptions, save, run, inspect limitations.
- * FIRST VIEWPORT: task title, saved-input status, primary save/run controls and inputs.
- * FORM: specified Operate workspace; existing design system and plan KTD10 govern. */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useMachine } from '@xstate/react';
 import Link from 'next/link';
@@ -20,7 +15,7 @@ import styles from './ScenarioWorkspace.module.css';
 import { validationMessage } from '../validation';
 
 type WorkspaceData = Extract<Awaited<ReturnType<typeof loadWorkspaceAction>>, { ok: true }>;
-const messages: Record<string, string> = { loading: 'Pobieranie danych…', empty: 'Brak zapisanej wersji.', draft: 'Nowy wariant — niezapisany.', changed: 'Niezapisane zmiany. Raport nadal dotyczy poprzedniej wersji.', saving: 'Zapisywanie — oczekiwanie na potwierdzenie…', saved: 'Wersja zapisana. Możesz uruchomić ocenę.', running: 'Obliczanie i zapisywanie przebiegu…', result: 'Przebieg zapisany.', denied: 'Brak dostępu.', error: 'Nie potwierdzono odczytu danych.' };
+const messages: Record<string, string> = { loading: 'Pobieranie danych…', empty: 'Brak zapisanej wersji.', draft: 'Nowy wariant — niezapisany.', changed: 'Niezapisane zmiany. Raport nadal dotyczy poprzedniej wersji.', saving: 'Zapisywanie — oczekiwanie na potwierdzenie…', saved: 'Wersja zapisana. Możesz uruchomić ocenę.', running: 'Obliczanie i zapisywanie przebiegu…', result: 'Przebieg zapisany.', loggingOut: 'Wylogowywanie — oczekiwanie na potwierdzenie…', denied: 'Brak dostępu.', error: 'Nie potwierdzono odczytu danych.' };
 export default function ScenarioWorkspace({ scenarioKey, initial }: { scenarioKey: string | null; initial?: Awaited<ReturnType<typeof loadWorkspaceAction>> }) {
   const [state, send] = useMachine(scenarioMachine);
   const [draft, setDraft] = useState<FormValue>(null);
@@ -35,6 +30,7 @@ export default function ScenarioWorkspace({ scenarioKey, initial }: { scenarioKe
   const key = useRef(scenarioKey ?? crypto.randomUUID());
   const generation = useRef(0); const saveKey = useRef<string | null>(null); const runKey = useRef<string | null>(null);
   const initialData = useRef(initial);
+  const logoutPending = useRef(false);
   const current = String(state.value); const busy = ['loading', 'saving', 'running'].includes(current);
   const clear = useCallback(() => { generation.current++; setDraft(null); setRevision(null); setRun(null); setPublications([]); setScenarios([]); setRevisions([]); saveKey.current = null; runKey.current = null; }, []);
   const fail = useCallback((result: { category: string; message: string; fields: { path: string; message: string }[] }) => {
@@ -42,10 +38,11 @@ export default function ScenarioWorkspace({ scenarioKey, initial }: { scenarioKe
     if (result.category === 'denied') { clear(); send({ type: 'DENIED' }); } else send({ type: 'FAILED' });
   }, [clear, send]);
   const load = useCallback(async (revisionId: number | null = null) => {
+    if (logoutPending.current) return;
     const request = ++generation.current; send({ type: 'LOAD' }); setError('');
     try {
       const preloaded = initialData.current; initialData.current = undefined;
-      const data = preloaded ?? await loadWorkspaceAction(scenarioKey, revisionId);
+      const data = preloaded ?? await loadWorkspaceAction(revisionId === null ? scenarioKey : key.current, revisionId);
       if (generation.current !== request) return;
       if (!data.ok) { fail(data); return; }
       setPublications(data.publications); setScenarios(data.scenarios); setRevisions(data.revisions ?? []); setRevision(data.revision); setRun(data.run);
@@ -91,17 +88,23 @@ export default function ScenarioWorkspace({ scenarioKey, initial }: { scenarioKe
     });
   }
   async function logout() {
+    if (logoutPending.current) return;
+    logoutPending.current = true;
     clear(); send({ type: 'LOGOUT' }); setError('');
-    const request = generation.current;
-    try { const response = await fetch('/api/users/logout', { method: 'POST' }); if (!response.ok) throw new Error('Unconfirmed logout'); }
-    catch { if (request === generation.current) setError('Dane usunięto z widoku, ale serwer nie potwierdził wylogowania. Sprawdź połączenie i ponów wylogowanie w panelu konta.'); }
+    try {
+      const response = await fetch('/api/users/logout', { method: 'POST' });
+      if (!response.ok) throw new Error('Unconfirmed logout');
+      clear(); send({ type: 'LOGGED_OUT' });
+    } catch {
+      clear(); setError('Dane usunięto z widoku, ale serwer nie potwierdził wylogowania. Sprawdź połączenie i ponów wylogowanie w panelu konta.'); send({ type: 'LOGOUT_FAILED' });
+    } finally { logoutPending.current = false; }
   }
   return <PageLayout title="Scenariusze inwestycyjne"><div className={styles.workspace}>
     <p>Hipotetyczny wariant przed najmem i zakupem wyposażenia. Wynik dnia nie potwierdza popytu, miesięcznego dochodu ani zwrotu.</p>
     <p role="status" aria-live="polite">{messages[current]}</p>
     {error && <section role="alert"><p>{error}</p><ul>{fields.map((field, index) => <li key={index}><a href={`#input-${field.path}`} onClick={event => { event.preventDefault(); focusField(field.path); }}>{field.path}: {field.message}</a></li>)}</ul></section>}
     {['denied', 'error'].includes(current) && <><p><Link href="/recipes">Zaloguj się w katalogu receptur</Link>, następnie <Link href="/investment-scenarios">wróć do scenariuszy</Link>.</p><Button onClick={() => void load()}>Ponów odczyt</Button></>}
-    {!['denied', 'loading', 'error'].includes(current) && <>
+    {!['denied', 'loading', 'loggingOut', 'error'].includes(current) && <>
       <nav aria-label="Zapisane warianty"><h3>Zapisane warianty</h3>{!scenarios.length && <p>Nie zapisano jeszcze żadnego wariantu.</p>}<ul>{scenarios.map(scenario => <li key={scenario.key}><Link href={`/investment-scenarios/${encodeURIComponent(scenario.key)}`}>{scenario.name}</Link></li>)}</ul></nav>
       {!draft && <section><h3>Nowy wariant</h3><p>Szablon A20/B12 zawiera wyraźnie oznaczone założenia syntetyczne. Zastąp je własnymi źródłami i wybierz właściwe publikacje.</p><Button disabled={publications.length === 0} onClick={() => edit(scenarioFixture(publications[0].id, (publications[1] ?? publications[0]).id) as FormValue)}>Utwórz wariant odniesienia</Button>{!publications.length && <p>Brak dostępnych publikacji. Najpierw opublikuj recepturę w panelu redakcyjnym.</p>}</section>}
       {draft && <><div className={styles.commands}><Button disabled={busy || !['draft', 'changed'].includes(current)} onClick={() => void save()}>Zapisz nową wersję</Button><Button disabled={busy || !['saved', 'result'].includes(current)} onClick={() => void evaluate()}>Uruchom zapisaną wersję {revision?.number}</Button></div>

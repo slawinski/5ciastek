@@ -5,6 +5,14 @@ import type { ProcessResult } from '../process-execution/evaluate';
 import { add, ceil, compare, decimal, divide, money, ratio, subtract, times } from './money';
 import { requiredSales } from './required-sales';
 
+const costUnits: Record<string, { dimension: string; scale: bigint }> = {
+  g: { dimension: 'mass', scale: 1n }, kg: { dimension: 'mass', scale: 1000n },
+  'person-min': { dimension: 'labor', scale: 1n }, 'person-hour': { dimension: 'labor', scale: 60n },
+  min: { dimension: 'time', scale: 1n }, hour: { dimension: 'time', scale: 60n },
+  piece: { dimension: 'piece', scale: 1n }, batch: { dimension: 'batch', scale: 1n },
+  kWh: { dimension: 'energy', scale: 1n }, day: { dimension: 'day', scale: 1n }, month: { dimension: 'month', scale: 1n },
+};
+
 export function evaluateEconomics(saved: SavedInput, stock: StockResult, process: ProcessResult) {
   const { input } = saved; const finance = input.finance;
   const qualifications: Qualification[] = [];
@@ -26,8 +34,11 @@ export function evaluateEconomics(saved: SavedInput, stock: StockResult, process
     const quantity = known(row.quantity); const rate = known(row.rate);
     const matching = row.taxBasis === finance.taxBasis && row.period === finance.period && finance.period === input.period;
     if (!matching) qualify(row.id, 'Niezgodna podstawa brutto/netto lub okres kosztu; wymagane uzgodnienie.');
-    const divisor = row.quantity.unit === 'g' && row.rate.unit === 'PLN/kg' ? decimal('1000') : row.quantity.unit === 'person-min' && row.rate.unit === 'PLN/person-hour' ? decimal('60') : decimal('1');
-    const amount = quantity === null || rate === null || !matching ? null : divide(times(decimal(quantity), decimal(rate)), divisor);
+    const quantityUnit = Object.hasOwn(costUnits, row.quantity.unit) ? costUnits[row.quantity.unit] : undefined;
+    const rateUnit = row.rate.unit.startsWith('PLN/') && Object.hasOwn(costUnits, row.rate.unit.slice(4)) ? costUnits[row.rate.unit.slice(4)] : undefined;
+    const compatible = quantityUnit && rateUnit && quantityUnit.dimension === rateUnit.dimension;
+    if (!compatible) qualify(row.id, 'Niezgodne lub nieobsługiwane jednostki ilości i stawki kosztu; wymagane uzgodnienie.');
+    const amount = quantity === null || rate === null || !matching || !compatible ? null : times(times(decimal(quantity), decimal(rate)), ratio(quantityUnit.scale, rateUnit.scale));
     if (row.ingredientId && !saved.publications.some(publication => publication.snapshot.ingredients.some(ingredient => ingredient.ingredientId === row.ingredientId))) throw new Error('Koszt nie wskazuje historycznego składnika publikacji.');
     if (amount === null) {
       qualify(row.id, 'Brak ilości, stawki lub uzgodnionej podstawy kosztu.');
@@ -47,7 +58,16 @@ export function evaluateEconomics(saved: SavedInput, stock: StockResult, process
   const variableCost = add(productCost, otherVariable); const contribution = subtract(revenue, variableCost);
   const contributionComplete = revenueComplete && productComplete && variableComplete;
   const operational = subtract(contribution, fixedCost);
-  const receipts = known(finance.cashReceipts); const payments = known(finance.cashPayments);
+  const cash = (field: 'cashReceipts' | 'cashPayments') => {
+    const evidence = finance[field]; const value = known(evidence);
+    if (evidence.status === 'missing') { qualify(field, `Brak danych: ${evidence.reason}`); return null; }
+    if (evidence.unit !== 'PLN' || evidence.period !== input.period || evidence.period !== finance.period) {
+      qualify(field, 'Niezgodna jednostka lub okres wpływów/wydatków pieniężnych; wymagane PLN i uzgodnienie z okresem wariantu oraz finansów.');
+      return null;
+    }
+    return value;
+  };
+  const receipts = cash('cashReceipts'); const payments = cash('cashPayments');
   const required = requiredSales(finance.requiredSales);
   const comparison: Record<string, { ready: string | null; required: string; deficit: string | null }> = {};
   for (const [productId, sold] of Object.entries(required.sold)) {
@@ -68,8 +88,8 @@ export function evaluateEconomics(saved: SavedInput, stock: StockResult, process
     revenue: revenueComplete ? money(revenue) : null, knownRevenue: money(revenue), productCost: productComplete ? money(productCost) : null,
     grossMargin: revenueComplete && productComplete ? money(subtract(revenue, productCost)) : null,
     variableCost: productComplete && variableComplete ? money(variableCost) : null,
-    contribution: revenueComplete && productComplete && variableComplete ? money(contribution) : null, knownContribution: money(contribution),
-    fixedCost: fixedComplete ? money(fixedCost) : null, operatingRemainder: revenueComplete && productComplete && variableComplete && fixedComplete ? money(operational) : null,
+    contribution: contributionComplete ? money(contribution) : null, knownContribution: money(contribution),
+    fixedCost: fixedComplete ? money(fixedCost) : null, operatingRemainder: contributionComplete && fixedComplete ? money(operational) : null,
     cashSurplus: receipts !== null && payments !== null ? money(subtract(decimal(receipts), decimal(payments))) : null,
     ownerEconomicValue: known(finance.ownerValue), actualTimeCost: null, employmentCost: null,
     contributionPerPiece: contributionComplete && Object.values(stock.sales).some(value => value !== '0') ? money(divide(contribution, Object.values(stock.sales).reduce((sum, value) => add(sum, decimal(value)), ratio(0n)))) : null,

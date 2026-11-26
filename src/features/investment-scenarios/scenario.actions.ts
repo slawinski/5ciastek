@@ -3,7 +3,7 @@ import { headers } from 'next/headers';
 import { getPayload, APIError } from 'payload';
 import { ZodError } from 'zod';
 import config from '@/payload.config';
-import { listScenarios, readScenario, readRuns, saveScenario, runScenario, type SaveCommand } from './service';
+import { listScenarios, readScenario, readRevision, readRuns, saveScenario, runScenario, type SaveCommand } from './service';
 import { authorizeOwner } from './access';
 import { savedInputSchema } from './schema';
 import { keySchema } from './values';
@@ -31,7 +31,7 @@ export async function loadWorkspaceAction(scenarioKey: string | null, revisionId
     if (scenarioKey && !revisions.length) throw new APIError('Brak dostępu.', 403);
     const publications = await payload.find({ collection: 'publications', user, overrideAccess: false, depth: 0, limit: 0 });
     if (revisionId !== null && (!Number.isSafeInteger(revisionId) || revisionId <= 0)) throw new APIError('Niepoprawna wersja.', 400);
-    const active = revisionId === null ? revisions[0] : revisions.find(revision => revision.id === revisionId);
+    const active = revisionId === null ? revisions[0] : scenarioKey ? await readRevision(payload, user, scenarioKey, revisionId) : null;
     if (revisionId !== null && !active) throw new APIError('Brak dostępu.', 403);
     const runs = active ? (await readRuns(payload, user, active.id)).docs : [];
     const runBody = runs[0] ? runBodySchema.parse(runs[0].body) : null;
@@ -40,16 +40,16 @@ export async function loadWorkspaceAction(scenarioKey: string | null, revisionId
       publications: publications.docs.map(doc => ({ id: doc.id, versionKey: doc.versionKey, name: snapshotSchema.parse(doc.snapshot).name })),
       revision: active ? { id: active.id, number: active.revision, fingerprint: active.fingerprint, saved: savedInputSchema.parse(active.body) } : null,
       run: active && runs[0] && runBody ? { id: runs[0].id, revisionNumber: active.revision, report: runBody.output, input: runBody.input } : null };
-  } catch (error) { return failure(error instanceof Error ? error : new Error('Source failure')); }
+  } catch (error) { return failure(error instanceof ZodError || error instanceof Error ? error : new Error('Source failure')); }
 }
 export async function saveScenarioAction(command: SaveCommand) {
   try { const { payload, user } = await session(); const doc = await saveScenario(payload, user, command);
     return { ok: true as const, revision: { id: doc.id, number: doc.revision, fingerprint: doc.fingerprint, saved: savedInputSchema.parse(doc.body) } };
-  } catch (error) { return failure(error instanceof Error ? error : new Error('Save failure')); }
+  } catch (error) { return failure(error instanceof ZodError || error instanceof Error ? error : new Error('Save failure')); }
 }
 export async function runScenarioAction(command: { revisionId: number; requestKey: string }) {
   try { const { payload, user } = await session(); const doc = await runScenario(payload, user, command);
     const body = runBodySchema.parse(doc.body);
     return { ok: true as const, run: { id: doc.id, report: body.output, input: body.input } };
-  } catch (error) { return failure(error instanceof Error ? error : new Error('Run failure')); }
+  } catch (error) { return failure(error instanceof ZodError || error instanceof Error ? error : new Error('Run failure')); }
 }

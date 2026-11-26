@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { evidenceSchema, intervalSchema, quantitySchema } from './values';
 import { fingerprint } from './identity';
-import { scenarioSchema } from './schema';
-import { scenarioFixture } from '@/tests/fixtures/investment-scenarios';
+import { scenarioSchema, savedInputSchema } from './schema';
+import { scenarioFixture, sourced, missing } from '@/tests/fixtures/investment-scenarios';
 
 describe('sourced scenario values', () => {
   it('retains missing values and explicit zero through JSON', () => {
@@ -45,5 +45,51 @@ describe('sourced scenario values', () => {
     expect(scenarioSchema.safeParse(input).success).toBe(true);
     input.movements.push({ ...input.movements[0], quantity: { value: '1', unit: 'piece' } });
     expect(scenarioSchema.safeParse(input).success).toBe(false);
+  });
+  it('requires measured staffing to agree with concurrent role demands, without scaling time', () => {
+    const input = scenarioFixture(); const operation = input.operations[0];
+    const duration = sourced('15', 'min');
+    if (duration.status === 'missing') throw new Error('Expected a sourced duration');
+    operation.duration = { ...duration, status: 'measured' };
+    operation.context.staff = 2;
+    expect(scenarioSchema.safeParse(input).error?.issues).toEqual(expect.arrayContaining([expect.objectContaining({ path: ['operations', 0, 'context', 'staff'] })]));
+    operation.demands.push({ ...operation.demands[0], resourceId: 'seller' });
+    expect(scenarioSchema.safeParse(input).success).toBe(true);
+    operation.demands[1].amount = missing('person');
+    expect(scenarioSchema.safeParse(input).success).toBe(false);
+    operation.demands[1].amount = sourced('1', 'person');
+    operation.demands[1].offsetMinutes = 'invalid';
+    expect(scenarioSchema.safeParse(input).success).toBe(false);
+    operation.demands[1].offsetMinutes = '7.5';
+    operation.demands.forEach(demand => { demand.duration = sourced('7.5', 'min'); });
+    expect(scenarioSchema.safeParse(input).success).toBe(false);
+    operation.observationContext = structuredClone(operation.context);
+    operation.context.staff = 1;
+    operation.duration = { ...duration, observationRef: 'two-person-measurement' };
+    expect(scenarioSchema.parse(input).operations[0].duration).toMatchObject({ status: 'estimated', value: '15' });
+    operation.duration = sourced('15', 'min');
+    expect(scenarioSchema.safeParse(input).success).toBe(false);
+    operation.duration = missing('min');
+    expect(scenarioSchema.safeParse(input).success).toBe(true);
+  });
+  it('rejects product components alongside a known full unit cost before saving', () => {
+    const input = scenarioFixture();
+    input.finance.costs.push({ ...input.finance.costs[0], id: 'component-A', expenseId: 'component-A', basis: 'product', productId: 'A' });
+    expect(scenarioSchema.safeParse(input).error?.issues).toEqual(expect.arrayContaining([expect.objectContaining({ path: ['finance', 'costs', 2] })]));
+    expect(savedInputSchema.safeParse({ input, publications: [] }).success).toBe(false);
+    input.products[0].unitCost = missing('PLN/piece');
+    expect(savedInputSchema.safeParse({ input, publications: [] }).success).toBe(true);
+  });
+  it.each(['pool', 'full-unit'] as const)('counts a single %s expense once even with different row IDs', method => {
+    const input = scenarioFixture(); input.finance.costs[1].method = method;
+    input.finance.costs.push({ ...input.finance.costs[1], id: 'second-seller' });
+    expect(scenarioSchema.safeParse(input).success).toBe(false);
+    input.finance.costs[2].method = 'component';
+    expect(scenarioSchema.safeParse(input).success).toBe(false);
+    input.finance.costs[1].method = 'component';
+    expect(scenarioSchema.safeParse(input).success).toBe(true);
+    input.finance.costs[2].expenseId = 'another-expense';
+    input.finance.costs[1].method = method;
+    expect(scenarioSchema.safeParse(input).success).toBe(true);
   });
 });

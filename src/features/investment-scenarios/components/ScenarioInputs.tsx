@@ -58,13 +58,17 @@ function ValueEditor({ value, onChange, path, label, publications, revealPath }:
       <div className={styles.fields}>{Object.entries(value).filter(([field]) => field !== 'status').map(([field, item]) => <ValueEditor key={field} value={item} onChange={next => onChange({ ...value, [field]: next })} path={`${path}.${field}`} label={labels[field] ?? field} publications={publications} revealPath={revealPath} />)}</div>
       {value.status !== 'missing' && !('observationRef' in value) && <Button type="button" onClick={() => onChange({ ...value, observationRef: '' })}>Wskaż oryginalny pomiar</Button>}
     </fieldset>;
-    return <details id={`input-${path}`} open={open} onToggle={event => setExpanded(event.currentTarget.open)} className={styles.group}><summary>{label}</summary>{open && <><div className={styles.fields}>{Object.entries(value).filter(([field]) => field !== 'schemaVersion').map(([field, item]) => <ValueEditor key={field} value={item} onChange={next => onChange({ ...value, [field]: next })} path={`${path}.${field}`} label={labels[field] ?? field} publications={publications} revealPath={revealPath} />)}</div>
+    return <details id={`input-${path}`} open={open} onToggle={event => setExpanded(event.currentTarget.open)} className={styles.group}><summary>{label}</summary>{open && <><div className={styles.fields}>{Object.entries(value).filter(([field]) => field !== 'schemaVersion' && (field !== 'targetLotId' || value.kind === 'transfer')).map(([field, item]) => <ValueEditor key={field} value={item} onChange={next => {
+      const updated = { ...value, [field]: next };
+      if (field === 'kind' && 'lotId' in value) delete updated.targetLotId;
+      onChange(updated);
+    }} path={`${path}.${field}`} label={labels[field] ?? field} publications={publications} revealPath={revealPath} />)}</div>
       {'predecessors' in value && !('phase' in value) && <Button type="button" onClick={() => onChange({ ...value, phase: { id: '', offsetMinutes: '0' } })}>Dodaj zależność od początku etapu pasywnego</Button>}
       {'predecessors' in value && !('observationContext' in value) && <Button type="button" onClick={() => onChange({ ...value, observationContext: structuredClone(value.context) })}>Dodaj oryginalny kontekst pomiaru</Button>}
-      {'lotId' in value && !('targetLotId' in value) && <Button type="button" onClick={() => onChange({ ...value, targetLotId: '' })}>Dodaj docelową partię transferu</Button>}
+      {'lotId' in value && value.kind === 'transfer' && !('targetLotId' in value) && <Button type="button" onClick={() => onChange({ ...value, targetLotId: '' })}>Dodaj docelową partię transferu</Button>}
       {('resourceId' in value || 'lotId' in value) && !('conversion' in value) && <Button type="button" onClick={() => onChange({ ...value, conversion: { from: { value: '1', unit: 'piece' }, to: { value: '500', unit: 'g' }, evidence: { status: 'estimated', value: '500', unit: 'g/piece', source: '', date: '2026-11-25', version: '1', period: 'day', context: '' } } })}>Dodaj źródłową konwersję masy i sztuk</Button>}
       {key === 'quantity' && path.includes('.lots.') && <Button type="button" onClick={() => onChange(null)}>Oznacz nieznany stan początkowy</Button>}
-      {['phase', 'observationContext', 'targetLotId', 'conversion'].filter(field => field in value).map(field => <Button key={field} type="button" onClick={() => onChange(Object.fromEntries(Object.entries(value).filter(([key]) => key !== field)))}>Usuń: {labels[field]}</Button>)}
+      {['phase', 'observationContext', 'targetLotId', 'conversion'].filter(field => field in value && (field !== 'targetLotId' || value.kind === 'transfer')).map(field => <Button key={field} type="button" onClick={() => onChange(Object.fromEntries(Object.entries(value).filter(([key]) => key !== field)))}>Usuń: {labels[field]}</Button>)}
     </>}</details>;
   }
   if (key === 'quantity' && value === null) return <section><p>{label}: brak danych</p><Button type="button" onClick={() => onChange({ value: '0', unit: 'g' })}>Wprowadź znany stan początkowy</Button></section>;

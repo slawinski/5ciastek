@@ -20,7 +20,20 @@ export const Users: CollectionConfig = {
     read: ({ req }) => req.user?.role === 'administrator' ? true : req.user ? { id: { equals: req.user.id } } : false,
     update: ({ req }) => req.user?.role === 'administrator' ? true : req.user ? { id: { equals: req.user.id } } : false,
   },
-  hooks: { beforeChange: [async ({ data, req, operation }) => {
+  hooks: { beforeDelete: [async ({ id, req }) => {
+    if (!req.user || req.user.id === id) return;
+    // Runs per document for single and bulk deletes; roles alone cannot identify
+    // owners, since an owner may subsequently have been assigned another role.
+    const revisions = await req.payload.count({ collection: 'scenario-revisions', req, overrideAccess: true, where: { owner: { equals: id } } });
+    if (revisions.totalDocs) throw new APIError('Nie można usunąć konta innego właściciela scenariuszy.', 403);
+  }], beforeChange: [async ({ data, originalDoc, req, operation }) => {
+    // Per-document checks cover single and bulk updates while allowing role edits
+    // that resubmit an unchanged email. Actor-free, access-bypassing Local API
+    // recovery is a separate trusted boundary, never a client-supplied flag.
+    if (operation === 'update' && req.user && req.user.id !== originalDoc.id
+      && (data.password || ('email' in data && data.email !== originalDoc.email))) {
+      throw new APIError('Dane logowania można zmienić wyłącznie na własnym koncie.', 403);
+    }
     if (operation === 'create') {
       const existing = await req.payload.count({ collection: 'users', req, overrideAccess: true });
       if (!existing.totalDocs) data.role = 'administrator';

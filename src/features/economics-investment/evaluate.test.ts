@@ -27,6 +27,55 @@ describe('exact economic boundaries', () => {
   it('does not divide by zero or declare finite sales from nonpositive contribution', () => {
     for (const loss of ['0', '100']) expect(requiredSales({ period: 'day', budget: sourced('1', 'PLN'), mix: [{ productId: 'A', soldPieces: 1, price: sourced('10', 'PLN/piece'), unitCost: sourced('10', 'PLN/piece'), lossPercent: sourced(loss, '%') }] }).status).toBe('no-finite-solution');
   });
+  it('recomputes budget coverage after non-divisible whole-piece production rounding', () => {
+    const result = requiredSales({ period: 'day', budget: sourced('1', 'PLN'), mix: [{ productId: 'A', soldPieces: 1, price: sourced('20', 'PLN/piece'), unitCost: sourced('10', 'PLN/piece'), lossPercent: sourced('20', '%') }] });
+    expect(result).toMatchObject({ status: 'calculated', sold: { A: '2' }, produced: { A: '3' }, revenue: '40.00', variableCost: '30.00', contribution: '10.00' });
+  });
+});
+
+it.each([
+  ['2', 'kg', '3', 'PLN/g', '6000.00'], ['10000', 'g', '4', 'PLN/kg', '40.00'],
+  ['30', 'person-min', '60', 'PLN/person-hour', '30.00'], ['2', 'person-hour', '3', 'PLN/person-min', '360.00'],
+  ['90', 'min', '2', 'PLN/hour', '3.00'], ['1.5', 'hour', '0.1', 'PLN/min', '9.00'],
+  ['0.1', 'kg', '0.00015', 'PLN/g', '0.02'],
+])('normalizes %s %s at %s %s exactly', (quantity, unit, rate, rateUnit, expected) => {
+  const input = scenarioFixture(); input.finance.costs = [{ ...input.finance.costs[0], quantity: sourced(quantity, unit), rate: sourced(rate, rateUnit) }];
+  const process = evaluateProcess(input.operations, input.resources, input.interval); const stock = evaluateStock(input.lots, input.movements, process);
+  expect(evaluateEconomics({ input, publications: [] }, stock, process)).toMatchObject({ fixedCost: expected, costs: [{ amount: expected }] });
+});
+
+it.each(['fixed', 'variable', 'product'] as const)('qualifies incompatible cost dimensions and preserves independent outcomes (%s)', basis => {
+  const input = scenarioFixture();
+  input.finance.costs = [{ ...input.finance.costs[0], basis, productId: basis === 'product' ? 'A' : undefined, quantity: sourced('2', 'kg'), rate: sourced('3', 'PLN/kWh') }];
+  if (basis === 'product') input.products[0].unitCost = missing('PLN/piece');
+  input.finance.cashReceipts = sourced('180', 'PLN'); input.finance.cashPayments = sourced('130', 'PLN');
+  const process = evaluateProcess(input.operations, input.resources, input.interval); const stock = evaluateStock(input.lots, input.movements, process);
+  const report = evaluateEconomics({ input, publications: [] }, stock, process);
+  expect(report).toMatchObject({ revenue: '460.00', cashSurplus: '50.00', operatingRemainder: null, costs: [{ amount: null }] });
+  expect(report.qualifications).toContainEqual(expect.objectContaining({ identity: 'day', reason: expect.stringContaining('jednost') }));
+  expect(report.contribution).toBe(basis === 'fixed' ? '236.00' : null);
+  expect(report.knownContribution).toBe(basis === 'product' ? '436.00' : '236.00');
+});
+
+it.each([
+  ['cashReceipts', 'PLN', 'month'], ['cashPayments', 'PLN', 'month'],
+  ['cashReceipts', 'EUR', 'day'], ['cashPayments', 'EUR', 'day'],
+] as const)('qualifies %s unit/period independently of operating contribution', (field, unit, period) => {
+  const input = scenarioFixture(); input.finance.cashReceipts = sourced('180', 'PLN'); input.finance.cashPayments = sourced('130', 'PLN');
+  input.finance[field] = sourced(field === 'cashReceipts' ? '180' : '130', unit, period);
+  const process = evaluateProcess(input.operations, input.resources, input.interval); const stock = evaluateStock(input.lots, input.movements, process);
+  const report = evaluateEconomics({ input, publications: [] }, stock, process);
+  expect(report).toMatchObject({ cashSurplus: null, contribution: '236.00', operatingRemainder: '56.00' });
+  expect(report.qualifications).toContainEqual(expect.objectContaining({ identity: field }));
+});
+
+it('qualifies both cash inputs against the finance period even when scenario periods match', () => {
+  const input = scenarioFixture(); input.finance.period = 'month';
+  input.finance.cashReceipts = sourced('180', 'PLN'); input.finance.cashPayments = sourced('130', 'PLN');
+  const process = evaluateProcess(input.operations, input.resources, input.interval); const stock = evaluateStock(input.lots, input.movements, process);
+  const report = evaluateEconomics({ input, publications: [] }, stock, process);
+  expect(report.cashSurplus).toBeNull();
+  for (const identity of ['cashReceipts', 'cashPayments']) expect(report.qualifications).toContainEqual(expect.objectContaining({ identity }));
 });
 
 it('separates gross margin, contribution, operating remainder and cash', () => {

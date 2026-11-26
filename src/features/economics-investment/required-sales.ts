@@ -14,19 +14,18 @@ export function requiredSales(input: z.infer<typeof requiredSalesSchema>): Requi
   const bundleRevenue = rows.reduce((sum, row) => add(sum, times(decimal(String(row.soldPieces)), decimal(row.priceValue!))), ratio(0n));
   const bundleCost = rows.reduce((sum, row) => add(sum, times(divide(decimal(String(row.soldPieces)), subtract(decimal('1'), divide(decimal(row.lossValue!), decimal('100')))), decimal(row.costValue!))), ratio(0n));
   const contribution = subtract(bundleRevenue, bundleCost);
-  if (contribution.numerator <= 0n && decimal(budget).numerator > 0n) return { ...result, status: 'no-finite-solution', reason: 'Niedodatni wkład miksu nie pokryje dodatniego budżetu.' };
-  let bundles = decimal(budget).numerator === 0n ? 0n : ceil(divide(decimal(budget), contribution));
+  const budgetValue = decimal(budget);
+  if (contribution.numerator <= 0n && budgetValue.numerator > 0n) return { ...result, status: 'no-finite-solution', reason: 'Niedodatni wkład miksu nie pokryje dodatniego budżetu.' };
+  let bundles = budgetValue.numerator === 0n ? 0n : ceil(divide(budgetValue, contribution));
   const calculate = (count: bigint) => {
     const produced = rows.map(row => ceil(divide(ratio(count * BigInt(row.soldPieces)), subtract(decimal('1'), divide(decimal(row.lossValue!), decimal('100'))))));
     const revenue = times(bundleRevenue, ratio(count));
     const cost = rows.reduce((sum, row, index) => add(sum, times(ratio(produced[index]), decimal(row.costValue!))), ratio(0n));
     return { produced, revenue, cost, contribution: subtract(revenue, cost) };
   };
-  // Rounding each product up can add at most one unit cost per product.
-  // Jump by that exact coverage deficit rather than scanning individual pieces.
   let totals = calculate(bundles);
-  while (compare(totals.contribution, decimal(budget)) < 0n) {
-    bundles += ceil(divide(subtract(decimal(budget), totals.contribution), contribution));
+  while (compare(totals.contribution, budgetValue) < 0n) {
+    bundles += ceil(divide(subtract(budgetValue, totals.contribution), contribution));
     totals = calculate(bundles);
   }
   rows.forEach((row, index) => { result.sold[row.productId] = (bundles * BigInt(row.soldPieces)).toString(); result.produced[row.productId] = totals.produced[index].toString(); });

@@ -11,6 +11,12 @@ export const reportV2Schema = reportSchema.extend({ engineVersion: z.literal('in
     closingWip: z.array(z.strictObject({ operationId: z.string(), batchId: z.string(), start: z.string(), plannedEnd: z.string() })),
     windowChecks: z.array(z.strictObject({ windowId: z.string(), operationId: z.string(), status: z.enum(['checked', 'violated', 'unverified']), waitingMinutes: z.number().nullable(), excessMinutes: z.number().nullable(), source: z.string().nullable() })),
   }),
+  recipeRequirements: z.array(reportSchema.shape.recipeRequirements.element.extend({ batchId: z.string() })),
+  stock: reportSchema.shape.stock.extend({
+    boundaries: z.strictObject({ opening: reportSchema.shape.stock.shape.lots, closing: reportSchema.shape.stock.shape.lots }),
+    coverage: z.array(z.strictObject({ batchId: z.string(), status: z.enum(['verified', 'unverified']), ingredientId: z.number(), required: z.string(), fromWip: z.string(), allocated: z.string(), missing: z.string(), at: z.string().nullable() })),
+    openingDepletion: z.array(z.strictObject({ lotId: z.string(), itemId: z.string(), unit: z.string().nullable(), opening: z.string().nullable(), closing: z.string().nullable(), sourceParts: z.array(z.string()) })),
+  }),
 });
 export const runBodyV2Schema = z.strictObject({ input: savedInputV2Schema, output: reportV2Schema });
 export const versionedRunBodySchema = z.union([runBodySchema, runBodyV2Schema]);

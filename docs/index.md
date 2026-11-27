@@ -51,6 +51,8 @@ Also run `npm run lint`, `npm run typecheck`, `npm run test:integration` and `np
 
 The connected investment workspace is at `/investment-scenarios`, with saved history at `/investment-scenarios/[scenarioKey]`; use the existing `/recipes` login. Scenario ownership currently follows the administrator-owner mapping in the [implementation architecture](architecture/investment-scenarios.md). `npm run test:integration` runs both isolated recipe and scenario database suites; `npm run test:scenarios` selects the scenario suite alone. After a build, `npm run test:scenarios:production` verifies authenticated scenario actions and ownership-filtered REST against its own synthetic temporary database. [MVP-1 local evidence](verification/mvp-one.md) records actual results and caller-owned remaining delivery gates.
 
+MVP-2 adds versioned week/month/outlay inputs and pinned history at `/investment-scenarios/comparisons/[comparisonKey]`. The scenario smoke now asserts genuine v2 save/reopen/recompute/compare, 120000 PLN / qualified 2000 PLN = 60 months, retained missing rent, pinned retries and action/REST denials. [MVP-2 evidence](verification/mvp-two.md) distinguishes executed focused checks from pending built-server and browser review. Use the [local browser hold](architecture/investment-scenarios.md#verification-commands) on loopback port 3198 with an explicit disposable `SMOKE_PASSWORD`; keep credentials out of shared artifacts. No fixture or prepared smoke proves an unexecuted check.
+
 ## Engineering guidance
 
 ### Structure and types

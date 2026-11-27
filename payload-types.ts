@@ -73,6 +73,7 @@ export interface Config {
     publications: Publication;
     'scenario-revisions': ScenarioRevision;
     'scenario-runs': ScenarioRun;
+    'scenario-comparisons': ScenarioComparison;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -86,6 +87,7 @@ export interface Config {
     publications: PublicationsSelect<false> | PublicationsSelect<true>;
     'scenario-revisions': ScenarioRevisionsSelect<false> | ScenarioRevisionsSelect<true>;
     'scenario-runs': ScenarioRunsSelect<false> | ScenarioRunsSelect<true>;
+    'scenario-comparisons': ScenarioComparisonsSelect<false> | ScenarioComparisonsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -278,6 +280,30 @@ export interface ScenarioRun {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "scenario-comparisons".
+ */
+export interface ScenarioComparison {
+  id: number;
+  owner: number | User;
+  comparisonKey: string;
+  requestKey: string;
+  schemaVersion: number;
+  fingerprint: string;
+  runs: (number | ScenarioRun)[];
+  manifest:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -323,6 +349,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'scenario-runs';
         value: number | ScenarioRun;
+      } | null)
+    | ({
+        relationTo: 'scenario-comparisons';
+        value: number | ScenarioComparison;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -484,6 +514,21 @@ export interface ScenarioRunsSelect<T extends boolean = true> {
   fingerprint?: T;
   engineVersion?: T;
   body?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "scenario-comparisons_select".
+ */
+export interface ScenarioComparisonsSelect<T extends boolean = true> {
+  owner?: T;
+  comparisonKey?: T;
+  requestKey?: T;
+  schemaVersion?: T;
+  fingerprint?: T;
+  runs?: T;
+  manifest?: T;
   updatedAt?: T;
   createdAt?: T;
 }

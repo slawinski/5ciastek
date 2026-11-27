@@ -3,11 +3,14 @@ import { InputField } from '@/components/InputField';
 import Button from '@/components/Button';
 import { useState } from 'react';
 import { scenarioFixture } from '../reference';
+import { missing } from '../reference';
 import styles from './ScenarioWorkspace.module.css';
 
 export type FormValue = string | number | boolean | null | FormValue[] | { [key: string]: FormValue };
 export type PublicationOption = { id: number; name: string; versionKey: string };
 const labels: Record<string, string> = {
+  calendar: 'Daty produkcji i sprzedaży', productionProfile: 'Data wzorca produkcji (lub brak)', salesProfile: 'Data wzorca sprzedaży (lub brak)', openingLots: 'Stan otwarcia miesiąca', preparations: 'Odtworzenie zapasu i przygotowanie', materialCost: 'Koszt materiału', laborRate: 'Stawka pracy', readyAt: 'Gotowość przygotowania z offsetem', coveredMovementIds: 'Ruchy już pokryte kosztem', fixedCosts: 'Stałe koszty miesiąca', cashEntries: 'Uzgodnienie gotówki', includedExpenseIds: 'Wydatki zawarte w płatności', ownerIncome: 'Rezerwa dochodu netto właściciela', ownerEconomicValue: 'Wartość ekonomiczna pracy właściciela',
+  batches: 'Partie produkcyjne', batchId: 'Partia produkcyjna', openingWip: 'WIP otwarcia', operationId: 'Operacja', startedAt: 'Historyczny start z offsetem', priorLabor: 'Wcześniejsza praca (osobominuty)', priorCost: 'Wcześniejszy koszt przygotowania', coverage: 'Składniki zawarte w WIP', windows: 'Źródłowe okna przejścia', predecessorId: 'Poprzednik będący podstawą okna', useFromMinutes: 'Użycie od (min od gotowości)', useUntilMinutes: 'Użycie do (min od gotowości)', month: 'Kalendarz i uzgodnienie miesiąca', investment: 'Nakład początkowy', equipment: 'Wyposażenie', premises: 'Przygotowanie lokalu', deposit: 'Kaucja', initialStock: 'Zapas początkowy',
   name: 'Nazwa', period: 'Okres (wspólny identyfikator)', interval: 'Badany przedział', start: 'Początek z offsetem', end: 'Koniec z offsetem', zone: 'Strefa czasowa',
   products: 'Produkty i publikacje', operations: 'Kolejność i pomiary procesu', resources: 'Ludzie i urządzenia', lots: 'Partie i stany', movements: 'Ruchy, sprzedaż i straty', finance: 'Założenia finansowe',
   id: 'Identyfikator', publicationId: 'Opublikowana wersja receptury', target: 'Produkcja (szt.)', price: 'Cena sprzedaży', unitCost: 'Pełny koszt zmienny / wyprodukowaną sztukę', lossPercent: 'Strata (%)', readyOperationId: 'Operacja gotowości',
@@ -27,7 +30,18 @@ const enums: Record<string, [string, string][]> = {
   category: [['ingredient', 'Surowiec'], ['packaging', 'Opakowanie'], ['batch', 'Partia'], ['energy', 'Energia'], ['equipment', 'Urządzenie'], ['labor', 'Praca'], ['rent', 'Najem'], ['fixed', 'Pozostałe stałe'], ['owner-value', 'Wartość pracy właściciela']],
 };
 const templates = JSON.parse(JSON.stringify(scenarioFixture())) as { [key: string]: FormValue };
-const templateFor = (key: string): FormValue => {
+const templateFor = (key: string, path: string): FormValue => {
+  if (key === 'calendar') return { date: '2026-11-01', productionProfile: null, salesProfile: null, evidence: missing('day') };
+  if (key === 'openingLots') return structuredClone((templates.lots as FormValue[])[0]);
+  if (key === 'preparations') return { id: crypto.randomUUID(), expenseId: crypto.randomUUID(), itemId: '', quantity: { value: '0', unit: 'g' }, readyAt: '2026-11-30T23:00:00+01:00', expiresAt: '2026-12-02T23:00:00+01:00', admitted: false, evidence: missing('g'), materialCost: missing('PLN'), laborRate: missing('PLN/person-hour'), operations: [], resources: [], coveredMovementIds: [] };
+  if (key === 'fixedCosts') return { id: crypto.randomUUID(), expenseId: crypto.randomUUID(), category: 'rent', amount: missing('PLN') };
+  if (key === 'cashEntries') return { id: crypto.randomUUID(), expenseId: crypto.randomUUID(), kind: 'payment', amount: missing('PLN'), includedExpenseIds: [] };
+  if (['coveredMovementIds', 'includedExpenseIds'].includes(key)) return '';
+  if (key === 'operations' && path.includes('.preparations.')) return structuredClone((templates.operations as FormValue[])[0]);
+  if (key === 'batches') return { id: crypto.randomUUID(), productId: 'A', target: 20, readyOperationId: 'bake-A' };
+  if (key === 'openingWip') return { id: crypto.randomUUID(), batchId: 'batch:A', operationId: 'prep-A', startedAt: '2026-11-24T23:45:00+01:00', quantity: { value: '20', unit: 'piece' }, evidence: missing('piece'), priorLabor: missing('person-min'), priorCost: missing('PLN'), coverage: [] };
+  if (key === 'coverage') return { ingredientId: 1, quantity: { value: '0', unit: 'g' }, evidence: missing('g') };
+  if (key === 'windows') return { id: crypto.randomUUID(), batchId: 'batch:A', operationId: 'bake-A', predecessorId: 'prep-A', useFromMinutes: '0', useUntilMinutes: missing('min') };
   if (key === 'predecessors' || key === 'sourceParts') return '';
   if (key === 'mix') return { productId: 'A', soldPieces: 1, price: templates.products instanceof Array ? (templates.products[0] as { [key: string]: FormValue }).price : null, unitCost: (templates.products as { [key: string]: FormValue }[])[0].unitCost, lossPercent: (templates.products as { [key: string]: FormValue }[])[0].lossPercent };
   if (key === 'allocations') return { productId: 'A', share: '1' };
@@ -49,7 +63,7 @@ function ValueEditor({ value, onChange, path, label, publications, revealPath }:
   if (Array.isArray(value)) return <fieldset id={`input-${path}`}><legend>{label}</legend>{value.map((row, index) => <div className={styles.row} key={index}>
     <ValueEditor value={row} onChange={next => onChange(value.map((item, i) => i === index ? next : item))} path={`${path}.${index}`} label={`${label} ${index + 1}`} publications={publications} revealPath={revealPath} />
     <Button type="button" onClick={() => onChange(value.filter((_, i) => i !== index))}>Usuń {label.toLocaleLowerCase('pl')} {index + 1}</Button>
-  </div>)}<Button type="button" onClick={() => { const next = templateFor(key); if (next && typeof next === 'object' && !Array.isArray(next) && 'id' in next) next.id = crypto.randomUUID(); onChange([...value, next]); }}>Dodaj: {label.toLocaleLowerCase('pl')}</Button></fieldset>;
+   </div>)}<Button type="button" onClick={() => { const next = structuredClone(value[0] ?? templateFor(key, path)); if (next && typeof next === 'object' && !Array.isArray(next) && 'id' in next) next.id = crypto.randomUUID(); onChange([...value, next]); }}>Dodaj: {label.toLocaleLowerCase('pl')}</Button></fieldset>;
   if (value !== null && typeof value === 'object') {
     if ('status' in value) return <fieldset id={`input-${path}`}><legend>{label}</legend><label htmlFor={`input-${path}-status`}>Podstawa</label><select id={`input-${path}-status`} value={String(value.status)} onChange={event => {
       const status = event.target.value;
@@ -58,7 +72,7 @@ function ValueEditor({ value, onChange, path, label, publications, revealPath }:
       <div className={styles.fields}>{Object.entries(value).filter(([field]) => field !== 'status').map(([field, item]) => <ValueEditor key={field} value={item} onChange={next => onChange({ ...value, [field]: next })} path={`${path}.${field}`} label={labels[field] ?? field} publications={publications} revealPath={revealPath} />)}</div>
       {value.status !== 'missing' && !('observationRef' in value) && <Button type="button" onClick={() => onChange({ ...value, observationRef: '' })}>Wskaż oryginalny pomiar</Button>}
     </fieldset>;
-    return <details id={`input-${path}`} open={open} onToggle={event => setExpanded(event.currentTarget.open)} className={styles.group}><summary>{label}</summary>{open && <><div className={styles.fields}>{Object.entries(value).filter(([field]) => field !== 'schemaVersion' && (field !== 'targetLotId' || value.kind === 'transfer')).map(([field, item]) => <ValueEditor key={field} value={item} onChange={next => {
+     return <details id={`input-${path}`} open={open} onToggle={event => setExpanded(event.currentTarget.open)} className={styles.group}><summary>{label}</summary>{open && <><div className={styles.fields}>{Object.entries(value).filter(([field]) => field !== 'schemaVersion' && !(value.schemaVersion === 2 && ['month', 'investment'].includes(field)) && (field !== 'targetLotId' || value.kind === 'transfer')).map(([field, item]) => <ValueEditor key={field} value={item} onChange={next => {
       const updated = { ...value, [field]: next };
       if (field === 'kind' && 'lotId' in value) delete updated.targetLotId;
       onChange(updated);
@@ -73,11 +87,11 @@ function ValueEditor({ value, onChange, path, label, publications, revealPath }:
   }
   if (key === 'quantity' && value === null) return <section><p>{label}: brak danych</p><Button type="button" onClick={() => onChange({ value: '0', unit: 'g' })}>Wprowadź znany stan początkowy</Button></section>;
   if (key === 'publicationId') return <label className={styles.selectLabel} htmlFor={`input-${path}`}>{label}<select id={`input-${path}`} value={String(value)} onChange={event => onChange(Number(event.target.value))}>{publications.map(publication => <option key={publication.id} value={publication.id}>{publication.name} · {publication.versionKey}</option>)}</select></label>;
-  const options = key === 'kind' ? kindOptions : enums[key];
+   const options = key === 'kind' && path.includes('.cashEntries.') ? [['receipt', 'Wpływ ze sprzedaży'], ['payment', 'Płatność kosztów'], ['inventory-change', 'Wydatek na zmianę zapasu'], ['other-in', 'Pozostały wpływ'], ['other-out', 'Pozostały wydatek']] : key === 'category' && path.includes('.fixedCosts.') ? [['rent', 'Najem'], ['seller', 'Osobny sprzedawca'], ['other', 'Inny stały']] : key === 'kind' ? kindOptions : enums[key];
   if (options) return <label className={styles.selectLabel} htmlFor={`input-${path}`}>{label}<select id={`input-${path}`} value={String(value)} onChange={event => onChange(event.target.value)}>{!options.some(([option]) => option === value) && <option value={String(value)}>{String(value)}</option>}{options.map(([option, name]) => <option key={option} value={option}>{name}</option>)}</select></label>;
   if (typeof value === 'boolean' || key === 'admitted') return <label className={styles.selectLabel} htmlFor={`input-${path}`}>{label}<select id={`input-${path}`} value={value === null ? 'missing' : String(value)} onChange={event => onChange(event.target.value === 'missing' ? null : event.target.value === 'true')}><option value="missing">Brak danych</option><option value="true">Tak</option><option value="false">Nie</option></select></label>;
   return <InputField id={`input-${path}`} name={path} label={label} value={value === null ? '' : value} type={typeof value === 'number' ? 'number' : 'text'} onChange={event => onChange(typeof value === 'number' ? Number(event.target.value) : event.target.value || (value === null ? null : ''))} />;
 }
-export function ScenarioInputs({ value, onChange, publications, revealPath = '' }: { value: FormValue; onChange: (value: FormValue) => void; publications: PublicationOption[]; revealPath?: string }) {
-  return <ValueEditor value={value} onChange={onChange} publications={publications} revealPath={revealPath} path="input" label="Parametry wariantu" />;
+export function ScenarioInputs({ value, onChange, publications, revealPath = '', path = 'input', label = 'Parametry wariantu' }: { value: FormValue; onChange: (value: FormValue) => void; publications: PublicationOption[]; revealPath?: string; path?: string; label?: string }) {
+  return <ValueEditor value={value} onChange={onChange} publications={publications} revealPath={revealPath} path={path} label={label} />;
 }

@@ -20,4 +20,10 @@
 .totals dd { margin: 0; font: 700 1.25rem var(--font-mono); }
 .fingerprint { overflow-wrap: anywhere; }
 .snapshot { white-space: pre-wrap; overflow-wrap: anywhere; font-size: .875rem; }
+.comparisonGrid { display: grid; gap: 1rem; min-width: 0; }
+.differences { padding-left: 1.25rem; }
+.differences > li { border-bottom: var(--border-width) solid var(--color-black); padding: 1rem 0; overflow-wrap: anywhere; }
+.differences code { display: block; }
+.differences dd { margin: .5rem 0 1rem; }
+@media (--laptop) { .comparisonGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (--laptop) { .fields { grid-template-columns: repeat(2, minmax(0, 1fr)); } .report { padding: 2rem; } }

@@ -6,11 +6,14 @@ import { PageLayout } from '@/components/PageLayout';
 import Button from '@/components/Button';
 import { scenarioMachine } from '../scenarioMachine';
 import { loadWorkspaceAction, saveScenarioAction, runScenarioAction } from '../scenario.actions';
-import { scenarioFixture } from '../reference';
-import { scenarioSchema, type SavedInput } from '../schema';
+import { scenarioFixture, weeklyFixture } from '../reference';
+import { scenarioSchema } from '../schema';
+import { versionedScenarioSchema } from '../versioned';
+import { upgradeScenario } from '../upgrade';
+import { ScenarioWeekInputs } from './ScenarioWeekInputs';
 import { ScenarioInputs, type FormValue, type PublicationOption } from './ScenarioInputs';
 import { ScenarioReport } from './ScenarioReport';
-import type { ScenarioReport as Report } from '../evaluate';
+import { ScenarioComparison } from './ScenarioComparison';
 import styles from './ScenarioWorkspace.module.css';
 import { validationMessage } from '../validation';
 
@@ -20,7 +23,7 @@ export default function ScenarioWorkspace({ scenarioKey, initial }: { scenarioKe
   const [state, send] = useMachine(scenarioMachine);
   const [draft, setDraft] = useState<FormValue>(null);
   const [revision, setRevision] = useState<WorkspaceData['revision']>(null);
-  const [run, setRun] = useState<{ id: number; report: Report; revisionNumber: number; input: SavedInput } | null>(null);
+  const [run, setRun] = useState<WorkspaceData['run']>(null);
   const [publications, setPublications] = useState<PublicationOption[]>([]);
   const [scenarios, setScenarios] = useState<WorkspaceData['scenarios']>([]);
   const [revisions, setRevisions] = useState<WorkspaceData['revisions']>([]);
@@ -37,6 +40,7 @@ export default function ScenarioWorkspace({ scenarioKey, initial }: { scenarioKe
     setError(result.message); setFields(result.fields);
     if (result.category === 'denied') { clear(); send({ type: 'DENIED' }); } else send({ type: 'FAILED' });
   }, [clear, send]);
+  const comparisonDenied = useCallback(() => { clear(); send({ type: 'DENIED' }); }, [clear, send]);
   const load = useCallback(async (revisionId: number | null = null) => {
     if (logoutPending.current) return;
     const request = ++generation.current; send({ type: 'LOAD' }); setError('');
@@ -53,8 +57,13 @@ export default function ScenarioWorkspace({ scenarioKey, initial }: { scenarioKe
   }, [scenarioKey, send, fail]);
   useEffect(() => { void load(); return () => { generation.current++; }; }, [load]);
   function edit(value: FormValue) { setDraft(value); setFields([]); setError(''); saveKey.current = null; send({ type: 'EDIT' }); }
+  function cloneVariant() {
+    generation.current++; key.current = crypto.randomUUID();
+    setRevision(null); setRun(null); setRevisions([]); runKey.current = null;
+    edit(JSON.parse(JSON.stringify(draft)));
+  }
   async function save() {
-    const parsed = scenarioSchema.safeParse(draft);
+    const parsed = versionedScenarioSchema.safeParse(draft);
     if (!parsed.success) { setError('Popraw wskazane dane. Nie zapisano nowej wersji.'); setFields(parsed.error.issues.map(issue => ({ path: `input.${issue.path.join('.')}`, message: validationMessage(issue) }))); return; }
     saveKey.current ??= crypto.randomUUID(); const request = ++generation.current; send({ type: 'SAVE' }); setError('');
     try {
@@ -106,13 +115,15 @@ export default function ScenarioWorkspace({ scenarioKey, initial }: { scenarioKe
     {['denied', 'error'].includes(current) && <><p><Link href="/recipes">Zaloguj się w katalogu receptur</Link>, następnie <Link href="/investment-scenarios">wróć do scenariuszy</Link>.</p><Button onClick={() => void load()}>Ponów odczyt</Button></>}
     {!['denied', 'loading', 'loggingOut', 'error'].includes(current) && <>
       <nav aria-label="Zapisane warianty"><h3>Zapisane warianty</h3>{!scenarios.length && <p>Nie zapisano jeszcze żadnego wariantu.</p>}<ul>{scenarios.map(scenario => <li key={scenario.key}><Link href={`/investment-scenarios/${encodeURIComponent(scenario.key)}`}>{scenario.name}</Link></li>)}</ul></nav>
-      {!draft && <section><h3>Nowy wariant</h3><p>Szablon A20/B12 zawiera wyraźnie oznaczone założenia syntetyczne. Zastąp je własnymi źródłami i wybierz właściwe publikacje.</p><Button disabled={publications.length === 0} onClick={() => edit(scenarioFixture(publications[0].id, (publications[1] ?? publications[0]).id) as FormValue)}>Utwórz wariant odniesienia</Button>{!publications.length && <p>Brak dostępnych publikacji. Najpierw opublikuj recepturę w panelu redakcyjnym.</p>}</section>}
-      {draft && <><div className={styles.commands}><Button disabled={busy || !['draft', 'changed'].includes(current)} onClick={() => void save()}>Zapisz nową wersję</Button><Button disabled={busy || !['saved', 'result'].includes(current)} onClick={() => void evaluate()}>Uruchom zapisaną wersję {revision?.number}</Button></div>
+      {!draft && <section><h3>Nowy wariant</h3><p>Szablon A20/B12 zawiera wyraźnie oznaczone założenia syntetyczne. Zastąp je własnymi źródłami i wybierz właściwe publikacje.</p><Button disabled={publications.length === 0} onClick={() => edit(scenarioFixture(publications[0].id, (publications[1] ?? publications[0]).id) as FormValue)}>Utwórz wariant odniesienia</Button><Button disabled={publications.length === 0} onClick={() => edit(weeklyFixture(publications[0].id, (publications[1] ?? publications[0]).id))}>Utwórz syntetyczny tydzień MVP-2</Button>{!publications.length && <p>Brak dostępnych publikacji. Najpierw opublikuj recepturę w panelu redakcyjnym.</p>}</section>}
+      {draft && <><div className={styles.commands}><Button disabled={busy || !['draft', 'changed'].includes(current)} onClick={() => void save()}>Zapisz nową wersję</Button><Button disabled={busy || !['saved', 'result'].includes(current)} onClick={() => void evaluate()}>Uruchom zapisaną wersję {revision?.number}</Button><Button disabled={busy} onClick={cloneVariant}>Utwórz odrębny wariant z bieżących wejść</Button></div>
+        {draft && typeof draft === 'object' && !Array.isArray(draft) && draft.schemaVersion === 1 && <Button disabled={busy} onClick={() => edit(upgradeScenario(scenarioSchema.parse(draft)))}>Rozszerz do tygodnia MVP-2</Button>}
         {revisions.length > 0 && <label htmlFor="scenario-revision">Otwórz zapisaną wersję (zastępuje niezapisany formularz)<select id="scenario-revision" disabled={busy} value={revision?.id ?? ''} onChange={event => void load(Number(event.target.value))}>{revisions.map(revision => <option key={revision.id} value={revision.id}>Wersja {revision.number}</option>)}</select></label>}
         {revision && <p>Potwierdzona wersja {revision.number} · <Link href={`/investment-scenarios/${encodeURIComponent(key.current)}`}>Otwórz zapisany wariant</Link> · podpis <code className={styles.fingerprint}>{revision.fingerprint}</code></p>}
-        <form id="scenario-inputs" onSubmit={event => { event.preventDefault(); void save(); }}><fieldset disabled={busy}><legend>Źródłowe parametry</legend><ScenarioInputs value={draft} onChange={edit} publications={publications} revealPath={revealPath} /></fieldset></form>
+        <form id="scenario-inputs" onSubmit={event => { event.preventDefault(); void save(); }}><fieldset disabled={busy}><legend>Źródłowe parametry</legend>{typeof draft === 'object' && !Array.isArray(draft) && draft.schemaVersion === 2 ? <ScenarioWeekInputs value={draft} onChange={edit} publications={publications} revealPath={revealPath} /> : <ScenarioInputs value={draft} onChange={edit} publications={publications} revealPath={revealPath} />}</fieldset></form>
       </>}
       {run && <ScenarioReport report={run.report} input={run.input} runId={run.id} revisionNumber={run.revisionNumber} unsaved={['changed', 'draft', 'saving'].includes(current)} changed={['changed', 'draft', 'saving'].includes(current) || revision?.number !== run.revisionNumber} />}
+      <ScenarioComparison revisionId={revision?.saved.input.schemaVersion === 2 ? revision.id : undefined} onDenied={comparisonDenied} />
       <Button onClick={() => void logout()}>Wyloguj i usuń dane z widoku</Button>
     </>}
   </div></PageLayout>;

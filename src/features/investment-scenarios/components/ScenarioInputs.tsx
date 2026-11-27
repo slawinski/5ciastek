@@ -72,7 +72,7 @@ function ValueEditor({ value, onChange, path, label, publications, revealPath }:
       <div className={styles.fields}>{Object.entries(value).filter(([field]) => field !== 'status').map(([field, item]) => <ValueEditor key={field} value={item} onChange={next => onChange({ ...value, [field]: next })} path={`${path}.${field}`} label={labels[field] ?? field} publications={publications} revealPath={revealPath} />)}</div>
       {value.status !== 'missing' && !('observationRef' in value) && <Button type="button" onClick={() => onChange({ ...value, observationRef: '' })}>Wskaż oryginalny pomiar</Button>}
     </fieldset>;
-     return <details id={`input-${path}`} open={open} onToggle={event => setExpanded(event.currentTarget.open)} className={styles.group}><summary>{label}</summary>{open && <><div className={styles.fields}>{Object.entries(value).filter(([field]) => field !== 'schemaVersion' && !(value.schemaVersion === 2 && field === 'month') && (field !== 'targetLotId' || value.kind === 'transfer')).map(([field, item]) => <ValueEditor key={field} value={item} onChange={next => {
+     return <details id={`input-${path}`} open={open} onToggle={event => setExpanded(event.currentTarget.open)} className={styles.group}><summary>{label}</summary>{open && <><div className={styles.fields}>{Object.entries(value).filter(([field]) => field !== 'schemaVersion' && !(value.schemaVersion === 2 && ['month', 'investment'].includes(field)) && (field !== 'targetLotId' || value.kind === 'transfer')).map(([field, item]) => <ValueEditor key={field} value={item} onChange={next => {
       const updated = { ...value, [field]: next };
       if (field === 'kind' && 'lotId' in value) delete updated.targetLotId;
       onChange(updated);

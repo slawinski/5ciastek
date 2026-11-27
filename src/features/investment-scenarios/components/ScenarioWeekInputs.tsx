@@ -4,6 +4,7 @@ import Button from '@/components/Button';
 import { scenarioV2Schema } from '../schema-v2';
 import { ScenarioInputs, type FormValue, type PublicationOption } from './ScenarioInputs';
 import { ScenarioMonthInputs } from './ScenarioMonthInputs';
+import { ScenarioInvestmentInputs } from './ScenarioInvestmentInputs';
 
 /** Extends the existing sourced editor; edits remain drafts until the common save receipt. */
 export function ScenarioWeekInputs({ value, onChange, publications, revealPath }: { value: FormValue; onChange: (value: FormValue) => void; publications: PublicationOption[]; revealPath: string }) {
@@ -29,5 +30,6 @@ export function ScenarioWeekInputs({ value, onChange, publications, revealPath }
     {!parsed.success && <p>Popraw bieżące wejścia przed skopiowaniem partii. Źródłowe pola pozostają edytowalne poniżej.</p>}
      <ScenarioInputs value={value} onChange={onChange} publications={publications} revealPath={revealPath} />
      <ScenarioMonthInputs value={value} onChange={onChange} publications={publications} revealPath={revealPath} />
+     <ScenarioInvestmentInputs value={value} onChange={onChange} publications={publications} revealPath={revealPath} />
   </section>;
 }

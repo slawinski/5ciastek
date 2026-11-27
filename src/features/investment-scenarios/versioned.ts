@@ -3,11 +3,14 @@ import { scenarioSchema, savedInputSchema, type SavedInput } from './schema';
 import { reportSchema, runBodySchema } from './report-schema';
 import { scenarioV2Schema, savedInputV2Schema, type SavedInputV2 } from './schema-v2';
 import { monthReportSchema } from '../economics-investment/month';
+import { investmentReportSchema } from '../economics-investment/investment';
 
 export const versionedScenarioSchema = z.union([scenarioSchema, scenarioV2Schema]);
 export const versionedSavedInputSchema = z.union([savedInputSchema, savedInputV2Schema]);
 export const reportV2Schema = reportSchema.extend({ engineVersion: z.literal('investment-scenario/2'),
   monthly: monthReportSchema.nullable(),
+  // Existing v2 runs predate U6; retain their exact stored output on read/replay.
+  investment: investmentReportSchema.optional(),
   process: reportSchema.shape.process.extend({
     laborExposure: z.record(z.string(), z.strictObject({ before: z.number().nonnegative(), inside: z.number().nonnegative(), after: z.number().nonnegative() })),
     closingWip: z.array(z.strictObject({ operationId: z.string(), batchId: z.string(), start: z.string(), plannedEnd: z.string() })),

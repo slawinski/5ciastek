@@ -1,6 +1,7 @@
 import type { z } from 'zod';
 import type { versionedRunBodySchema, versionedSavedInputSchema } from '../versioned';
 import styles from './ScenarioWorkspace.module.css';
+import { investmentCategoryLabels } from '@/features/economics-investment/investment';
 type Report = z.infer<typeof versionedRunBodySchema>['output'];
 type SavedInput = z.infer<typeof versionedSavedInputSchema>;
 
@@ -38,6 +39,13 @@ export function ScenarioReport({ report, revisionNumber, runId, changed, unsaved
       <h4>Granica miesiąca</h4><ul>{report.monthly.boundaryStock.map(row => <li key={`${row.itemId}:${row.unit}`}>{row.itemId}: {row.opening} → {row.closing} {unitName(row.unit)}; źródła: {row.sourceParts.join(', ')}</li>)}</ul>
       <h4>Wymagana sprzedaż miesiąca</h4><p>{report.monthly.requiredSales.reason}</p><ul>{Object.entries(report.monthly.comparison).map(([id, row]) => <li key={id}>{id}: wymagane {row.required}, gotowe {row.ready ?? 'niezweryfikowane'}, deficyt {row.deficit ?? 'niezweryfikowany'} szt.</li>)}</ul>
       <details><summary>Uzgodnienie kosztów i gotówki ze źródłami</summary><ul>{report.monthly.ledger.map(row => <li key={row.id}>{row.id} · wydatek {row.expenseId}: {row.amount ?? 'brak danych'} PLN — {row.basis}<ul>{row.evidence.map((evidence, index) => <li key={index}>{evidence.status === 'missing' ? evidence.reason : `${evidence.source} · ${evidence.date} · ${evidence.period} · ${evidence.context}`}</li>)}</ul></li>)}</ul></details>
+    </section>}
+    {report.engineVersion === 'investment-scenario/2' && report.investment && <section aria-label="Nakład i prosty zwrot"><h3>Nakład i prosty zwrot</h3>
+      <ul>{(Object.keys(investmentCategoryLabels) as (keyof typeof investmentCategoryLabels)[]).map(key => { const row = report.investment!.categories[key]; return <li key={key}><strong>{investmentCategoryLabels[key]}</strong>: {row.status === 'missing' ? `Brak danych — ${row.reason}` : `${row.value} PLN · ${row.status === 'estimated' ? 'estymacja' : 'pomiar'} · źródło: ${row.source} · ${row.date} · wersja ${row.version} · okres ${row.period} · ${row.context}`}</li>; })}</ul>
+      <dl className={styles.totals}><div><dt>Nakład początkowy razem</dt><dd>{report.investment.outlay.value === null ? 'Niezweryfikowany' : `${report.investment.outlay.value} PLN`}</dd></div><div><dt>Prosty zwrot</dt><dd>{report.investment.payback.status === 'calculated' ? `${report.investment.payback.months} miesięcy` : report.investment.payback.status === 'no-finite-payback' ? 'Brak skończonego zwrotu' : 'Zwrot niezweryfikowany'}</dd></div></dl>
+      <p>{report.investment.basis}. Okres miesięcznej podstawy: {report.investment.period ?? 'brak'}. Nadwyżka: {report.investment.recurringCash?.value ?? 'niezweryfikowana'} PLN/miesiąc. Powtarzalność: {report.investment.repeatability?.status === 'qualified' ? 'zakwalifikowana' : 'niezweryfikowana'}.</p>
+      <ul>{report.investment.payback.reasons.map(reason => <li key={reason}><a href="#scenario-inputs">Uzupełnij podstawę</a>: {reason}</li>)}</ul>
+      <p>Zapas początkowy i kaucja są nakładem, nie drugim automatycznym potrąceniem miesięcznym. Zwrot zakłada powtarzanie podanych warunków; nie uwzględnia sezonowości ani rozruchu i nie obiecuje przyszłego popytu.</p>
     </section>}
     <details><summary>Użyte publikacje i zapotrzebowanie recepturowe</summary>{report.recipeRequirements.map((row, index) => <section key={`${row.productId}:${index}`}><h4>{row.productId} · {row.versionKey}</h4><ul>{row.scaled.ingredients.map(ingredient => <li key={ingredient.ingredientId}>{ingredient.name}: {ingredient.grams} g</li>)}</ul></section>)}</details>
     <details><summary>Dokładne wejścia tego przebiegu — niezmienny odczyt źródeł</summary><pre className={styles.snapshot}>{JSON.stringify(input, null, 2)}</pre></details>

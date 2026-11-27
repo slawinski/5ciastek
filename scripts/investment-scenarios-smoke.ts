@@ -6,8 +6,10 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { setTimeout } from 'node:timers/promises';
 import { scenarioFixture } from '../src/features/investment-scenarios/reference';
-import type { SavedInput } from '../src/features/investment-scenarios/schema';
-import type { reportSchema } from '../src/features/investment-scenarios/report-schema';
+import { versionedSavedInputSchema, versionedRunBodySchema, runBodyV2Schema } from '../src/features/investment-scenarios/versioned';
+import { persistedMonthInput } from '../src/tests/fixtures/investment-month';
+import { missing } from '../src/features/investment-scenarios/reference';
+import type * as comparisonActions from '../src/features/investment-scenarios/comparison.actions';
 import type { z } from 'zod';
 
 const directory = await mkdtemp(join(tmpdir(), '5ciastek-production-smoke-'));
@@ -25,9 +27,9 @@ async function success(path: string, token: string | null = null, method = 'GET'
   const response = await rest(path, token, method, data); assert.ok(response.ok, `${method} ${path}: ${response.status} ${await response.clone().text()}`); return response.json();
 }
 type ActionResult = { ok: boolean; category?: string; fields?: { path: string; message: string }[];
-  revision?: { id: number; number: number; fingerprint: string; saved: SavedInput } | null;
+  revision?: { id: number; number: number; fingerprint: string; saved: z.infer<typeof versionedSavedInputSchema> } | null;
   revisions?: { id: number; number: number }[];
-  run?: { id: number; revisionNumber?: number; input: SavedInput; report: z.infer<typeof reportSchema> } | null;
+  run?: { id: number; revisionNumber?: number; input: z.infer<typeof versionedSavedInputSchema>; report: z.infer<typeof versionedRunBodySchema>['output'] } | null;
   scenarios?: { key: string }[] };
 try {
   run(['scripts/migrate.mjs']); run(['--import', 'tsx', 'src/tests/fixtures/smoke-users.ts']);
@@ -37,12 +39,14 @@ try {
   for (let attempt = 0; attempt < 60 && !output.includes('Ready in'); attempt++) { assert.equal(running.exitCode, null, output); await setTimeout(500); }
   assert.ok(output.includes('Ready in'), output);
   const manifest: { node: Record<string, { exportedName: string }> } = JSON.parse(await readFile('.next/server/server-reference-manifest.json', 'utf8'));
-  async function action(name: string, token: string | null, ...args: (object | string | number | null)[]): Promise<ActionResult> {
+  async function invoke(name: string, token: string | null, ...args: (object | string | number | null)[]) {
     const id = Object.entries(manifest.node).find(([, entry]) => entry.exportedName === name)?.[0]; assert.ok(id, `Built action ${name}`);
     const response = await fetch(`${origin}/investment-scenarios`, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=UTF-8', 'Next-Action': id, Origin: origin, ...(token ? { Cookie: `payload-token=${token}` } : {}) }, body: JSON.stringify(args) });
     const text = await response.text(); assert.equal(response.status, 200, text);
     const line = text.split('\n').find(line => /^1:/.test(line)); assert.ok(line, text); return JSON.parse(line.slice(2));
   }
+  const action = async (name: string, token: string | null, ...args: (object | string | number | null)[]): Promise<ActionResult> => invoke(name, token, ...args);
+  const comparisonAction = async <K extends keyof typeof comparisonActions>(name: K, token: string | null, ...args: Parameters<typeof comparisonActions[K]>): Promise<Awaited<ReturnType<typeof comparisonActions[K]>>> => invoke(name, token, ...args);
   const login = async (role: string) => (await success('users/login', null, 'POST', { email: `${role}@example.invalid`, password })).token as string;
   const admin = await login('administrator'); const editor = await login('editor'); const baker = await login('baker');
   const otherUser = (await success('users', admin, 'POST', { email: 'other@example.invalid', password, role: 'administrator' })).doc;
@@ -60,6 +64,8 @@ try {
   assert.equal((await action('saveScenarioAction', admin, command)).revision?.id, saved.revision.id);
   const evaluated = await action('runScenarioAction', admin, { revisionId: saved.revision.id, requestKey: randomUUID() });
   assert.ok(evaluated.ok, JSON.stringify(evaluated)); assert.equal(evaluated.run?.report.economics.operatingRemainder, '56.00'); assert.equal(evaluated.run.report.process.laborMinutes.baker, 30);
+  assert.equal(evaluated.run.report.process.operations.find(row => row.id === 'bake-B')?.waitingMinutes, 15);
+  assert.equal(evaluated.run.report.process.operations.find(row => row.id === 'bake-B')?.end, new Date('2026-11-25T06:50:00+01:00').toISOString());
   const reopened = await action('loadWorkspaceAction', admin, 'connected-proof');
   assert.ok(reopened.ok); assert.deepEqual(reopened.revision, saved.revision);
   assert.deepEqual(reopened.revision.saved.input, command.input);
@@ -120,10 +126,87 @@ try {
   assert.equal((await rest(`scenario-revisions/${saved.revision.id}`, admin, 'PATCH', { revision: 99 })).status, 403);
   assert.equal((await rest('scenario-runs', admin, 'POST', { owner: otherUser.id, output: { profit: 999 } })).status, 403);
   const forged = await action('saveScenarioAction', admin, { ...command, owner: otherUser.id, requestKey: randomUUID() }); assert.equal(forged.ok, false); assert.equal(forged.category, 'validation');
+  // AE3–AE5: the server resolves real publications and recomputes both saved variants.
+  const operationalPaths = ['ingredients', 'recipes', 'publications'];
+  const operationalBefore = await Promise.all(operationalPaths.map(path => success(`${path}?depth=0&limit=0&sort=id`, admin)));
+  const completeInput = persistedMonthInput(publications[0], flour.id);
+  completeInput.name = 'MVP-2 kompletny miesiąc';
+  const incompleteInput = structuredClone(completeInput);
+  incompleteInput.name = 'MVP-2 brak najmu';
+  incompleteInput.month!.fixedCosts[0].amount = missing('PLN', 'Brak najmu');
+  const pair = [];
+  for (const [index, input] of [completeInput, incompleteInput].entries()) {
+    const scenarioKey = `mvp-two-${index}`;
+    const saveCommand = { scenarioKey, expectedRevision: 0, requestKey: randomUUID(), input };
+    const savedMonth = await action('saveScenarioAction', admin, saveCommand);
+    assert.ok(savedMonth.ok, JSON.stringify(savedMonth)); assert.ok(savedMonth.revision);
+    assert.deepEqual((await action('saveScenarioAction', admin, saveCommand)).revision, savedMonth.revision);
+    const reopenedMonth = await action('loadWorkspaceAction', admin, scenarioKey);
+    assert.deepEqual(reopenedMonth.revision, savedMonth.revision);
+    assert.deepEqual(reopenedMonth.revision?.saved.input, input);
+    const runCommand = { revisionId: savedMonth.revision.id, requestKey: randomUUID() };
+    const computed = await comparisonAction('prepareComparisonAction', admin, runCommand);
+    assert.ok(computed.ok, JSON.stringify(computed));
+    assert.deepEqual(await comparisonAction('prepareComparisonAction', admin, runCommand), computed);
+    const body = runBodyV2Schema.parse(computed.run.body);
+    assert.ok(body.output.investment);
+    assert.equal(body.output.monthly?.recurringCash.value, index === 0 ? '2000.00' : null);
+    assert.equal(body.output.investment.outlay.value, '120000.00');
+    assert.equal(body.output.investment.payback.status, index === 0 ? 'calculated' : 'unverified');
+    assert.equal(body.output.investment.payback.months, index === 0 ? '60.00' : null);
+    assert.equal(body.output.monthly?.salesDays, 22);
+    const loaded = await action('loadWorkspaceAction', admin, scenarioKey, savedMonth.revision.id);
+    assert.deepEqual(loaded.run, { id: computed.run.runId, revisionNumber: 1, input: body.input, report: body.output });
+    pair.push(computed.run);
+  }
+  assert.deepEqual(pair[0].body.output.process, pair[1].body.output.process, 'missing rent preserves chronology');
+  const compareCommand = { comparisonKey: randomUUID(), requestKey: randomUUID(), runIds: pair.map(row => row.runId) };
+  const comparison = await comparisonAction('saveComparisonAction', admin, compareCommand);
+  assert.ok(comparison.ok, JSON.stringify(comparison));
+  assert.deepEqual(await comparisonAction('saveComparisonAction', admin, compareCommand), comparison);
+  const conflict = await comparisonAction('saveComparisonAction', admin, { ...compareCommand, runIds: [...compareCommand.runIds].reverse() });
+  assert.ok(!conflict.ok); assert.equal(conflict.category, 'conflict');
+  const pinned = await comparisonAction('loadComparisonAction', admin, comparison.comparisonKey);
+  assert.ok(pinned.ok, JSON.stringify(pinned));
+  assert.deepEqual(pinned.comparison.runs, pair);
+  assert.deepEqual(pinned.comparison.manifest.selections.map(row => row.runId), compareCommand.runIds);
+  const newer = await action('saveScenarioAction', admin, { scenarioKey: 'mvp-two-0', expectedRevision: 1, requestKey: randomUUID(), input: { ...completeInput, name: 'Nowa wersja poza porównaniem' } });
+  assert.ok(newer.ok); assert.ok(newer.revision);
+  assert.ok((await action('runScenarioAction', admin, { revisionId: newer.revision.id, requestKey: randomUUID() })).ok);
+  assert.deepEqual(await comparisonAction('loadComparisonAction', admin, comparison.comparisonKey), pinned);
+  const manifests = await success(`scenario-comparisons?where[comparisonKey][equals]=${comparison.comparisonKey}&depth=0`, admin);
+  assert.equal(manifests.docs.length, 1);
+  const manifestId = manifests.docs[0].id;
+  for (const token of [other, editor, baker, null]) {
+    for (const denied of [
+      await comparisonAction('loadComparisonAction', token, comparison.comparisonKey),
+      await comparisonAction('saveComparisonAction', token, { ...compareCommand, requestKey: randomUUID() }),
+      await comparisonAction('prepareComparisonAction', token, { revisionId: pair[0].revisionId, requestKey: randomUUID() }),
+    ]) { assert.ok(!denied.ok); assert.equal(denied.category, 'denied'); }
+    for (const path of [`scenario-comparisons/${manifestId}?depth=5`, `scenario-runs/${pair[0].runId}?depth=5`, `scenario-revisions/${pair[0].revisionId}?depth=5`]) {
+      const response = await rest(path, token); assert.ok([403, 404].includes(response.status));
+      const text = await response.text(); assert.ok(!text.includes(completeInput.name)); assert.ok(!text.includes(pair[0].fingerprint));
+    }
+    const listing = await rest('scenario-comparisons?depth=5', token);
+    if (token === other) { assert.equal(listing.status, 200); assert.equal((await listing.json()).docs.length, 0); }
+    else assert.ok([403, 404].includes(listing.status));
+  }
+  for (const token of [admin, other, editor, baker, null]) {
+    assert.equal((await rest('scenario-comparisons', token, 'POST', { owner: ownerId, ...compareCommand, runs: compareCommand.runIds, schemaVersion: 1, fingerprint: pinned.comparison.fingerprint, manifest: pinned.comparison.manifest, context: { scenarioAppend: '5ciastek.scenario-service-append' } })).status, 403);
+  }
+  const forgedManifestCommand = { ...compareCommand, requestKey: randomUUID(), owner: otherUser.id, manifest: pinned.comparison.manifest };
+  const forgedManifest = await comparisonAction('saveComparisonAction', admin, forgedManifestCommand);
+  assert.ok(!forgedManifest.ok);
+  assert.deepEqual(await comparisonAction('loadComparisonAction', admin, comparison.comparisonKey), pinned);
+  assert.deepEqual(await Promise.all(operationalPaths.map(path => success(`${path}?depth=0&limit=0&sort=id`, admin))), operationalBefore);
+  assert.deepEqual((await action('loadWorkspaceAction', admin, 'connected-proof', saved.revision.id)).run, reopened.run, 'MVP-1 history is unchanged');
+  const comparisonUrl = `${origin}/investment-scenarios/comparisons/${comparison.comparisonKey}`;
   assert.equal((await fetch(`${origin}/investment-scenarios/connected-proof`)).status, 200);
-  console.log('PASS: built scenario save/reopen/run actions, reference chronology/finance, retries, ownership-filtered REST and forged-write refusal.');
+  console.log('PASS: built v1/v2 save/reopen/recompute, qualified 120000/2000=60, missing-rent comparison, pinned reads/retries, action/REST isolation and forged-write refusal.');
   if (browser) {
-    console.log(`BROWSER_READY ${origin} ${directory}`);
+    console.log(`BROWSER_READY ${origin} ${directory}\nCOMPARISON_URL ${comparisonUrl}`);
+    if (process.env.SMOKE_PASSWORD) console.log(`LOCAL_SYNTHETIC_LOGIN administrator@example.invalid ${process.env.SMOKE_PASSWORD}`);
+    else console.log('No caller SMOKE_PASSWORD supplied; generated credentials are not printed. Restart with an explicit synthetic SMOKE_PASSWORD for browser login.');
     await new Promise<void>(resolve => { process.once('SIGTERM', resolve); process.once('SIGINT', resolve); });
   }
 } finally {

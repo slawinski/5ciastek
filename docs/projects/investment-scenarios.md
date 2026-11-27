@@ -34,7 +34,7 @@ Wspólny przepływ, nie sześć odłączonych warstw. Właściciele: [SCN](../sp
 | optional-adapter | [FER-REQ-006](../specs/fermentation.md#fer-req-006), [STK-REQ-009](../specs/stock-inventory.md#stk-req-009), [EVT-REQ-011](../specs/production-records.md#evt-req-011) | Późniejsze dane operacyjne, nie wspólne bramki | demonstration |
 | release-gate | [SCN-REQ-020](../specs/scenarios-comparison.md#scn-req-020), [SCN-REQ-021](../specs/scenarios-comparison.md#scn-req-021) | Izolacja, uprawnienia, błędy i UI z dowodami | release |
 
-**State:** not-started. **Decision gates:** DEC-001 na zależnych trwałych ilościach; okna są wejściami, nie nową decyzją globalną. **Readiness:** kontrakt określony; implementacja i dane tygodnia wymagają dowodów. **Proof:** 12+12>20; oczekiwanie 45 wobec limitu 30 narusza go o 15, dokładne 30 jest dozwolone; brak limitu pozostawia technologię niezweryfikowaną. 20−19,5−0,5=0; 100=80 sprzedanych+10 przeniesionych+10 odpadu, bez przychodu od 20. WIP z niedzieli jest widoczne w poniedziałek; miks sprzedaży 80 A/80 B przy produkcji 100 B daje 4000−1800=2200. Dowody: brak.
+**State:** in-progress — implementacja U1–U7 obecna; U8 przygotowuje dowody, końcowe bramki LFG pozostają u wywołującego. **Decision gates:** DEC-001 na zależnych trwałych ilościach; okna są wejściami, nie nową decyzją globalną. **Readiness:** wymagane pełne kontrole i przegląd rzeczywistych ekranów przed zakończeniem. **Proof:** [AE1–AE3 i rejestr wykonania](../verification/mvp-two.md#acceptance-trace) wskazują ograniczone testy PRC/STK/ECO, połączony zapis/odczyt oraz brakujące dowody UI; sama obecność testów nie oznacza ich wykonania. Oczekiwane 12+12>20, 45−30=15 min, 20−19,5−0,5=0 i 100=80+10+10 pozostają kryteriami kanonicznych AC, nie deklaracją pełnej demonstracji.
 
 ### TASK-INV-003
 
@@ -49,7 +49,7 @@ Wspólny przepływ, nie sześć odłączonych warstw. Właściciele: [SCN](../sp
 | optional-adapter | [SAL-REQ-006](../specs/sales-returns.md#sal-req-006), [WRK-REQ-012](../specs/workforce.md#wrk-req-012) | Importy rzeczywistych miar tylko jeśli użyte | demonstration |
 | release-gate | [ECO-REQ-009](../specs/economics-investment.md#eco-req-009), [SCN-REQ-020](../specs/scenarios-comparison.md#scn-req-020) | Obciążenia/prywatność/źródła przed potwierdzonym wynikiem | release |
 
-**State:** not-started. **Decision gates:** DEC-001 tylko zależna trwała masa. **Readiness:** brak najmu, podatków lub pracy to ograniczenia wejść, nie globalne decyzje lub obowiązek uzyskania pełnych danych przed częściową demonstracją. **Proof:** 22×100=2200, nie 2000; zużycie 10 kg WIP bez odtworzenia pozostawia powtarzalność niezweryfikowaną. Nierówne stany graniczne 10→6 mogą spełnić kwalifikację po jednokrotnym uwzględnieniu 4 kg×4 PLN+20 min×60 PLN/h=36 PLN, czasu i zasobów oraz kosztu pozostałego odtworzenia. Brak danych o pracy poza tygodniem nadal pozostawia kwalifikację niezweryfikowaną. Dowody: brak.
+**State:** in-progress — implementacja U5 obecna; końcowe bramki LFG pozostają u wywołującego. **Decision gates:** DEC-001 tylko zależna trwała masa. **Readiness:** brak najmu, podatków lub pracy ogranicza wynik, nie blokuje częściowej demonstracji; pełne kontrole i UI nadal wymagane. **Proof:** [AE3–AE4](../verification/mvp-two.md#acceptance-trace): zapisane przypadki pełnego miesiąca oraz braków najmu/obciążeń/odtworzenia, niezależny odczyt i restore w teście scenariuszy; testy 22×100 oraz 10→6 i 16+20=36 PLN mają osobne wskazanie, bez przypisywania im niewykonanego wyniku. Rejestr rozróżnia wykonane i oczekujące kontrole.
 
 ### TASK-INV-004
 
@@ -63,7 +63,7 @@ Wspólny przepływ, nie sześć odłączonych warstw. Właściciele: [SCN](../sp
 | contract-input | [ECO-REQ-012](../specs/economics-investment.md#eco-req-012), [ECO-REQ-013](../specs/economics-investment.md#eco-req-013) | Źródła nakładu i brak podwójnego wydatku | start |
 | release-gate | [SCN-REQ-020](../specs/scenarios-comparison.md#scn-req-020) | Kontrolowany zapis, ponowny odczyt i źródła | release |
 
-**State:** not-started. **Decision gates:** brak nowej decyzji, podatki i kaucja to źródłowe wejścia. **Readiness:** kontrakt znany, dane i wykonanie niepotwierdzone. **Proof:** 40000−30000−2000−6000=2000; 80000+20000+10000+10000=120000 /2000=60 miesięcy przy spełnionej kwalifikacji powtarzalności. Wpływy 35000 dają −3000, zero nadwyżki oznacza brak skończonego zwrotu; brak kaucji lub obciążeń nie oznacza 0. Zapasu nie odlicza się dwa razy, późniejsze uzupełnienie nie jest darmowe. Dowody: brak.
+**State:** in-progress — implementacja U6 obecna; końcowe bramki LFG pozostają u wywołującego. **Decision gates:** brak nowej decyzji, podatki i kaucja to źródłowe wejścia. **Readiness:** syntetyczne dowody nie zatwierdzają danych rzeczywistych ani wydania. **Proof:** [AE4](../verification/mvp-two.md#acceptance-trace): rzeczywisty zapis/przebieg/odczyt 120000/2000=60 miesięcy, zero i −3000 bez skończonego zwrotu oraz brak kaucji/obciążeń/odtworzenia jako `unverified`; źródła zachowane w historii i restore. Built-server i polskie ekrany nadal oczekują obserwacji wywołującego.
 
 ### TASK-INV-005
 
@@ -78,7 +78,7 @@ Wspólny przepływ, nie sześć odłączonych warstw. Właściciele: [SCN](../sp
 | optional-adapter | [MAP-REQ-003](../specs/flow-map-demo.md#map-req-003), [DEM-REQ-006](../specs/demand.md#dem-req-006), [OPT-REQ-009](../specs/optimization.md#opt-req-009) | Prezentacja/źródła/rozszerzenia, nie bramki bazowego porównania | demonstration |
 | release-gate | [SCN-REQ-019](../specs/scenarios-comparison.md#scn-req-019), [SCN-REQ-020](../specs/scenarios-comparison.md#scn-req-020) | Widoczne źródła, braki i kontrolowany dostęp | release |
 
-**State:** not-started. **Decision gates:** tylko odziedziczone zależne granice DEC-001/002, nie nowa globalna polityka wariantu. **Readiness:** zakres określony, pełna demonstracja wymaga wyników przyrostów. **Proof:** A 40 h i B 84 h zachowują różne dostępności, wymagane godziny są podane osobno; brak najmu B nie usuwa B i nie udaje wyniku netto. Te same wejścia dają ten sam wynik bez modyfikacji rzeczywistych danych; układ widoku nie zmienia liczb, marża nie dowodzi dochodu, zdolności ani popytu. Dowody: brak.
+**State:** in-progress — implementacja U7 obecna; U8 i końcowe bramki LFG pozostają do potwierdzenia przez wywołującego. **Decision gates:** tylko odziedziczone zależne granice DEC-001/002, nie nowa globalna polityka wariantu. **Readiness:** nie deklaruje się `done` przed pełnymi kontrolami, przeglądem i publikacją. **Proof:** [AE5 i kontrole dostępu/odzyskiwania](../verification/mvp-two.md#acceptance-trace): DB porównuje 40/84 h, zachowuje wariant z brakiem najmu, przypina stare przebiegi po nowej rewizji, sprawdza odmowy, COMMIT/ponowienia i restore. Rozszerzony smoke pełnego miesiąca i porównania jest przygotowany, lecz wymaga wykonania; zmiana układu, telefon/tablet/desktop i wylogowanie wymagają dowodu z rzeczywistych ekranów. Marża nie dowodzi netto, zdolności ani popytu.
 
 ### TASK-INV-006
 

@@ -26,3 +26,21 @@ export function monthlyFixture(): SavedInputV2 {
   });
   return { input, publications: [{ productId: 'A', publicationId: 1, versionKey: 'A:1', snapshot: freezeRecipe({ name: 'A', yield: 1, standalone: true, description: 'Test', process: [{ instruction: 'Etap' }], ingredients: [{ ingredient: { id: 1, name: 'Mąka', kind: 'flour', flourType: 'pszenna' }, mass: '500' }] }) }] };
 }
+
+/** Same complete month, with identities from real synthetic publications rather than frozen test IDs. */
+export function persistedMonthInput(publicationId: number, ingredientId: number): SavedInputV2['input'] {
+  const { input } = monthlyFixture();
+  input.products[0].publicationId = publicationId;
+  for (const lot of [...input.lots, ...input.month!.openingLots]) {
+    if (lot.kind === 'material') lot.itemId = String(ingredientId);
+  }
+  for (const preparation of input.month!.preparations) {
+    preparation.itemId = String(ingredientId);
+    preparation.coveredMovementIds = [`recipe:batch:A:${ingredientId}:flour`];
+  }
+  input.investment = {
+    equipment: sourced('80000', 'PLN', 'opening'), premises: sourced('20000', 'PLN', 'opening'),
+    deposit: sourced('10000', 'PLN', 'opening'), initialStock: sourced('10000', 'PLN', 'opening'),
+  };
+  return input;
+}

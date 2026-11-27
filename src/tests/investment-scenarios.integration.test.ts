@@ -12,10 +12,11 @@ import { saveScenario, listScenarios, readScenario, readRevision, runScenario, r
 import { scenarioFixture, sourced } from './fixtures/investment-scenarios';
 import { savedInputSchema } from '@/features/investment-scenarios/schema';
 import { upgradeScenario } from '@/features/investment-scenarios/upgrade';
-import { versionedSavedInputSchema, versionedRunBodySchema } from '@/features/investment-scenarios/versioned';
+import { versionedSavedInputSchema, versionedRunBodySchema, runBodyV2Schema } from '@/features/investment-scenarios/versioned';
 import { prepareComparisonRun, readComparison, saveComparison } from '@/features/investment-scenarios/comparison-service';
 import { projectComparison } from '@/features/investment-scenarios/comparison';
 import { missing } from '@/features/investment-scenarios/reference';
+import { persistedMonthInput } from './fixtures/investment-month';
 import { up as comparisonUp, down as comparisonDown } from '@/migrations/20261127_093515_mvp_two_comparisons';
 
 test('scenario revisions are owned, immutable, idempotent and independently committed', async () => {
@@ -140,7 +141,42 @@ test('scenario revisions are owned, immutable, idempotent and independently comm
     assert.equal(history.docs.at(-1)?.id, first.id);
     assert.deepEqual(new Set((await listScenarios(payload, admin)).docs.map(doc => doc.scenarioKey)), new Set(['test', 'capacity']));
     assert.deepEqual((await readRevision(payload, admin, 'test', first.id)).body, first.body);
+    // AE3–AE4: use genuine publications and the saved evaluator, not precomputed report JSON.
+    for (const example of [
+      { key: 'complete', receipts: '40000', cash: '2000.00', status: 'calculated', missing: null },
+      { key: 'zero', receipts: '38000', cash: '0.00', status: 'no-finite-payback', missing: null },
+      { key: 'negative', receipts: '35000', cash: '-3000.00', status: 'no-finite-payback', missing: null },
+      { key: 'missing-deposit', receipts: '40000', cash: '2000.00', status: 'unverified', missing: 'deposit' },
+      { key: 'missing-rent', receipts: '40000', cash: null, status: 'unverified', missing: 'rent' },
+      { key: 'missing-charges', receipts: '40000', cash: null, status: 'unverified', missing: 'charges' },
+      { key: 'missing-replenishment', receipts: '40000', cash: null, status: 'unverified', missing: 'replenishment' },
+    ]) {
+      const input = persistedMonthInput(publications[0].id, flour.id);
+      input.month!.cashEntries[0].amount = sourced(example.receipts, 'PLN', '2026-11');
+      if (example.missing === 'deposit') input.investment.deposit = missing('PLN', 'Brak oferty kaucji');
+      if (example.missing === 'rent') input.month!.fixedCosts[0].amount = missing('PLN', 'Brak najmu');
+      if (example.missing === 'charges') input.month!.ownerCharges = missing('PLN', 'Brak obciążeń');
+      if (example.missing === 'replenishment') input.month!.preparations = [];
+      const scenarioKey = `month-${example.key}`;
+      const revision = await saveScenario(payload, admin, { scenarioKey, expectedRevision: 0, requestKey: randomUUID(), input });
+      const runCommand = { revisionId: revision.id, requestKey: randomUUID() };
+      const result = await runScenario(payload, admin, runCommand);
+      const body = runBodyV2Schema.parse(result.body);
+      assert.ok(body.output.investment);
+      assert.equal(body.output.monthly?.recurringCash.value, example.cash, example.key);
+      assert.equal(body.output.investment.payback.status, example.status, example.key);
+      assert.equal(body.output.investment.payback.months, example.status === 'calculated' ? '60.00' : null);
+      if (example.missing !== 'deposit') assert.equal(body.output.investment.outlay.value, '120000.00');
+      if (example.status === 'unverified') assert.ok(body.output.investment.payback.reasons.length > 0);
+      assert.deepEqual(versionedSavedInputSchema.parse((await readRevision(payload, admin, scenarioKey, revision.id)).body).input, input);
+      assert.deepEqual((await readRuns(payload, admin, revision.id)).docs[0].body, result.body);
+      const independentBody = (await independent.execute({ sql: 'SELECT body FROM scenario_runs WHERE id = ?', args: [result.id] })).rows[0].body;
+      assert.deepEqual(versionedRunBodySchema.parse(JSON.parse(String(independentBody))), body);
+      assert.deepEqual((await runScenario(payload, admin, runCommand)).body, result.body);
+    }
     // Apply the additive migration to populated v1/v2 history, not just an empty database.
+    const beforeMigrationV2 = await saveScenario(payload, admin, { scenarioKey: 'migration-v2', expectedRevision: 0, requestKey: randomUUID(), input: persistedMonthInput(publications[0].id, flour.id) });
+    await runScenario(payload, admin, { revisionId: beforeMigrationV2.id, requestKey: randomUUID() });
     const beforeMigration = (await independent.execute('SELECT id, body FROM scenario_runs ORDER BY id')).rows;
     const migrationArgs = { db: payload.db.drizzle, payload, req: await createLocalReq({ user: admin }, payload) };
     await comparisonDown(migrationArgs);

@@ -9,6 +9,7 @@ import { createLocalReq, getPayload } from 'payload';
 import { snapshotSchema } from '@/features/recipes/schema';
 import { up, down } from '@/migrations/20261124_172929_mvp_zero';
 import { up as upScenarios, down as downScenarios } from '@/migrations/20261125_155445_mvp_one';
+import { down as downComparisons } from '@/migrations/20261127_093515_mvp_two_comparisons';
 import { sql } from '@payloadcms/db-sqlite';
 import { pathToFileURL } from 'node:url';
 import { setImmediate } from 'node:timers/promises';
@@ -186,6 +187,7 @@ test('isolated SQLite publication, authorization, history, export and restore', 
     const req = await createLocalReq({}, payload);
     const recipesBeforeScenarioMigration = (await client.execute('SELECT * FROM recipes ORDER BY id')).rows;
     const publicationsBeforeScenarioMigration = (await client.execute('SELECT * FROM publications ORDER BY id')).rows;
+    await downComparisons({ db, payload, req });
     await downScenarios({ db, payload, req });
     await upScenarios({ db, payload, req });
     assert.deepEqual((await client.execute('SELECT * FROM recipes ORDER BY id')).rows, recipesBeforeScenarioMigration);

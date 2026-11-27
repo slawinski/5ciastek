@@ -13,7 +13,8 @@ export function evaluateWeek(input: ScenarioV2Input) {
   } = { interval, operations: [], reservations: [], laborMinutes: {}, availablePersonMinutes: {}, qualifications: [], laborExposure: {}, closingWip: [], windowChecks: [] };
   const qualify = (domain: Qualification['domain'], identity: string, reason: string) => result.qualifications.push({ domain, identity, reason });
   const resourceMap = new Map(resources.map(resource => [resource.id, resource]));
-  const pending = [...input.operations].sort((a, b) => Number(input.openingWip.some(wip => wip.operationId === b.id)) - Number(input.openingWip.some(wip => wip.operationId === a.id)) || a.priority - b.priority || a.id.localeCompare(b.id));
+  const openingOperationIds = new Set(input.openingWip.map(wip => wip.operationId));
+  const pending = [...input.operations].sort((a, b) => Number(openingOperationIds.has(b.id)) - Number(openingOperationIds.has(a.id)) || a.priority - b.priority || a.id.localeCompare(b.id));
   for (const resource of resources.filter(resource => resource.kind === 'role')) {
     const capacity = known(resource.capacity);
     if (capacity !== null) result.availablePersonMinutes[resource.id] = resource.availability.reduce((sum, window) => sum + Math.max(0, Math.min(Date.parse(window.end), Date.parse(interval.end)) - Math.max(Date.parse(window.start), Date.parse(interval.start))) / 60000, 0) * Number(capacity);
@@ -46,18 +47,20 @@ export function evaluateWeek(input: ScenarioV2Input) {
         for (const window of demand.resource?.availability ?? []) candidates.add(Math.max(earliest, Date.parse(window.start) - demand.offset * 60000));
         for (const reservation of result.reservations.filter(row => row.resourceId === demand.resource?.id)) candidates.add(Math.max(earliest, reservation.end - demand.offset * 60000));
       }
-      const fits = (start: number) => validDemands && demands.every(demand => {
+      const demandFits = (start: number, demand: (typeof demands)[number]) => {
+        if (!demand.resource || demand.quantity === null || demand.minutes === null || demand.capacity === null || compare(demand.quantity, decimal(demand.capacity)) > 0n) return false;
         const from = start + demand.offset * 60000; const to = from + Number(demand.minutes) * 60000;
         if (!demand.resource!.availability.some(window => Date.parse(window.start) <= from && Date.parse(window.end) >= to)) return false;
-        const own = demands.filter(other => other.resource!.id === demand.resource!.id).map(other => ({ start: start + other.offset * 60000, end: start + (other.offset + Number(other.minutes)) * 60000, amount: fixed(other.quantity!, 9) }));
+        const own = demands.filter(other => other.resource?.id === demand.resource!.id && other.quantity !== null && other.minutes !== null).map(other => ({ start: start + other.offset * 60000, end: start + (other.offset + Number(other.minutes)) * 60000, amount: fixed(other.quantity!, 9) }));
         const reservations = [...result.reservations.filter(row => row.resourceId === demand.resource!.id), ...own].filter(row => row.start < to && row.end > from);
         return [from, ...reservations.map(row => Math.max(from, row.start))].every(point => compare(reservations.filter(row => row.start <= point && row.end > point).reduce((sum, row) => add(sum, decimal(row.amount)), ratio(0n)), decimal(demand.capacity!)) <= 0n);
-      });
+      };
+      const fits = (start: number) => validDemands && demands.every(demand => demandFits(start, demand));
       const start = opening ? requested : [...candidates].sort((a, b) => a - b).find(candidate => candidate < Date.parse(interval.end) && fits(candidate));
       if (start === undefined) qualify(demands.some(demand => demand.resource?.kind === 'role') ? 'people' : 'machines', operation.id, 'Brak wspólnego przedziału dostępności.');
       else {
         const end = start + Number(duration) * 60000;
-        if (opening && !fits(start)) qualify('machines', operation.id, 'Historia WIP zachowana; dostępność lub pojemność jej rezerwacji niezweryfikowana.');
+        if (opening) for (const demand of demands.filter(demand => !demandFits(start, demand))) qualify(demand.resource?.kind === 'role' ? 'people' : 'machines', operation.id, `Historia WIP zachowana; dostępność lub pojemność rezerwacji ${demand.resource?.id ?? 'nieznanego zasobu'} niezweryfikowana.`);
         Object.assign(row, { start: new Date(start).toISOString(), end: new Date(end).toISOString(), elapsedMinutes: Number(duration), waitingMinutes: (start - requested) / 60000, deadlineMissed: end > Date.parse(operation.readyBy),
           minutesInside: Math.max(0, Math.min(end, Date.parse(interval.end)) - Math.max(start, Date.parse(interval.start))) / 60000,
           minutesBefore: Math.max(0, Math.min(end, Date.parse(interval.start)) - start) / 60000 });

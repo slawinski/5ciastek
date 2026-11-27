@@ -6,7 +6,6 @@ import { ScenarioInputs, type FormValue, type PublicationOption } from './Scenar
 import { ScenarioMonthInputs } from './ScenarioMonthInputs';
 import { ScenarioInvestmentInputs } from './ScenarioInvestmentInputs';
 
-/** Extends the existing sourced editor; edits remain drafts until the common save receipt. */
 export function ScenarioWeekInputs({ value, onChange, publications, revealPath }: { value: FormValue; onChange: (value: FormValue) => void; publications: PublicationOption[]; revealPath: string }) {
   const [selected, setSelected] = useState('');
   const parsed = scenarioV2Schema.safeParse(value);

@@ -15,7 +15,10 @@ async function session() {
 }
 function failure(error: Error | ZodError) {
   const status = 'status' in error && typeof error.status === 'number' ? error.status : 500;
-  return { ok: false as const, category: error instanceof ZodError ? 'validation' : status === 403 || status === 404 ? 'denied' : status === 409 ? 'conflict' : 'persistence', message: error instanceof ZodError ? 'Niepoprawny wybór. Wybierz różne zapisane warianty MVP-2.' : status === 403 || status === 404 ? 'Brak dostępu. Zaloguj się kontem właściciela.' : status === 409 ? 'Konflikt treści lub klucza ponowienia porównania.' : 'Nie potwierdzono operacji. Zachowano wybór; ponów z tym samym kluczem.' };
+  if (error instanceof ZodError) return { ok: false as const, category: 'validation', message: 'Niepoprawny wybór. Wybierz różne zapisane warianty MVP-2.' };
+  if (status === 403 || status === 404) return { ok: false as const, category: 'denied', message: 'Brak dostępu. Zaloguj się kontem właściciela.' };
+  if (status === 409) return { ok: false as const, category: 'conflict', message: 'Konflikt treści lub klucza ponowienia porównania.' };
+  return { ok: false as const, category: 'persistence', message: 'Nie potwierdzono operacji. Zachowano wybór; ponów z tym samym kluczem.' };
 }
 export async function listComparisonOptionsAction() {
   try {

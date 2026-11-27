@@ -3,7 +3,8 @@ import { scenarioSchema, productSchema, publicationSnapshotSchema } from './sche
 import { operationSchema, resourceSchema } from '../process-execution/schema';
 import { lotSchema, movementSchema } from '../stock-inventory/schema';
 import { financeSchema } from '../economics-investment/schema';
-import { decimalSchema, evidenceSchema, instantSchema, intervalSchema, keySchema, quantitySchema, textSchema } from './values';
+import { decimalSchema, evidenceSchema, instantSchema, intervalSchema, keySchema, known, quantitySchema, textSchema } from './values';
+import { add, compare, decimal } from '../economics-investment/money';
 
 const money = evidenceSchema.refine(value => value.unit === 'PLN', 'Wymagana jednostka PLN.');
 export const batchSchema = z.strictObject({ id: keySchema, productId: keySchema, target: z.number().int().positive().max(Number.MAX_SAFE_INTEGER), readyOperationId: keySchema });
@@ -24,6 +25,60 @@ export const preparationSchema = z.strictObject({ id: keySchema, expenseId: keyS
   readyAt: instantSchema, expiresAt: instantSchema, admitted: z.boolean(), evidence: evidenceSchema,
   materialCost: money, laborRate: evidenceSchema, operations: z.array(operationSchema).max(200), resources: z.array(resourceSchema).max(200),
   coveredMovementIds: z.array(keySchema).max(5000),
+}).superRefine((value, ctx) => {
+  const issue = (path: (string | number)[], message: string) => ctx.addIssue({ code: 'custom', path, message });
+  // V2 preparation obeys the same process invariants without changing the frozen v1 reader.
+  for (const field of ['operations', 'resources'] as const) {
+    const ids = new Set<string>();
+    value[field].forEach((row, index) => { if (ids.has(row.id)) issue([field, index, 'id'], 'Powtórzony identyfikator.'); ids.add(row.id); });
+  }
+  const operations = new Map(value.operations.map(row => [row.id, row]));
+  const resources = new Map(value.resources.map(row => [row.id, row]));
+  const visiting = new Set<string>(); const visited = new Set<string>();
+  function visit(id: string): boolean {
+    if (visiting.has(id)) return false;
+    if (visited.has(id)) return true;
+    const operation = operations.get(id); if (!operation) return false;
+    visiting.add(id);
+    for (const dependency of [...operation.predecessors, ...(operation.phase ? [operation.phase.id] : [])]) if (!visit(dependency)) return false;
+    visiting.delete(id); visited.add(id); return true;
+  }
+  value.resources.forEach((resource, index) => {
+    const capacity = known(resource.capacity);
+    if (resource.capacity.unit !== resource.unit) issue(['resources', index, 'capacity'], 'Niezgodna jednostka pojemności.');
+    if (resource.kind === 'role' && (resource.unit !== 'person' || (capacity !== null && !/^\d+$/.test(capacity)))) issue(['resources', index, 'capacity'], 'Obsada musi być całkowitą liczbą osób.');
+    const intervals = [...resource.availability].sort((a, b) => Date.parse(a.start) - Date.parse(b.start));
+    if (intervals.some((interval, i) => i > 0 && Date.parse(interval.start) < Date.parse(intervals[i - 1].end))) issue(['resources', index, 'availability'], 'Przedziały dostępności nakładają się.');
+  });
+  value.operations.forEach((operation, index) => {
+    if (!visit(operation.id)) issue(['operations', index, 'predecessors'], 'Brak poprzednika lub cykl zależności.');
+    if (operation.duration.unit !== 'min' || operation.waitWindow.unit !== 'min') issue(['operations', index], 'Czas wymaga minut.');
+    if (operation.duration.status === 'measured' && operation.observationContext && JSON.stringify(operation.context) !== JSON.stringify(operation.observationContext)) issue(['operations', index, 'duration'], 'Zmiana kontekstu wymaga estymacji lub braku czasu.');
+    if (operation.duration.status === 'estimated' && operation.observationContext && !operation.duration.observationRef) issue(['operations', index, 'duration'], 'Wskaż oryginalny pomiar.');
+    operation.demands.forEach((demand, demandIndex) => {
+      const path = ['operations', index, 'demands', demandIndex]; const resource = resources.get(demand.resourceId);
+      if (!resource) issue(path, 'Nieznany zasób.');
+      const amount = known(demand.amount); const duration = known(operation.duration); const segment = known(demand.duration);
+      if (resource?.kind === 'role' && (demand.unit !== 'person' || (amount !== null && !/^\d+$/.test(amount)))) issue(path, 'Obsada musi być całkowitą liczbą osób.');
+      if (demand.amount.unit !== demand.unit || demand.duration.unit !== 'min') issue(path, 'Niezgodna jednostka zapotrzebowania lub czasu.');
+      if (duration !== null && segment !== null && compare(add(decimal(demand.offsetMinutes), decimal(segment)), decimal(duration)) > 0n) issue(path, 'Odcinek wykracza poza operację.');
+    });
+    if (operation.duration.status === 'measured') {
+      const equipment = operation.demands.filter(demand => resources.get(demand.resourceId)?.kind === 'equipment');
+      if (equipment.some(demand => demand.resourceId !== operation.context.machine)) issue(['operations', index, 'context', 'machine'], 'Pomiar innego urządzenia wymaga jawnej estymacji.');
+      const labor = operation.demands.filter(demand => resources.get(demand.resourceId)?.kind === 'role');
+      const segments = labor.flatMap(demand => {
+        const amount = known(demand.amount); const duration = known(demand.duration);
+        if (demand.unit !== 'person' || amount === null || !/^\d+$/.test(amount) || duration === null) return [];
+        const start = decimal(demand.offsetMinutes); return [{ start, end: add(start, decimal(duration)), amount: BigInt(amount) }];
+      });
+      const staff = segments.reduce((peak, segment) => {
+        const concurrent = segments.reduce((sum, other) => compare(other.start, segment.start) <= 0n && compare(other.end, segment.start) > 0n ? sum + other.amount : sum, 0n);
+        return concurrent > peak ? concurrent : peak;
+      }, 0n);
+      if (segments.length !== labor.length || staff !== BigInt(operation.context.staff)) issue(['operations', index, 'context', 'staff'], 'Obsada pomiaru nie odpowiada zapotrzebowaniu ról.');
+    }
+  });
 });
 export const monthSchema = z.strictObject({ period: z.string().regex(/^\d{4}-\d{2}$/), taxBasis: z.enum(['gross', 'net']),
   calendar: z.array(z.strictObject({ date: z.string().date(), productionProfile: z.string().date().nullable(), salesProfile: z.string().date().nullable(), evidence: evidenceSchema })).min(1).max(31),

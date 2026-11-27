@@ -6,8 +6,8 @@ import { keySchema } from './values';
 import { fingerprint } from './identity';
 import { snapshotSchema } from '../recipes/schema';
 import { scaleRecipe } from '../recipes/scaling';
-import { ENGINE_VERSION, evaluateScenario } from './evaluate';
-import { ENGINE_V2, evaluateScenarioV2 } from './evaluate-v2';
+import { evaluateScenario } from './evaluate';
+import { evaluateScenarioV2 } from './evaluate-v2';
 
 export const saveCommandSchema = z.strictObject({ scenarioKey: keySchema, expectedRevision: z.number().int().nonnegative(), requestKey: z.string().uuid(), input: versionedScenarioSchema });
 export type SaveCommand = z.input<typeof saveCommandSchema>;
@@ -80,11 +80,10 @@ export async function runScenario(payload: Payload, actor: PayloadRequest['user'
       if (replay.revision !== command.revisionId || replay.fingerprint !== revision.fingerprint) throw new APIError('Klucz ponowienia dotyczy innego przebiegu.', 409);
       return replay;
     }
-    const v2 = saved.input.schemaVersion === 2;
     const output = saved.input.schemaVersion === 2 ? evaluateScenarioV2({ input: saved.input, publications: saved.publications }) : evaluateScenario({ input: saved.input, publications: saved.publications });
     return payload.create({ collection: 'scenario-runs', req, overrideAccess: false, depth: 0, data: {
       owner: authorizeOwner(req).id, revision: revision.id, requestKey: command.requestKey, fingerprint: revision.fingerprint,
-      engineVersion: v2 ? ENGINE_V2 : ENGINE_VERSION, body: { input: saved, output },
+      engineVersion: output.engineVersion, body: { input: saved, output },
     } });
   });
 }

@@ -28,9 +28,9 @@ export function recipeCoverage(saved: SavedInputV2, process: ProcessResult) {
     return { batch, publication, scaled, at };
   }).sort((a, b) => (a.at ? Date.parse(a.at) : Infinity) - (b.at ? Date.parse(b.at) : Infinity) || a.batch.id.localeCompare(b.batch.id));
   for (const { batch, scaled, publication, at } of requirements) {
+    const wip = input.openingWip.filter(row => row.batchId === batch.id);
     for (const ingredient of scaled.ingredients) {
       const required = quantityUnits(ingredient.grams);
-      const wip = input.openingWip.filter(row => row.batchId === batch.id);
       let embodied = 0n; let complete = at !== null;
       for (const source of wip) {
         const supplied = source.coverage.find(row => row.ingredientId === ingredient.ingredientId);

@@ -47,11 +47,11 @@ export function evaluateMonth(saved: SavedInputV2, process: ReturnType<typeof ev
     return decimal(evidence.value);
   };
   const qualified = (value: Rational | null, problems: string[], basis: string, unit = 'PLN') => ({ status: problems.length || value === null ? 'unverified' as const : 'qualified' as const, value: problems.length || value === null ? null : money(value), unit, period: month.period, basis, reasons: [...new Set(problems)] });
-  interface Portion { itemId: string; unit: string; remaining: bigint; ready: number; expiry: number | null; admitted: boolean; source: string[]; capacityCounted?: boolean }
+  interface Portion { lotKey: string; itemId: string; unit: string; remaining: bigint; ready: number; expiry: number | null; admitted: boolean; source: string[]; capacityCounted?: boolean }
   const portions: Portion[] = month.openingLots.map(lot => {
     if (!lot.quantity || !lot.expiresAt || lot.admitted === null || !lot.admissionSource || lot.evidence.status === 'missing' || lot.readyOperationId) reasons.push(`${lot.id}: niepełny stan otwarcia miesiąca lub nierozliczona gotowość.`);
     if (Date.parse(lot.availableAt) > openingAt) reasons.push(`${lot.id}: zapas otwarcia nie jest dostępny na początku miesiąca.`);
-    return { itemId: lot.productId ?? lot.itemId, unit: lot.quantity?.unit ?? 'g', remaining: lot.quantity ? quantityUnits(lot.quantity.value) : 0n, ready: Date.parse(lot.availableAt), expiry: lot.expiresAt ? Date.parse(lot.expiresAt) : null, admitted: lot.admitted === true && !!lot.admissionSource && lot.evidence.status !== 'missing' && !lot.readyOperationId, source: lot.sourceParts };
+    return { lotKey: lot.id, itemId: lot.productId ?? lot.itemId, unit: lot.quantity?.unit ?? 'g', remaining: lot.quantity ? quantityUnits(lot.quantity.value) : 0n, ready: Date.parse(lot.availableAt), expiry: lot.expiresAt ? Date.parse(lot.expiresAt) : null, admitted: lot.admitted === true && !!lot.admissionSource && lot.evidence.status !== 'missing' && !lot.readyOperationId, source: lot.sourceParts };
   });
   const opening = new Map<string, bigint>();
   for (const portion of portions) { const key = `${portion.itemId}|${portion.unit}`; opening.set(key, (opening.get(key) ?? 0n) + portion.remaining); }
@@ -68,12 +68,24 @@ export function evaluateMonth(saved: SavedInputV2, process: ReturnType<typeof ev
     return true;
   }
   type Demand = { itemId: string; unit: string; quantity: bigint };
-  type Event = { id: string; at: number; kind: 'consume' | 'produce' | 'sale' | 'waste'; batchKey?: string; productId?: string; demands: Demand[]; expiry?: number | null; admitted?: boolean };
+  type Event = { id: string; at: number; kind: SavedInputV2['input']['movements'][number]['kind'] | 'produce'; lotKey?: string; target?: Portion; source?: string[]; batchKey?: string; productId?: string; demands: Demand[]; expiry?: number | null; admitted?: boolean };
   const events: Event[] = []; const produced: Record<string, string> = {}; const sold: Record<string, string> = {}; const laborMinutes: Record<string, number> = {};
   const batchSupported = new Map<string, boolean>();
   const readyPieces = new Map<string, bigint>();
   const batchCounts = new Map<string, number>();
   const reservations: typeof process.reservations = [];
+  const movements = [...new Map(input.movements.map(row => [row.id, row])).values()];
+  const salesMovements = movements.filter(row => row.kind === 'sale');
+  const physicalMovements = movements.filter(row => row.kind !== 'sale' && row.kind !== 'refund');
+  const batchProfiles = new Map(input.batches.map(batch => {
+    const first = process.operations.filter(row => row.start && input.operations.some(operation => operation.id === row.id && operation.batchId === batch.id)).sort((a, b) => Date.parse(a.start!) - Date.parse(b.start!))[0];
+    return [batch.id, first?.start ? localDate(first.start, input.interval.zone) : null];
+  }));
+  for (const movement of physicalMovements) {
+    const lot = input.lots.find(row => row.id === movement.lotId)!;
+    const owner = lot.batchId ? batchProfiles.get(lot.batchId) : localDate(movement.at, input.interval.zone);
+    if (!month.calendar.some(day => day.productionProfile === owner) && month.calendar.some(day => day.salesProfile === localDate(movement.at, input.interval.zone))) reasons.push(`${movement.id}: niezweryfikowane mapowanie ruchu do profilu produkcji.`);
+  }
   for (const day of [...month.calendar].sort((a, b) => a.date.localeCompare(b.date))) {
     if (day.evidence.status === 'missing' || day.evidence.period !== month.period || day.evidence.unit !== 'day') reasons.push(`${day.date}: brak źródła mapowania kalendarza dla miesiąca.`);
     if (day.productionProfile) {
@@ -98,14 +110,36 @@ export function evaluateMonth(saved: SavedInputV2, process: ReturnType<typeof ev
         }
         if (!ready?.end || ready.deadlineMissed) { reasons.push(`${key}: brak terminowej gotowości partii.`); continue; }
         const lots = input.lots.filter(row => row.batchId === batch.id && row.readyOperationId === ready.id);
-        for (const lot of lots) events.push({ id: `produce:${key}:${lot.id}`, at: Math.max(mapped(ready.end, day.productionProfile, day.date, input.interval.zone), mapped(lot.availableAt, day.productionProfile, day.date, input.interval.zone)), kind: 'produce', batchKey: key, productId: batch.productId,
+        for (const lot of lots) events.push({ id: `produce:${key}:${lot.id}`, lotKey: `${day.date}:${lot.id}`, source: lot.sourceParts, at: Math.max(mapped(ready.end, day.productionProfile, day.date, input.interval.zone), mapped(lot.availableAt, day.productionProfile, day.date, input.interval.zone)), kind: 'produce', batchKey: key, productId: batch.productId,
           demands: [{ itemId: batch.productId, unit: 'piece', quantity: lot.quantity ? quantityUnits(lot.quantity.value) : 0n }], expiry: lot.expiresAt ? mapped(lot.expiresAt, day.productionProfile, day.date, input.interval.zone) : null, admitted: lot.admitted === true && !!lot.admissionSource && lot.evidence.status !== 'missing' });
       }
       if (!mappedBatches) reasons.push(`${day.date}: profil produkcji nie zawiera gotowej do mapowania partii.`);
     }
-    if (day.salesProfile) for (const movement of [...new Map(input.movements.map(row => [row.id, row])).values()].filter(row => row.kind === 'sale' && localDate(row.at, input.interval.zone) === day.salesProfile)) {
+    if (day.salesProfile) for (const movement of salesMovements.filter(row => localDate(row.at, input.interval.zone) === day.salesProfile)) {
       const lot = input.lots.find(row => row.id === movement.lotId)!;
       events.push({ id: `sale:${day.date}:${movement.id}`, at: shift(movement.at, day.date, input.interval.zone), kind: 'sale', productId: lot.productId ?? lot.itemId, demands: [{ itemId: lot.productId ?? lot.itemId, unit: movement.quantity.unit, quantity: quantityUnits(movement.quantity.value) }] });
+    }
+    // Physical movements belong to the source production profile, including its
+    // later dates. Sales profiles describe demand, not another copy of stock.
+    if (day.productionProfile) for (const movement of physicalMovements) {
+      const lot = input.lots.find(row => row.id === movement.lotId)!;
+      const profile = lot.batchId ? batchProfiles.get(lot.batchId) : localDate(movement.at, input.interval.zone);
+      if (profile !== day.productionProfile) continue;
+      const template = (source: typeof lot): Portion | null => {
+        if (!source.quantity) return null;
+        if (source.batchId && batchProfiles.get(source.batchId) !== profile) return null;
+        const openingLot = !source.batchId ? month.openingLots.find(row => row.id === source.id) : undefined;
+        if (!source.batchId && !openingLot) return null;
+        return { lotKey: source.batchId ? `${day.date}:${source.id}` : source.id, itemId: source.productId ?? source.itemId, unit: source.quantity.unit, remaining: 0n,
+          ready: openingLot ? Date.parse(openingLot.availableAt) : mapped(source.availableAt, profile, day.date, input.interval.zone), expiry: openingLot ? (openingLot.expiresAt ? Date.parse(openingLot.expiresAt) : null) : source.expiresAt ? mapped(source.expiresAt, profile, day.date, input.interval.zone) : null,
+          admitted: source.admitted === true && !!source.admissionSource && source.evidence.status !== 'missing', source: source.sourceParts };
+      };
+      const source = template(lot); const targetLot = input.lots.find(row => row.id === movement.targetLotId); const target = targetLot ? template(targetLot) : null;
+      if (!source || movement.quantity.unit !== source.unit || movement.evidence.status === 'missing' || (movement.kind === 'transfer' && (!target || target.itemId !== source.itemId || target.unit !== source.unit))) {
+        reasons.push(`${movement.id}: niezweryfikowane mapowanie ruchu, partii lub jednostki.`); continue;
+      }
+      events.push({ id: `${movement.kind}:${day.date}:${movement.id}`, at: mapped(movement.at, profile, day.date, input.interval.zone), kind: movement.kind, lotKey: source.lotKey, source: source.source,
+        demands: [{ itemId: source.itemId, unit: source.unit, quantity: quantityUnits(movement.quantity.value) }], expiry: source.expiry, admitted: movement.admitted === true && !!lot.admissionSource && lot.evidence.status !== 'missing', target: target ?? undefined });
     }
   }
   let variable = ratio(0n); let revenue = ratio(0n); let fixed = ratio(0n);
@@ -120,6 +154,13 @@ export function evaluateMonth(saved: SavedInputV2, process: ReturnType<typeof ev
     const source = input.finance.costs.find(cost => cost.id === row.id)!;
     const allocations = source.productId ? [{ productId: source.productId, share: '1' }] : source.allocations;
     if (!allocations.length || compare(allocations.reduce((sum, allocation) => add(sum, decimal(allocation.share)), ratio(0n)), decimal('1')) !== 0n) { variableReasons.push(`${row.id}: brak alokacji kosztu do profili.`); continue; }
+    // Product shares do not allocate a time pool between that product's batches.
+    // Uniform repetition preserves the entire supplied pool; partial selection
+    // cannot identify its labor from produced pieces alone.
+    if (source.category === 'labor' && ['person-min', 'person-hour', 'min', 'hour'].includes(source.quantity.unit) && allocations.some(allocation => new Set(input.batches.filter(batch => batch.productId === allocation.productId).map(batch => batchCounts.get(batch.id) ?? 0)).size > 1)) {
+      variableReasons.push(`${row.id}: brak alokacji kosztu do profili.`);
+      expense(row.id, row.expenseId, null, 'Nieuzgodniona alokacja pracy do profili'); continue;
+    }
     let factor = ratio(0n);
     for (const allocation of allocations) {
       const sourceQuantity = input.batches.filter(batch => batch.productId === allocation.productId).reduce((sum, batch) => sum + batch.target, 0);
@@ -161,14 +202,13 @@ export function evaluateMonth(saved: SavedInputV2, process: ReturnType<typeof ev
     const invalid = pending.size > 0 || complete.size !== preparation.operations.length || new Set(preparation.resources.map(row => row.id)).size !== preparation.resources.length;
     if (invalid || preparation.operations.some(row => row.duration.unit !== 'min' || row.demands.some(demand => demand.duration.unit !== 'min'))) prepReasons.push(`${preparation.id}: nieprawidłowe zależności, tożsamości lub jednostki czasu przygotowania.`);
     const prep = evaluateProcess(invalid ? [] : preparation.operations, preparation.resources, { start: new Date(start).toISOString(), end: preparation.readyAt });
-    if (prep.operations.some(row => !row.end || row.deadlineMissed || Date.parse(row.end) > Date.parse(preparation.readyAt)) || prep.qualifications.length) prepReasons.push(`${preparation.id}: niepotwierdzona dostępność lub termin przygotowania.`);
+    if (prep.operations.some(row => !row.end || row.deadlineMissed || Date.parse(row.end) > Date.parse(preparation.readyAt)) || prep.reservations.some(row => row.end > Date.parse(preparation.readyAt)) || prep.qualifications.length) prepReasons.push(`${preparation.id}: niepotwierdzona dostępność lub termin przygotowania.`);
     for (const resource of preparation.resources) {
-      const peers = [...reservations, ...prep.reservations].filter(row => row.resourceId === resource.id && row.end > row.start);
       const capacity = known(resource.capacity);
       const canonical = resourceDefinitions.get(resource.id);
-      if (canonical && (canonical.unit !== resource.unit || known(canonical.capacity) !== capacity)) prepReasons.push(`${preparation.id}: sprzeczna definicja zasobu ${resource.id}.`);
+      const canonicalCapacity = canonical ? known(canonical.capacity) : null;
+      if (canonical && (canonical.kind !== resource.kind || canonical.unit !== resource.unit || canonical.capacity.unit !== resource.capacity.unit || (canonicalCapacity === null || capacity === null ? canonicalCapacity !== capacity : compare(decimal(canonicalCapacity), decimal(capacity)) !== 0n))) prepReasons.push(`${preparation.id}: sprzeczna definicja zasobu ${resource.id}.`);
       resourceDefinitions.set(resource.id, resource);
-      if (capacity === null || peers.some(point => compare(peers.filter(row => row.start <= point.start && row.end > point.start).reduce((sum, row) => add(sum, decimal(row.amount)), ratio(0n)), decimal(capacity)) > 0n)) prepReasons.push(`${preparation.id}: konflikt rezerwacji ${resource.id}.`);
     }
     reservations.push(...prep.reservations);
     for (const [id, minutes] of Object.entries(prep.laborMinutes)) laborMinutes[id] = (laborMinutes[id] ?? 0) + minutes;
@@ -182,18 +222,35 @@ export function evaluateMonth(saved: SavedInputV2, process: ReturnType<typeof ev
       else ledger.find(row => row.expenseId === preparation.expenseId)!.evidence.push(preparation.evidence, preparation.materialCost, preparation.laborRate);
     } else { expense(preparation.id, preparation.expenseId, cost, 'Przygotowanie poza tygodniem liczone raz'); if (cost) variable = add(variable, cost); }
     reasons.push(...prepReasons); if (cost === null) variableReasons.push(...prepReasons);
-    portions.push({ itemId: preparation.itemId, unit: preparation.quantity.unit, remaining: quantityUnits(preparation.quantity.value), ready: Date.parse(preparation.readyAt), expiry: Date.parse(preparation.expiresAt), admitted: preparation.admitted && preparation.evidence.status !== 'missing' && !prepReasons.length, source: [preparation.id] });
+    portions.push({ lotKey: preparation.id, itemId: preparation.itemId, unit: preparation.quantity.unit, remaining: quantityUnits(preparation.quantity.value), ready: Date.parse(preparation.readyAt), expiry: Date.parse(preparation.expiresAt), admitted: preparation.admitted && preparation.evidence.status !== 'missing' && !prepReasons.length, source: [preparation.id] });
   }
-  for (const event of events.filter(row => row.at < boundary).sort((a, b) => a.at - b.at || ({ consume: 0, produce: 1, waste: 2, sale: 3 }[a.kind] - { consume: 0, produce: 1, waste: 2, sale: 3 }[b.kind]) || a.id.localeCompare(b.id))) {
+  for (const id of new Set(reservations.map(row => row.resourceId))) {
+    const peers = reservations.filter(row => row.resourceId === id && row.end > row.start);
+    const resource = resourceDefinitions.get(id); const capacity = resource ? known(resource.capacity) : null;
+    if (capacity === null || peers.some(point => compare(peers.filter(row => row.start <= point.start && row.end > point.start).reduce((sum, row) => add(sum, decimal(row.amount)), ratio(0n)), decimal(capacity)) > 0n)) reasons.push(`Miesiąc: konflikt rezerwacji ${id} lub nieznana pojemność.`);
+  }
+  const eventOrder = (event: Event) => event.kind === 'delivery' || event.kind === 'return' ? 0 : event.batchKey && event.kind === 'consume' ? 1 : event.kind === 'produce' ? 2 : event.kind === 'sale' ? 4 : 3;
+  for (const event of events.filter(row => row.at < boundary).sort((a, b) => a.at - b.at || eventOrder(a) - eventOrder(b) || a.id.localeCompare(b.id))) {
     if (event.kind === 'produce') {
       if (!batchSupported.get(event.batchKey!)) continue;
-      for (const demand of event.demands) portions.push({ itemId: demand.itemId, unit: demand.unit, remaining: demand.quantity, ready: event.at, expiry: event.expiry ?? null, admitted: event.admitted === true, source: [event.id] });
+      for (const demand of event.demands) portions.push({ lotKey: event.lotKey!, itemId: demand.itemId, unit: demand.unit, remaining: demand.quantity, ready: event.at, expiry: event.expiry ?? null, admitted: event.admitted === true, source: [event.id, ...(event.source ?? [])] });
+      continue;
+    }
+    if (event.kind === 'delivery' || event.kind === 'return') {
+      for (const demand of event.demands) portions.push({ lotKey: event.lotKey!, itemId: demand.itemId, unit: demand.unit, remaining: demand.quantity, ready: event.at, expiry: event.expiry ?? null, admitted: event.admitted === true, source: event.source ?? [event.id] });
       continue;
     }
     let supported = true;
     for (const demand of event.demands) {
       let remaining = demand.quantity;
-      const eligible = portions.filter(row => row.itemId === demand.itemId && row.unit === demand.unit && row.admitted && row.ready <= event.at && row.expiry !== null && row.expiry > event.at).sort((a, b) => a.expiry! - b.expiry! || a.source.join().localeCompare(b.source.join()));
+      const usable = (row: Portion) => row.admitted && row.expiry !== null && row.expiry > event.at;
+      const physical = ['waste', 'loss', 'transfer'].includes(event.kind);
+      const eligible = portions.filter(row => row.itemId === demand.itemId && row.unit === demand.unit && (!event.lotKey || row.lotKey === event.lotKey) && row.ready <= event.at && (physical || usable(row))).sort((a, b) => {
+        const admissionOrder = Number(usable(b)) - Number(usable(a));
+        return (['waste', 'loss'].includes(event.kind) ? -admissionOrder : admissionOrder) || (a.expiry ?? Infinity) - (b.expiry ?? Infinity) || a.source.join().localeCompare(b.source.join());
+      });
+      if (event.lotKey && eligible.reduce((sum, row) => sum + row.remaining, 0n) < remaining) { reasons.push(`${event.id}: niedobór ${quantityText(remaining)} ${demand.unit} (${demand.itemId}); ruch odrzucony.`); continue; }
+      if (event.kind === 'carry') continue; // A boundary assertion, never another issue.
       for (const portion of eligible) {
         if (event.kind === 'sale' && demand.unit === 'piece' && !portion.capacityCounted) {
           readyPieces.set(demand.itemId, (readyPieces.get(demand.itemId) ?? 0n) + portion.remaining);
@@ -201,12 +258,15 @@ export function evaluateMonth(saved: SavedInputV2, process: ReturnType<typeof ev
         }
       }
       for (const portion of eligible) {
-        const taken = remaining < portion.remaining ? remaining : portion.remaining; portion.remaining -= taken; remaining -= taken; if (!remaining) break;
+        const taken = remaining < portion.remaining ? remaining : portion.remaining;
+        if (event.kind === 'transfer' && event.target && taken > 0n) portions.push({ ...event.target, remaining: taken, ready: event.at, source: [...portion.source], capacityCounted: portion.capacityCounted, admitted: portion.admitted && event.target.admitted,
+          expiry: portion.expiry !== null && event.target.expiry !== null ? Math.min(portion.expiry, event.target.expiry) : null });
+        portion.remaining -= taken; remaining -= taken; if (!remaining) break;
       }
       if (remaining > 0n) { supported = false; reasons.push(`${event.id}: niedobór ${quantityText(remaining)} ${demand.unit} (${demand.itemId}).`); }
       if (event.kind === 'sale') sold[event.productId!] = quantityText(quantityUnits(sold[event.productId!] ?? '0') + demand.quantity - remaining);
     }
-    if (event.kind === 'consume') batchSupported.set(event.batchKey!, supported);
+    if (event.kind === 'consume' && event.batchKey) batchSupported.set(event.batchKey, supported);
   }
   for (const product of input.products) {
     const price = known(product.price);

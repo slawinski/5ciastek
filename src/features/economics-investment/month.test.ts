@@ -213,3 +213,143 @@ it('preserves separate readiness lots and their expiry within a mapped batch', (
   saved.input.movements.push({ ...structuredClone(saved.input.movements[0]), id: 'sale-late', lotId: 'late' });
   expect(evaluateScenarioV2(saved).monthly?.sold.A).toBe('1100');
 });
+
+it.each(['waste', 'loss'] as const)('maps %s with its production profile before a later sales-only day', kind => {
+  const saved = monthlyFixture(); const { input } = saved; const month = input.month!;
+  input.interval.end = '2026-11-27T00:00:00+01:00';
+  input.lots[0].expiresAt = '2026-11-28T00:00:00+01:00';
+  input.movements[0].quantity.value = '50';
+  input.movements.push({ ...structuredClone(input.movements[0]), id: 'discard', kind, at: at('08:00') });
+  input.movements.push({ ...structuredClone(input.movements[0]), id: 'next-sale', at: '2026-11-26T07:00:00+01:00' });
+  month.calendar = [month.calendar[0], { ...month.calendar[1], productionProfile: null, salesProfile: '2026-11-26' }];
+  month.preparations[0].quantity.value = '50000'; month.preparations[0].materialCost = sourced('1000', 'PLN', month.period);
+  const result = evaluateScenarioV2(saved);
+  expect(result.stock.sales.A).toBe('50');
+  expect(result.monthly?.sold.A).toBe('50');
+  expect(result.monthly?.revenue.value).toBe('1000.00');
+  expect(result.monthly?.repeatability.reasons).toContainEqual(expect.stringContaining('next-sale: niedobór 50'));
+});
+
+it.each(['usable', 'expired', 'unadmitted'] as const)('discards only the named %s lot, not another FEFO lot', state => {
+  const saved = monthlyFixture(); const { input } = saved; const month = input.month!;
+  month.calendar = [month.calendar[0]];
+  input.lots[0].quantity!.value = '50';
+  input.lots[0].expiresAt = at('12:00');
+  const discarded = { ...structuredClone(input.lots[0]), id: 'discarded', expiresAt: state === 'expired' ? at('06:30') : at('23:00'), admitted: state !== 'unadmitted', sourceParts: ['discard-source'] };
+  input.lots.push(discarded);
+  input.movements = [
+    { ...input.movements[0], id: 'discard', lotId: discarded.id, kind: 'waste', at: at('06:45'), quantity: { value: '50', unit: 'piece' } },
+    { ...input.movements[0], id: 'sale', at: at('07:00'), quantity: { value: '50', unit: 'piece' } },
+  ];
+  const result = evaluateScenarioV2(saved).monthly!;
+  expect(result.sold.A).toBe('50');
+  expect(result.boundaryStock.find(row => row.itemId === 'A')).toMatchObject({ closing: '0', sourceParts: expect.arrayContaining(['discard-source']) });
+  expect(result.repeatability.reasons).not.toContainEqual(expect.stringContaining('discard: niedobór'));
+});
+
+function longProfileFixture(resourceId: 'oven' | 'baker') {
+  const saved = monthlyFixture(); const { input } = saved; const month = input.month!;
+  input.investment = { equipment: sourced('80000', 'PLN', 'opening'), premises: sourced('20000', 'PLN', 'opening'), deposit: sourced('10000', 'PLN', 'opening'), initialStock: sourced('10000', 'PLN', 'opening') };
+  input.interval.end = '2026-11-28T00:00:00+01:00'; input.resources.forEach(row => { row.availability = [input.interval]; });
+  const first = input.operations[0]; first.kind = 'passive'; first.duration = sourced('2880', 'min'); first.readyBy = '2026-11-27T08:00:00+01:00';
+  first.demands = [{ resourceId, amount: sourced(resourceId === 'oven' ? '100' : '1', resourceId === 'oven' ? 'piece' : 'person'), unit: resourceId === 'oven' ? 'piece' : 'person', offsetMinutes: '0', duration: sourced('2880', 'min') }];
+  input.operations[1].requestedStart = '2026-11-27T05:45:00+01:00'; input.operations[1].readyBy = first.readyBy; input.operations[1].duration = sourced('0', 'min'); input.operations[1].demands = [];
+  input.lots[0].availableAt = input.operations[1].requestedStart; input.lots[0].expiresAt = '2026-11-28T23:00:00+01:00'; input.movements[0].at = '2026-11-27T07:00:00+01:00';
+  month.calendar = [
+    { ...month.calendar[0], salesProfile: null }, { ...month.calendar[1], salesProfile: null },
+    { ...month.calendar[2], productionProfile: null, salesProfile: '2026-11-27' }, { ...month.calendar[3], productionProfile: null, salesProfile: '2026-11-27' },
+  ];
+  month.preparations[0].quantity.value = '100000'; month.preparations[0].materialCost = sourced('2000', 'PLN', month.period);
+  month.cashEntries[0].amount = sourced('4000', 'PLN', month.period); month.cashEntries[1].amount = sourced('10000', 'PLN', month.period);
+  return saved;
+}
+
+it.each(['oven', 'baker'] as const)('checks all mapped 48-hour %s reservations even without preparation resources', resourceId => {
+  const saved = longProfileFixture(resourceId); const calendar = structuredClone(saved.input.month!.calendar);
+  const result = evaluateScenarioV2(saved);
+  expect(result.process.qualifications).toEqual([]);
+  expect(result.monthly?.repeatability.status).toBe('unverified');
+  expect(result.monthly?.repeatability.reasons).toContainEqual(expect.stringContaining(`konflikt rezerwacji ${resourceId}`));
+  expect(result.monthly?.recurringCash.status).toBe('unverified');
+  expect(result.investment.payback.status).toBe('unverified');
+  expect(result.investment.payback.reasons).toContainEqual(expect.stringContaining(`konflikt rezerwacji ${resourceId}`));
+  expect(saved.input.month!.calendar).toEqual(calendar);
+  // End == next start is allowed: the calendar is checked, not rescheduled.
+  saved.input.month!.calendar = [calendar[0], { ...calendar[1], date: '2026-11-03', salesProfile: '2026-11-27' }, { ...calendar[2], date: '2026-11-05' }];
+  expect(evaluateScenarioV2(saved).monthly?.repeatability.status).toBe('qualified');
+  saved.input.month!.calendar = [calendar[0], { ...calendar[2], date: '2026-11-03' }, { ...calendar[1], date: '2026-11-04' }, { ...calendar[3], date: '2026-11-06' }];
+  expect(evaluateScenarioV2(saved).monthly?.repeatability.status).toBe('qualified');
+});
+
+it('does not allocate a time-based labor pool by produced pieces across heterogeneous profiles', () => {
+  const saved = monthlyFixture(); const { input } = saved; const month = input.month!;
+  input.finance.costs.push({ id: 'prep-labor', expenseId: 'prep-labor', name: 'Labor', category: 'labor', basis: 'variable', method: 'pool', productId: 'A', quantity: sourced('75', 'person-min'), rate: sourced('60', 'PLN/person-hour'), taxBasis: 'gross', period: 'day', allocations: [] });
+  input.products[0].unitCost = sourced('0', 'PLN/piece'); input.interval.end = '2026-11-27T00:00:00+01:00';
+  const batch = { ...structuredClone(input.batches[0]), id: 'batch:A2', readyOperationId: 'bake-A2' }; input.batches.push(batch);
+  input.operations.push(...structuredClone(input.operations).map(op => ({ ...op, id: op.id + '2', batchId: batch.id, requestedStart: op.requestedStart.replace('2026-11-25', '2026-11-26'), readyBy: op.readyBy.replace('2026-11-25', '2026-11-26'), duration: op.id.startsWith('prep') ? sourced('60', 'min') : op.duration, demands: op.demands.map(d => ({ ...d, duration: op.id.startsWith('prep') ? sourced('60', 'min') : d.duration })), predecessors: op.predecessors.map(id => id + '2') })));
+  input.resources.forEach(row => { row.availability = [input.interval]; });
+  input.windows.push(...structuredClone(input.windows).map(row => ({ ...row, id: row.id + '2', batchId: batch.id, operationId: row.operationId + '2', predecessorId: row.predecessorId + '2' })));
+  input.lots.push({ ...structuredClone(input.lots[0]), id: 'lot-A2', batchId: batch.id, readyOperationId: batch.readyOperationId, availableAt: '2026-11-26T06:00:00+01:00', expiresAt: '2026-11-26T23:00:00+01:00' });
+  month.calendar = [month.calendar[0]]; month.preparations[0].quantity.value = '50000'; month.preparations[0].expenseId = 'replacement'; month.preparations[0].materialCost = sourced('0', 'PLN', month.period); month.preparations[0].coveredMovementIds = [];
+  const result = evaluateScenarioV2(saved).monthly!;
+  expect(result.laborMinutes.baker).toBe(15);
+  expect(result.variableCost.status).toBe('unverified');
+  expect(result.variableCost.reasons).toContainEqual(expect.stringContaining('prep-labor: brak alokacji kosztu do profili'));
+  expect(result.ledger.find(row => row.id === 'prep-labor')?.amount).toBeNull();
+  month.calendar.push({ ...month.calendar[0], date: '2026-11-02', productionProfile: '2026-11-26', salesProfile: null });
+  expect(evaluateScenarioV2(saved).monthly?.ledger.find(row => row.id === 'prep-labor')?.amount).toBe('75.00');
+});
+
+it.each(['delivery', 'return', 'consume', 'carry'] as const)('maps an explicit %s without duplicating recipe consumption or neutral carry', kind => {
+  const saved = monthlyFixture(); const { input } = saved; const month = input.month!;
+  month.calendar = [month.calendar[0]];
+  month.preparations[0].quantity.value = '50000'; month.preparations[0].materialCost = sourced('1000', 'PLN', month.period);
+  const incoming = kind === 'delivery' || kind === 'return';
+  input.movements[0].quantity.value = incoming ? '150' : '100';
+  input.movements.push({ ...structuredClone(input.movements[0]), id: 'explicit', kind, at: at('06:45'), quantity: { value: '50', unit: 'piece' } });
+  const result = evaluateScenarioV2(saved).monthly!;
+  expect(result.sold.A).toBe(incoming ? '150' : kind === 'consume' ? '50' : '100');
+  expect(result.boundaryStock.find(row => row.itemId === '1')?.closing).toBe('2000000');
+});
+
+it('preserves transferred source expiry and admission, including an unadmitted return discarded before a sale', () => {
+  const saved = monthlyFixture(); const { input } = saved; const month = input.month!;
+  month.calendar = [month.calendar[0]];
+  input.lots[0].expiresAt = at('06:50');
+  input.lots.push({ ...structuredClone(input.lots[0]), id: 'destination', quantity: { value: '0', unit: 'piece' }, expiresAt: at('23:00') });
+  input.movements.push({ ...structuredClone(input.movements[0]), id: 'transfer', kind: 'transfer', targetLotId: 'destination', at: at('06:30') });
+  let result = evaluateScenarioV2(saved).monthly!;
+  expect(result.boundaryStock.find(row => row.itemId === 'A')?.closing).toBe('100');
+  expect(result.sold.A).toBe('0');
+  input.lots[0].expiresAt = at('23:00');
+  input.movements.push({ ...structuredClone(input.movements[0]), id: 'return', lotId: 'destination', kind: 'return', admitted: false, at: at('06:40'), quantity: { value: '50', unit: 'piece' } });
+  input.movements.push({ ...structuredClone(input.movements[0]), id: 'discard-return', lotId: 'destination', kind: 'waste', at: at('06:45'), quantity: { value: '50', unit: 'piece' } });
+  result = evaluateScenarioV2(saved).monthly!;
+  expect(result.sold.A).toBe('100');
+  expect(result.boundaryStock.find(row => row.itemId === 'A')?.closing).toBe('0');
+});
+
+it('qualifies unsupported physical movement ownership instead of silently dropping it on sales-only profiles', () => {
+  const saved = monthlyFixture(); const month = saved.input.month!;
+  month.calendar = [{ ...month.calendar[0], productionProfile: null }];
+  const { batchId: _batch, readyOperationId: _ready, ...lot } = saved.input.lots[0]; void _batch; void _ready;
+  month.openingLots.push({ ...lot, availableAt: '2026-11-01T00:00:00+01:00', expiresAt: '2026-12-01T00:00:00+01:00' });
+  saved.input.movements.push({ ...structuredClone(saved.input.movements[0]), id: 'discard', kind: 'waste', at: at('06:45') });
+  expect(evaluateScenarioV2(saved).monthly?.repeatability.reasons).toContainEqual(expect.stringContaining('discard: niezweryfikowane mapowanie ruchu'));
+});
+
+it('rejects conflicting resource kinds even if preparation and production capacities have the same number', () => {
+  const saved = monthlyFixture(); const prep = saved.input.month!.preparations[0];
+  prep.resources = [{ ...structuredClone(saved.input.resources[0]), kind: 'equipment' }];
+  expect(evaluateScenarioV2(saved).monthly?.repeatability.reasons).toContainEqual(expect.stringContaining('sprzeczna definicja zasobu baker'));
+});
+
+it('applies a dated material delivery at the recipe start before consuming the recipe once', () => {
+  const saved = monthlyFixture(); const { input } = saved; const month = input.month!;
+  month.calendar = [month.calendar[0]]; month.openingLots[0].quantity!.value = '0';
+  input.movements.push({ ...structuredClone(input.movements[0]), id: 'flour-delivery', lotId: 'flour', kind: 'delivery', at: input.operations[0].requestedStart, quantity: { value: '50000', unit: 'g' } });
+  month.preparations = [];
+  const result = evaluateScenarioV2(saved).monthly!;
+  expect(result.sold.A).toBe('100');
+  expect(result.boundaryStock.find(row => row.itemId === '1')?.closing).toBe('0');
+});

@@ -1,7 +1,6 @@
 'use client';
 import { ScenarioInputs, type FormValue, type PublicationOption } from './ScenarioInputs';
 
-/** Controlled sourced editor for v2 drafts; all persistence uses the workspace save flow. */
 export function ScenarioInvestmentInputs({ value, onChange, publications, revealPath }: { value: FormValue; onChange: (value: FormValue) => void; publications: PublicationOption[]; revealPath: string }) {
   if (!value || typeof value !== 'object' || Array.isArray(value) || value.schemaVersion !== 2) return null;
   return <section aria-labelledby="investment-heading"><h3 id="investment-heading">Nakład i prosty zwrot</h3>

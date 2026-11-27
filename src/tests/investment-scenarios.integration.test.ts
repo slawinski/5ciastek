@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { randomBytes, randomUUID } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-import { getPayload } from 'payload';
+import { createLocalReq, getPayload } from 'payload';
 import { createClient } from '@libsql/client';
 import { ZodError } from 'zod';
 import { saveScenario, listScenarios, readScenario, readRevision, runScenario, readRuns } from '@/features/investment-scenarios/service';
@@ -13,6 +13,10 @@ import { scenarioFixture, sourced } from './fixtures/investment-scenarios';
 import { savedInputSchema } from '@/features/investment-scenarios/schema';
 import { upgradeScenario } from '@/features/investment-scenarios/upgrade';
 import { versionedSavedInputSchema, versionedRunBodySchema } from '@/features/investment-scenarios/versioned';
+import { prepareComparisonRun, readComparison, saveComparison } from '@/features/investment-scenarios/comparison-service';
+import { projectComparison } from '@/features/investment-scenarios/comparison';
+import { missing } from '@/features/investment-scenarios/reference';
+import { up as comparisonUp, down as comparisonDown } from '@/migrations/20261127_093515_mvp_two_comparisons';
 
 test('scenario revisions are owned, immutable, idempotent and independently committed', async () => {
   const directory = await mkdtemp(join(tmpdir(), '5ciastek-scenarios-test-'));
@@ -136,6 +140,72 @@ test('scenario revisions are owned, immutable, idempotent and independently comm
     assert.equal(history.docs.at(-1)?.id, first.id);
     assert.deepEqual(new Set((await listScenarios(payload, admin)).docs.map(doc => doc.scenarioKey)), new Set(['test', 'capacity']));
     assert.deepEqual((await readRevision(payload, admin, 'test', first.id)).body, first.body);
+    // Apply the additive migration to populated v1/v2 history, not just an empty database.
+    const beforeMigration = (await independent.execute('SELECT id, body FROM scenario_runs ORDER BY id')).rows;
+    const migrationArgs = { db: payload.db.drizzle, payload, req: await createLocalReq({ user: admin }, payload) };
+    await comparisonDown(migrationArgs);
+    await comparisonUp(migrationArgs);
+    assert.deepEqual((await independent.execute('SELECT id, body FROM scenario_runs ORDER BY id')).rows, beforeMigration);
+    const pairInputs = [40, 84].map(hours => {
+      const input = upgradeScenario(command.input); input.name = `Wariant ${hours} h`; input.period = 'week';
+      input.interval = { start: '2026-11-23T00:00:00+01:00', end: '2026-11-30T00:00:00+01:00', zone: 'Europe/Warsaw' };
+      input.resources[0].availability = Array.from({ length: hours === 40 ? 5 : 7 }, (_, day) => ({ zone: input.interval.zone, start: `2026-11-${23 + day}T05:00:00+01:00`, end: `2026-11-${23 + day}T${hours === 40 ? '13' : '17'}:00:00+01:00` }));
+      input.finance.period = 'week'; input.finance.costs = [{ ...input.finance.costs[0], id: 'rent', expenseId: 'rent', name: 'Najem', category: 'rent', period: 'week', quantity: sourced('1', 'batch', 'week'), rate: hours === 40 ? sourced('100', 'PLN/batch', 'week') : missing('PLN/batch', 'Brak najmu') }];
+      input.lots.push({ id: 'flour-opening', itemId: String(flour.id), location: 'magazyn', kind: 'material', quantity: { value: '20000', unit: 'g' }, evidence: sourced('20000', 'g', 'week'), availableAt: input.interval.start, expiresAt: input.interval.end, admitted: true, admissionSource: 'Syntetyczne źródło', sourceParts: ['delivery'], preparationContext: 'Zapas otwarcia' });
+      if (hours === 84) { input.products[0].price = sourced('22', 'PLN/piece'); input.products[0].lossPercent = sourced('5', '%'); input.resources[2].capacity = sourced('32', 'piece'); const prep = input.operations.find(row => row.id === 'prep-B')!; prep.duration = sourced('30', 'min'); prep.demands[0].duration = sourced('30', 'min'); }
+      return input;
+    });
+    const pairRevisions = [];
+    const pairRuns = [];
+    for (let index = 0; index < pairInputs.length; index++) {
+      const revision = await saveScenario(payload, admin, { scenarioKey: `comparison-${index}`, expectedRevision: 0, requestKey: randomUUID(), input: pairInputs[index] });
+      pairRevisions.push(revision);
+      pairRuns.push(await prepareComparisonRun(payload, admin, { revisionId: revision.id, requestKey: randomUUID() }));
+    }
+    assert.deepEqual(projectComparison(pairRuns).variants.map(row => row.labor.find(role => role.id === 'baker')?.availableHours), [40, 84]);
+    assert.deepEqual(pairRuns.map(row => row.body.output.process.laborMinutes.baker), [30, 45]);
+    assert.equal(pairRuns[0].body.output.economics.operatingRemainder, '136.00');
+    assert.equal(pairRuns[1].body.output.economics.operatingRemainder, null);
+    const comparisonCommand = { comparisonKey: randomUUID(), requestKey: randomUUID(), runIds: pairRuns.map(row => row.runId) };
+    const comparison = await saveComparison(payload, admin, comparisonCommand);
+    assert.equal((await independent.execute('SELECT count(*) AS n FROM scenario_comparisons')).rows[0].n, 1);
+    assert.equal((await independent.execute('SELECT count(*) AS n FROM scenario_comparisons_rels')).rows[0].n, 2);
+    assert.equal((await saveComparison(payload, admin, comparisonCommand)).id, comparison.id);
+    await assert.rejects(saveComparison(payload, admin, { ...comparisonCommand, runIds: [...comparisonCommand.runIds].reverse() }), /ponowienia/);
+    await assert.rejects(saveComparison(payload, admin, { ...comparisonCommand, requestKey: randomUUID(), comparisonKey: randomUUID(), runIds: [pairRuns[0].runId, pairRuns[0].runId] }));
+    await assert.rejects(saveComparison(payload, admin, { ...comparisonCommand, requestKey: randomUUID(), runIds: [run.id, pairRuns[1].runId] }));
+    const pinned = await readComparison(payload, admin, comparison.comparisonKey);
+    await saveScenario(payload, admin, { scenarioKey: pairRevisions[0].scenarioKey, expectedRevision: 1, requestKey: randomUUID(), input: { ...pairInputs[0], name: 'Nowa wersja poza porównaniem' } });
+    assert.deepEqual(await readComparison(payload, admin, comparison.comparisonKey), pinned);
+    const foreignRevision = await saveScenario(payload, other, { scenarioKey: 'foreign', expectedRevision: 0, requestKey: randomUUID(), input: pairInputs[0] });
+    const foreignRun = await prepareComparisonRun(payload, other, { revisionId: foreignRevision.id, requestKey: randomUUID() });
+    await assert.rejects(saveComparison(payload, admin, { ...comparisonCommand, requestKey: randomUUID(), runIds: [pairRuns[0].runId, foreignRun.runId] }));
+    const editor = await payload.create({ collection: 'users', data: { email: 'editor@example.invalid', password: randomBytes(24).toString('hex'), role: 'editor' } });
+    for (const actor of [other, editor, baker, null]) {
+      await assert.rejects(readComparison(payload, actor, comparison.comparisonKey));
+      await assert.rejects(saveComparison(payload, actor, { ...comparisonCommand, requestKey: randomUUID() }));
+      await assert.rejects(prepareComparisonRun(payload, actor, { revisionId: pairRevisions[0].id, requestKey: randomUUID() }));
+      if (actor?.role === 'administrator') assert.equal((await payload.find({ collection: 'scenario-comparisons', user: actor, overrideAccess: false, depth: 3 })).docs.length, 0);
+      else await assert.rejects(payload.find({ collection: 'scenario-comparisons', user: actor, overrideAccess: false, depth: 3 }));
+    }
+    await assert.rejects(payload.create({ collection: 'scenario-comparisons', user: admin, overrideAccess: false, context: { scenarioAppend: '5ciastek.scenario-service-append' }, data: { owner: admin.id, comparisonKey: randomUUID(), requestKey: randomUUID(), schemaVersion: 1, fingerprint: comparison.fingerprint, runs: comparisonCommand.runIds, manifest: comparison.manifest } }));
+    await assert.rejects(payload.create({ collection: 'scenario-comparisons', user: admin, overrideAccess: true, context: { scenarioAppend: true }, data: { owner: admin.id, comparisonKey: randomUUID(), requestKey: randomUUID(), schemaVersion: 1, fingerprint: comparison.fingerprint, runs: comparisonCommand.runIds, manifest: comparison.manifest } }));
+    await assert.rejects(payload.update({ collection: 'scenario-comparisons', id: comparison.id, user: admin, overrideAccess: false, data: { runs: [foreignRun.runId] } }));
+    await assert.rejects(payload.delete({ collection: 'scenario-comparisons', id: comparison.id, user: admin, overrideAccess: false }));
+    const comparisonFailures = payload.collections['scenario-comparisons'].config.hooks!.afterChange ??= [];
+    comparisonFailures.push(() => { throw new Error('Injected comparison append failure'); });
+    const retryComparison = { ...comparisonCommand, requestKey: randomUUID(), comparisonKey: randomUUID() };
+    await assert.rejects(saveComparison(payload, admin, retryComparison), /Injected comparison/);
+    comparisonFailures.pop();
+    assert.equal((await independent.execute('SELECT count(*) AS n FROM scenario_comparisons')).rows[0].n, 1);
+    const comparisonReader = createClient({ url: process.env.DATABASE_URI });
+    await comparisonReader.execute('BEGIN'); await comparisonReader.execute('SELECT id FROM scenario_comparisons');
+    try { await assert.rejects(saveComparison(payload, admin, retryComparison), /SQLITE_BUSY/); }
+    finally { await comparisonReader.execute('ROLLBACK'); comparisonReader.close(); }
+    assert.equal((await independent.execute('SELECT count(*) AS n FROM scenario_comparisons')).rows[0].n, 1);
+    assert.equal((await independent.execute('SELECT count(*) AS n FROM scenario_comparisons_rels')).rows[0].n, 2);
+    const confirmedRetry = await saveComparison(payload, admin, retryComparison);
+    assert.equal((await saveComparison(payload, admin, retryComparison)).id, confirmedRetry.id);
     await assert.rejects(readRevision(payload, admin, 'capacity', first.id), /Brak dostępu/);
     await assert.rejects(readRevision(payload, other, 'test', first.id));
     const weeklyInput = upgradeScenario(command.input);
@@ -159,7 +229,9 @@ test('scenario revisions are owned, immutable, idempotent and independently comm
     await payload.update({ collection: 'users', id: other.id, overrideAccess: true, data: { email: 'other@example.invalid', password: recoveryPassword } });
     assert.equal((await payload.login({ collection: 'users', data: { email: 'other@example.invalid', password: recoveryPassword } })).user?.id, other.id);
     const expected = { revisions: (await payload.find({ collection: 'scenario-revisions', user: admin, overrideAccess: false, depth: 0, sort: 'id', limit: 0 })).docs,
-      runs: (await payload.find({ collection: 'scenario-runs', user: admin, overrideAccess: false, depth: 0, sort: 'id', limit: 0 })).docs };
+      runs: (await payload.find({ collection: 'scenario-runs', user: admin, overrideAccess: false, depth: 0, sort: 'id', limit: 0 })).docs,
+      comparisons: (await payload.find({ collection: 'scenario-comparisons', user: admin, overrideAccess: false, depth: 0, sort: 'id', limit: 0 })).docs,
+      pinned: await readComparison(payload, admin, comparison.comparisonKey) };
     await writeFile(join(directory, 'expected.json'), JSON.stringify(expected));
     await payload.destroy(); destroyed = true;
     await copyFile(join(directory, 'source.db'), join(directory, 'restored.db'));

@@ -9,6 +9,7 @@ import { ScenarioInputs } from './ScenarioInputs';
 
 const actions = vi.hoisted(() => ({ load: vi.fn(), save: vi.fn(), run: vi.fn() }));
 vi.mock('../scenario.actions', () => ({ loadWorkspaceAction: actions.load, saveScenarioAction: actions.save, runScenarioAction: actions.run }));
+vi.mock('../comparison.actions', () => ({ listComparisonOptionsAction: vi.fn(async () => ({ ok: true, revisions: [], comparisons: [] })), prepareComparisonAction: vi.fn(), saveComparisonAction: vi.fn(), loadComparisonAction: vi.fn() }));
 const input = scenarioFixture();
 const saved = { input, publications: input.products.map(product => ({ productId: product.id, publicationId: product.publicationId, versionKey: `${product.id}:1`, snapshot: freezeRecipe({ name: product.id, yield: 1, standalone: true, description: 'Test', process: [{ instruction: 'Etap' }], ingredients: [{ ingredient: { id: 1, name: 'Mąka', kind: 'flour', flourType: 'pszenna' }, mass: '500' }] }) })) };
 const data = { ok: true, scenarios: [{ key: 'test', name: input.name }], publications: saved.publications.map(publication => ({ id: publication.publicationId, name: publication.productId, versionKey: publication.versionKey })), revision: { id: 1, number: 1, fingerprint: 'frozen-input', saved }, run: { id: 1, revisionNumber: 1, report: evaluateScenario(saved), input: saved } };
@@ -25,6 +26,18 @@ it('retains the previous report and local input after a save conflict', async ()
   await screen.findByText('Konflikt wersji.');
   expect((screen.getAllByLabelText('Nazwa')[0] as HTMLInputElement).value).toBe('Zmiana niezapisana');
   expect(screen.getByRole('heading', { name: 'Raport · wersja 1 · przebieg 1' })).toBeTruthy();
+});
+it('clones current inputs into a distinct scenario identity and saves without changing the source head', async () => {
+  actions.save.mockResolvedValue({ ok: true, revision: { ...data.revision, id: 2 } });
+  render(<ScenarioWorkspace scenarioKey="test" />);
+  await screen.findByRole('heading', { name: 'Raport · wersja 1 · przebieg 1' });
+  fireEvent.change(screen.getAllByLabelText('Nazwa')[0], { target: { value: 'Nowe wejścia B' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Utwórz odrębny wariant z bieżących wejść' }));
+  expect(screen.queryByRole('article', { name: 'Raport zapisanego przebiegu' })).toBeNull();
+  fireEvent.click(screen.getByRole('button', { name: 'Zapisz nową wersję' }));
+  await waitFor(() => expect(actions.save).toHaveBeenCalled());
+  expect(actions.save.mock.calls[0][0]).toMatchObject({ expectedRevision: 0, input: { name: 'Nowe wejścia B' } });
+  expect(actions.save.mock.calls[0][0].scenarioKey).not.toBe('test');
 });
 it('extends a historical v1 into a new weekly draft without relabeling its report', async () => {
   render(<ScenarioWorkspace scenarioKey="test" />);

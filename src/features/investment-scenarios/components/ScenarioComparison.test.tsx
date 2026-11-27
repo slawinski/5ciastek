@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { ScenarioComparison } from './ScenarioComparison';
 import ScenarioWorkspace from './ScenarioWorkspace';
@@ -21,6 +21,16 @@ beforeEach(() => {
   actions.prepare.mockImplementation(async ({ revisionId }) => ({ ok: true, run: run(revisionId) }));
 });
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
+it('links missing input reasons in pinned reports to the corresponding editable variant', async () => {
+  actions.load.mockResolvedValue({ ok: true, comparison: { comparisonKey: 'pinned', runs: [run(1), run(2)] } });
+  render(<ScenarioComparison comparisonKey="pinned" />);
+  await screen.findByText('Odczytano dokładnie zapisane przebiegi.');
+  fireEvent.click(screen.getByText('Pełny zapisany raport: variant-1 · przebieg 1'));
+  const links = within(screen.getAllByRole('article', { hidden: true })[0]).getAllByRole('link', { name: 'Uzupełnij podstawę' });
+  expect(links.length).toBeGreaterThan(0);
+  expect(links.every(link => link.getAttribute('href') === '/investment-scenarios/variant-1')).toBe(true);
+  expect(document.querySelector('a[href="#scenario-inputs"]')).toBeNull();
+});
 it('recomputes two distinct saved revisions before selection and retries an unconfirmed save unchanged', async () => {
   actions.save.mockRejectedValueOnce(new Error('lost confirmation')).mockResolvedValueOnce({ ok: true, comparisonKey: 'saved-pair' });
   render(<ScenarioComparison revisionId={1} />);

@@ -109,3 +109,35 @@ Playwright/Chromium drove the optimized app at `127.0.0.1:3198` against the smok
 | 200% CSS zoom at desktop | Document width 1440, retained text/reflow; [image](mvp-two-zoom.png) |
 
 Reduced motion was active for this matrix. This is CSS zoom, not a claim of native-menu zoom or an exhaustive accessibility audit. Domain tests exercise queue-window equality/violation/missing bounds, exact stock/carry conservation, and outside-week replenishment; not every numeric boundary was manually re-entered in the browser. Deferred-response logout/error lifecycle is covered by component tests; a real network interruption/logout race was not injected in this browser pass. Final LFG review, browser gate, PR/CI and actual-data approvals remain separate receipts.
+
+## Final review and browser gate — 2026-11-27
+
+Reviewed source: `c5f99f5` plus the behavior-preserving simplification; corrected domain checkpoint **`a8c5e09`**. The final UI link correction and this evidence update are the subsequent shipping delta. Review run `mvp-two-bounded-20261127` retained five concrete findings. A fresh independent validator reproduced all five before correction and verified their fixes afterwards:
+
+1. Monthly physical movements now preserve waste/loss and source-lot identity: 100 produced, 50 sold and 50 wasted cannot support another sale; revenue is 1000 PLN, not 2000.
+2. All mapped production/preparation reservations enter the combined resource-capacity sweep, including equipment and roles absent from preparation definitions. Adjacent full-capacity 48-hour profiles remain unverified; non-overlapping profiles can qualify.
+3. Preparation validation rejects fractional staffing/capacity, unknown resources, demand segments outside the operation, inconsistent units/measurement context, overlapping availability and dependency cycles. Required reservations also must finish by the declared replenishment readiness.
+4. Fixed opening-WIP failures are attributed to people, machines or both by failed resource; historical timestamps and clipped labor exposure remain unchanged.
+5. A time-based pool without an established profile allocation remains unverified instead of receiving a produced-piece ratio. No allocation API or inferred labor basis was introduced.
+
+New tests were observed failing before each correction. The independent follow-up ran 39 affected tests and reported all five resolved, with no unapplied review residuals. Review coverage was source-led; no different-family CLI was available. The fresh validator was a separate agent context, not a claim of cross-model independence. Security inspection confirmed the refined v2 schema remains enforced at server save and run boundaries without changing owner permissions.
+
+Final commands under Node **24.22.3** passed: lint, typecheck, **188 unit tests in 26 files**, five integration tests, production build, recipe production smoke, expanded scenario/comparison production smoke, and security/audit (zero vulnerabilities). The five-test integration, recipe smoke and security pass followed the domain review corrections; the final UI-only link change then passed 23 focused component tests, lint/typecheck, all 188 unit tests, a new production build and scenario HTTP smoke. Logs remain in `mvp-two-final/` above.
+
+The UI finish review found a dead corrective anchor inside read-only comparison reports. Links now open the corresponding editable variant; a component regression was observed failing before the fix and passed afterwards. The actual rebuilt browser followed the incomplete variant's “Uzupełnij podstawę” link into its workspace and logged out successfully. The UI mechanical detector returned an empty findings array.
+
+### Pipeline browser result: PASS
+
+Driver: harness-exposed Playwright browser surface. Server: smoke-owned built application at `127.0.0.1:3198`, free port checked before launch. Final domain source `a8c5e09`; the corrective-link check used its rebuilt UI delta.
+
+| Affected route | Result | Observed behavior |
+|---|---|---|
+| `/` | PASS | Root served and rendered |
+| `/recipes` | PASS | Real synthetic owner login and publication catalog |
+| `/investment-scenarios` | PASS | Weekly creation/save/run/reopen from the integrated pass; empty/new workspace and comparison selection |
+| `/investment-scenarios/[scenarioKey]` | PASS | Historical v1/v2 readback, clone/save, keyboard Enter run, editable calendar/stale report, qualified month/outlay and source reasons |
+| `/investment-scenarios/comparisons/[comparisonKey]` | PASS | Real recomputation of two saved revisions, immutable save/reopen, 60-month vs incomplete variant, corrective navigation and protected-data clearing on logout |
+
+Final 390/768/1440 widths and 200% CSS zoom again matched document widths with no horizontal page overflow; screenshots above were refreshed. Reduced motion preserved all information. Keyboard Tab produced a visible focus indicator; keyboard Enter executed the run. No application page errors/new flow-attributable console errors were observed; an expired token from the prior disposable database produced the expected initial unauthorized request before fresh login. No external human verification was needed. No route was skipped. Browser harnesses were terminated after checks and their temporary databases removed; no watch process is left holding this session open.
+
+No remaining review finding is accepted as deferred debt. Hosted PR/CI results belong to the shipping record, and actual-account/data release remains the repository/service owner's decision under P0.

@@ -2,10 +2,12 @@ import { z } from 'zod';
 import { scenarioSchema, savedInputSchema, type SavedInput } from './schema';
 import { reportSchema, runBodySchema } from './report-schema';
 import { scenarioV2Schema, savedInputV2Schema, type SavedInputV2 } from './schema-v2';
+import { monthReportSchema } from '../economics-investment/month';
 
 export const versionedScenarioSchema = z.union([scenarioSchema, scenarioV2Schema]);
 export const versionedSavedInputSchema = z.union([savedInputSchema, savedInputV2Schema]);
 export const reportV2Schema = reportSchema.extend({ engineVersion: z.literal('investment-scenario/2'),
+  monthly: monthReportSchema.nullable(),
   process: reportSchema.shape.process.extend({
     laborExposure: z.record(z.string(), z.strictObject({ before: z.number().nonnegative(), inside: z.number().nonnegative(), after: z.number().nonnegative() })),
     closingWip: z.array(z.strictObject({ operationId: z.string(), batchId: z.string(), start: z.string(), plannedEnd: z.string() })),

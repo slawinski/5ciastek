@@ -3,6 +3,7 @@ import { useState } from 'react';
 import Button from '@/components/Button';
 import { scenarioV2Schema } from '../schema-v2';
 import { ScenarioInputs, type FormValue, type PublicationOption } from './ScenarioInputs';
+import { ScenarioMonthInputs } from './ScenarioMonthInputs';
 
 /** Extends the existing sourced editor; edits remain drafts until the common save receipt. */
 export function ScenarioWeekInputs({ value, onChange, publications, revealPath }: { value: FormValue; onChange: (value: FormValue) => void; publications: PublicationOption[]; revealPath: string }) {
@@ -26,6 +27,7 @@ export function ScenarioWeekInputs({ value, onChange, publications, revealPath }
     {parsed.success && <label htmlFor="batch-template">Partia wzorcowa<select id="batch-template" value={selected || parsed.data.batches[0].id} onChange={event => setSelected(event.target.value)}>{parsed.data.batches.map(batch => <option key={batch.id} value={batch.id}>{batch.productId} · {batch.id}</option>)}</select></label>}
     <Button type="button" disabled={!parsed.success} onClick={addBatch}>Dodaj kolejną partię produktu</Button>
     {!parsed.success && <p>Popraw bieżące wejścia przed skopiowaniem partii. Źródłowe pola pozostają edytowalne poniżej.</p>}
-    <ScenarioInputs value={value} onChange={onChange} publications={publications} revealPath={revealPath} />
+     <ScenarioInputs value={value} onChange={onChange} publications={publications} revealPath={revealPath} />
+     <ScenarioMonthInputs value={value} onChange={onChange} publications={publications} revealPath={revealPath} />
   </section>;
 }

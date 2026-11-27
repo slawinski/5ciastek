@@ -4,6 +4,7 @@ import { evaluateWeek } from '../process-execution/week';
 import { evaluateWeeklyStock } from '../stock-inventory/recipe-coverage';
 import { evaluateEconomics } from '../economics-investment/evaluate';
 import { decimal, divide, money } from '../economics-investment/money';
+import { evaluateMonth } from '../economics-investment/month';
 
 export const ENGINE_V2 = 'investment-scenario/2' as const;
 export function evaluateScenarioV2(raw: SavedInputV2) {
@@ -12,7 +13,8 @@ export function evaluateScenarioV2(raw: SavedInputV2) {
   const { recipeRequirements, ...stock } = evaluateWeeklyStock(saved, process);
   const economics = evaluateEconomics(economicInput(saved), stock, process);
   economics.contributionPerBatch = economics.contribution === null ? null : money(divide(decimal(economics.contribution), decimal(String(input.batches.length))));
+  const monthly = evaluateMonth(saved, process, stock, economics);
   return { engineVersion: ENGINE_V2, process, stock, economics,
-    recipeRequirements,
+    recipeRequirements, monthly,
   };
 }
